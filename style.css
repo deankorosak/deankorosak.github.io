@@ -3,7 +3,7 @@
 /*!normalize.css v8.0.1 | MIT License | github.com/necolas/normalize.css*/
 
 html {
-    line-height: 1.25;
+    line-height: 1.5;
     -webkit-text-size-adjust: 100%
 }
 
@@ -62,9 +62,9 @@ h5 {
 @font-face {
     font-family: lora;
     font-style: normal;
-    font-weight: 400;
+    font-weight: 200;
     font-display: swap;
-    src: local("Lora Regular 400"), local("Lora-Regular"), url(fonts/Lora-Regular.ttf)format("ttf")
+    src: local("Lora Regular 400"), local("Lora-Regular"), url(fonts/Lora-Regular.ttf)format("truetype")
 }
 
 @font-face {
@@ -116,7 +116,7 @@ code {
 /* If the screen size is 601px wide or more, set the font-size of <div> to 80px */
 @media screen and (min-width: 601px) {
   #container {
-    font-size: 21px;
+    font-size: 18px;
   }
 }
 
