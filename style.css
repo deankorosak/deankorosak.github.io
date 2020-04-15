@@ -108,6 +108,10 @@ code {
     font-family: roboto mono, monospace
 }
 
+#temp {
+	font-family: lora
+}
+
 
 /* If the screen size is 601px wide or more, set the font-size of <div> to 80px */
 @media screen and (min-width: 601px) {
