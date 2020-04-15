@@ -11,6 +11,41 @@ body {
     margin: 0
 }
 
+html {
+    font-size: 16px;
+    letter-spacing: .33px;
+    scroll-behavior: smooth;
+    touch-action: manipulation
+}
+
+html,
+body {
+    min-width: 20rem;
+    overflow-x: hidden
+}
+
+body {
+    color: #000;
+    background: #fff;
+    font-weight: 400;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    box-sizing: border-box
+}
+
+body * {
+    box-sizing: inherit
+}
+
+h1,
+h2,
+h3,
+h4,
+h5 {
+    font-weight: 400
+}
+
 
 @font-face {
     font-family: roboto;
