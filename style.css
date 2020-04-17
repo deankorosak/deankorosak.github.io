@@ -51,12 +51,23 @@ h5 {
 	visibility: hidden;
 }
 
-#container {
+#container
+{
 	/*width: 700px;*/
 	width: 50%;
 	margin-left: auto;
 	margin-right: auto;
 	text-align: left;
+}
+#code
+{
+	/*width: 700px;*/
+	width: 50%;
+	margin-left: auto;
+	margin-right: auto;
+	text-align: left;
+	background-color: #FEF5E7;
+	padding: 5px 10px 5px 10px;
 }
 
 @font-face {
@@ -112,25 +123,36 @@ code {
 	font-family: lora
 }
 
+#code {
+	font-family: roboto mono, monospace
+}
+
 
 /* If the screen size is 601px wide or more, set the font-size of <div> to 80px */
 @media screen and (min-width: 601px) {
-  #container {
+  #container
+  {
     font-size: 18px;
+  }
+  #code
+  {
+    font-size: 15px;
   }
 }
 
 /* If the screen size is 600px wide or less, set the font-size of <div> to 30px */
 @media screen and (max-width: 600px) {
-  #container {
+  #container
+  {
     font-size: 16px;
     width: 80%;
   }
+  #code
+  {
+    font-size: 13px;
+    width: 80%;
+  }
 }
-
-
-
-
 
 
 
