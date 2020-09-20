@@ -89,6 +89,14 @@ h5 {
 }
 
 @font-face {
+    font-family: cmu;
+    font-style: normal;
+    font-weight: 200;
+    font-display: swap;
+    src: local("CMUSerif"), local("CMUSerif"), url(fonts/CMUSerif-Roman.otf)format("otf")
+}
+
+@font-face {
     font-family: roboto;
     font-style: italic;
     font-weight: 300;
