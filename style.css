@@ -59,6 +59,16 @@ h5 {
 	margin-right: auto;
 	text-align: left;
 }
+
+#cm-text
+{
+	/*width: 700px;*/
+	width: 50%;
+	margin-left: auto;
+	margin-right: auto;
+	text-align: left;
+}
+
 #code
 {
 	/*width: 700px;*/
