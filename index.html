@@ -31,6 +31,7 @@
         </article>
 
         <!-- Add more blog posts here -->
+
     </main>
     <footer>
         <p>&copy; 2024 Dean Korošak</p>
@@ -47,5 +48,30 @@
     </script>
     <!-- Include MathJax Library -->
     <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+    <!-- JavaScript to Load Blog Posts -->
+    <script>
+        // Array of blog post files
+        const posts = ['posts/post1.html', 'posts/post2.html'];
+
+        // Function to load blog posts dynamically
+        function loadPosts() {
+            const contentElement = document.getElementById('content');
+            posts.forEach(file => {
+                fetch(file)
+                    .then(response => response.text())
+                    .then(data => {
+                        const postElement = document.createElement('div');
+                        postElement.innerHTML = data;
+                        contentElement.appendChild(postElement);
+                    })
+                    .catch(error => console.error('Error loading post:', error));
+            });
+        }
+
+        // Load posts on page load
+        document.addEventListener('DOMContentLoaded', loadPosts);
+    </script>
+
 </body>
 </html>
