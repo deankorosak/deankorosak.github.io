@@ -3,47 +3,28 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>odprtakuhna</title>
-    <!-- Link to LaTeX-like Google Font -->
+    <title>My Writing Blog</title>
     <link href="https://fonts.googleapis.com/css2?family=EB+Garamond&display=swap" rel="stylesheet">
-    <!-- Link to External CSS -->
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
     <header>
-        <h1>odprtakuhna</h1>
+        <h1>Welcome to My Writing Blog</h1>
     </header>
-    <main>
-        <!-- Blog Post 1 -->
-        <article>
-            <h2>My First Post</h2>
-            <p><em>Published on: September 15, 2024</em></p>
-            <p>Welcome to my blog! This is where I share my thoughts and writings.</p>
-
-            <!-- Example of inline LaTeX equation -->
-            <p>Here is an inline equation: $E = mc^2$.</p>
-
-            <!-- Example of display LaTeX equation -->
-            <p>And here is a display equation:</p>
-            $$\int_{a}^{b} x^2 \, dx = \frac{b^3}{3} - \frac{a^3}{3}$$
-
-            <p>Stay tuned for more posts! ščćđž ŠČĆŽĐ</p>
-        </article>
-
-        <!-- Add more blog posts here -->
-
+    <main id="content">
+        <!-- Blog posts will be loaded here -->
     </main>
     <footer>
-        <p>&copy; 2024 Dean Korošak</p>
+        <p>&copy; 2024 Dean Korosak</p>
     </footer>
 
     <!-- MathJax Configuration for LaTeX Rendering -->
     <script>
         MathJax = {
-          tex: {
-            inlineMath: [['$', '$'], ['\\(', '\\)']],
-            displayMath: [['$$', '$$'], ['\\[', '\\]']]
-          }
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']]
+            }
         };
     </script>
     <!-- Include MathJax Library -->
@@ -51,27 +32,28 @@
 
     <!-- JavaScript to Load Blog Posts -->
     <script>
-        // Array of blog post files
-        const posts = ['posts/post1.html', 'posts/post2.html'];
+        document.addEventListener('DOMContentLoaded', function() {
+            // Array of blog post files
+            const posts = ['posts/post1.html', 'posts/post2.html'];
 
-        // Function to load blog posts dynamically
-        function loadPosts() {
-            const contentElement = document.getElementById('content');
-            posts.forEach(file => {
-                fetch(file)
-                    .then(response => response.text())
-                    .then(data => {
-                        const postElement = document.createElement('div');
-                        postElement.innerHTML = data;
-                        contentElement.appendChild(postElement);
-                    })
-                    .catch(error => console.error('Error loading post:', error));
-            });
-        }
+            // Function to load blog posts dynamically
+            function loadPosts() {
+                const contentElement = document.getElementById('content');
+                posts.forEach(file => {
+                    fetch(file)
+                        .then(response => response.text())
+                        .then(data => {
+                            const postElement = document.createElement('div');
+                            postElement.innerHTML = data;
+                            contentElement.appendChild(postElement);
+                        })
+                        .catch(error => console.error('Error loading post:', error));
+                });
+            }
 
-        // Load posts on page load
-        document.addEventListener('DOMContentLoaded', loadPosts);
+            // Load posts after DOM is fully loaded
+            loadPosts();
+        });
     </script>
-
 </body>
 </html>
