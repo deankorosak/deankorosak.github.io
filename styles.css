@@ -1,28 +1,76 @@
-body {
-    font-family: Arial, sans-serif;
-    line-height: 1.6;
+/* Basic Reset */
+* {
     margin: 0;
     padding: 0;
-    background-color: #f4f4f4;
+    box-sizing: border-box;
 }
 
-header {
-    background-color: #333;
-    color: #fff;
-    padding: 10px 0;
-    text-align: center;
-}
-
-main {
+body {
+    font-family: 'EB Garamond', serif; /* LaTeX-like font */
+    background-color: #fff; /* White background */
+    color: #333; /* Dark text for contrast */
+    line-height: 1.6;
+    margin: 0;
     padding: 20px;
 }
 
-footer {
-    background-color: #333;
-    color: #fff;
+header {
     text-align: center;
-    padding: 10px 0;
-    position: fixed;
-    width: 100%;
-    bottom: 0;
+    padding: 20px 0;
+    margin-bottom: 20px;
+}
+
+h1, h2 {
+    font-weight: normal; /* LaTeX-like style */
+}
+
+main {
+    max-width: 800px;
+    margin: auto;
+    padding: 20px;
+}
+
+article {
+    margin-bottom: 40px;
+    border-bottom: 1px solid #eee; /* Minimal separator between posts */
+    padding-bottom: 20px;
+}
+
+article em {
+    font-size: 0.9em;
+    color: #777;
+    display: block;
+    margin-bottom: 10px;
+}
+
+footer {
+    text-align: center;
+    margin-top: 40px;
+    font-size: 0.8em;
+    color: #aaa;
+}
+
+/* Responsive Design: Media Queries */
+@media (max-width: 768px) {
+    header, footer {
+        padding: 20px 0;
+    }
+
+    main {
+        padding: 15px;
+    }
+}
+
+@media (max-width: 480px) {
+    header h1 {
+        font-size: 1.5em;
+    }
+
+    article h2 {
+        font-size: 1.2em;
+    }
+
+    footer {
+        font-size: 0.9em;
+    }
 }

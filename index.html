@@ -4,6 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My Writing Blog</title>
+    <!-- Link to LaTeX-like Google Font -->
+    <link href="https://fonts.googleapis.com/css2?family=EB+Garamond&display=swap" rel="stylesheet">
+    <!-- Link to External CSS -->
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -11,13 +14,36 @@
         <h1>Welcome to My Writing Blog</h1>
     </header>
     <main>
+        <!-- Blog Post 1 -->
         <article>
             <h2>My First Blog Post</h2>
+            <p><em>Published on: September 15, 2024</em></p>
             <p>Welcome to my blog! This is where I share my thoughts and writings.</p>
+
+            <!-- Example of inline LaTeX equation -->
+            <p>Here is an inline equation: $E = mc^2$.</p>
+
+            <!-- Example of display LaTeX equation -->
+            <p>And here is a display equation:</p>
+            $$\int_{a}^{b} x^2 \, dx = \frac{b^3}{3} - \frac{a^3}{3}$$
         </article>
+
+        <!-- Add more blog posts here -->
     </main>
     <footer>
         <p>&copy; 2024 Dean Korosak</p>
     </footer>
+
+    <!-- MathJax Configuration for LaTeX Rendering -->
+    <script>
+        MathJax = {
+          tex: {
+            inlineMath: [['$', '$'], ['\\(', '\\)']],
+            displayMath: [['$$', '$$'], ['\\[', '\\]']]
+          }
+        };
+    </script>
+    <!-- Include MathJax Library -->
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
 </body>
 </html>
