@@ -20,6 +20,7 @@ header {
     margin-bottom: 20px;
     background-color: #fff; /* White background for the header */
     color: #333; /* Dark text for contrast */
+    border-bottom: 1px solid #eee; /* Optional border for visual consistency */
 }
 
 h1, h2 {
@@ -52,6 +53,14 @@ footer {
     color: #333; /* Dark text for contrast */
     background-color: #fff; /* White background for the footer */
     padding: 20px 0;
+    border-top: 1px solid #eee; /* Optional border for visual consistency */
+}
+
+/* Ensure consistent rendering on all devices */
+img {
+    max-width: 100%;
+    height: auto;
+    display: block; /* Prevents inline-block space issues */
 }
 
 /* Responsive Design: Media Queries */
@@ -78,3 +87,4 @@ footer {
         font-size: 0.9em;
     }
 }
+
