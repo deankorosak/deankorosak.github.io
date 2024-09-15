@@ -46,6 +46,8 @@
                             const postElement = document.createElement('div');
                             postElement.innerHTML = data;
                             contentElement.appendChild(postElement);
+                            // Re-render MathJax to process LaTeX in the newly added content
+                            MathJax.typesetPromise([postElement]);
                         })
                         .catch(error => console.error('Error loading post:', error));
                 });
