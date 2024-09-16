@@ -59,12 +59,12 @@
 
                 // Extract the title element from the post
                 const titleElement = postElement.querySelector('h2');
-                if (titleElement) {
+                if (titleElement && metadata.categories && metadata.categories.length > 0) {
                     // Create a categories element to display categories after the title
-                    const categoriesElement = document.createElement('span');
+                    const categoriesElement = document.createElement('div');
                     categoriesElement.className = 'categories';
-                    categoriesElement.textContent = ` (${(metadata.categories || []).join(', ')})`;
-                    titleElement.appendChild(categoriesElement);
+                    categoriesElement.textContent = `Categories: ${(metadata.categories || []).join(', ')}`;
+                    titleElement.after(categoriesElement); // Insert categories element after the title
                 }
 
                 contentElement.appendChild(postElement);

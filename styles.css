@@ -73,11 +73,12 @@ img {
 }
 
 .categories {
-    font-size: 0.8em;
-    color: #666;
-    margin-left: 5px;
+    font-size: 0.9em;
+    color: #555;
+    margin-top: 5px;
+    padding-left: 5px;
+    border-left: 3px solid #ddd; /* Optional: add a left border to make it stand out */
 }
-
 
 /* Responsive Design: Media Queries */
 @media (max-width: 768px) {
