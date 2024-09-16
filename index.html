@@ -30,20 +30,45 @@
     <!-- Include MathJax Library -->
     <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
 
-    <!-- JavaScript to Load Blog Posts -->
+    <!-- JavaScript to Load Blog Posts and Extract Metadata -->
     <script>
         document.addEventListener('DOMContentLoaded', async function() {
-            // Array of blog post files (ensure they are ordered as desired, most recent first)
+            // Array of blog post files (ensure they are ordered as desired)
             const posts = ['posts/post2.html', 'posts/post1.html'];
 
             // Function to load a single blog post
             async function loadPost(file) {
                 const response = await fetch(file);
                 const data = await response.text();
+
+                // Extract metadata from the HTML comment at the top
+                const metadataMatch = data.match(/<!--([\s\S]*?)-->/);
+                let metadata = {};
+                if (metadataMatch) {
+                    try {
+                        metadata = JSON.parse(metadataMatch[1].trim());
+                    } catch (error) {
+                        console.error('Error parsing metadata for:', file);
+                    }
+                }
+
+                // Create an HTML element for the blog post
                 const contentElement = document.getElementById('content');
                 const postElement = document.createElement('div');
-                postElement.innerHTML = data;
+                postElement.innerHTML = data.replace(/<!--[\s\S]*?-->/, ''); // Remove metadata comment before displaying
                 contentElement.appendChild(postElement);
+
+                // Create a metadata element to display tags, date, and author
+                const metadataElement = document.createElement('div');
+                metadataElement.className = 'metadata';
+                metadataElement.innerHTML = `
+                    <p><strong>Title:</strong> ${metadata.title || 'Untitled'}</p>
+                    <p><strong>Author:</strong> ${metadata.author || 'Unknown'}</p>
+                    <p><strong>Date:</strong> ${metadata.date || 'Unknown'}</p>
+                    <p><strong>Tags:</strong> ${(metadata.tags || []).join(', ')}</p>
+                `;
+                postElement.prepend(metadataElement);
+
                 // Re-render MathJax to process LaTeX in the newly added content
                 MathJax.typesetPromise([postElement]);
             }

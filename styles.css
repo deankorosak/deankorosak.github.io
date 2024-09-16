@@ -63,6 +63,15 @@ img {
     display: block; /* Prevents inline-block space issues */
 }
 
+.metadata {
+    background-color: #f9f9f9;
+    padding: 10px;
+    border: 1px solid #ddd;
+    margin-bottom: 10px;
+    font-size: 0.9em;
+    color: #555;
+}
+
 /* Responsive Design: Media Queries */
 @media (max-width: 768px) {
     header, footer {
