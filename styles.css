@@ -72,6 +72,13 @@ img {
     color: #555;
 }
 
+.categories {
+    font-size: 0.8em;
+    color: #666;
+    margin-left: 5px;
+}
+
+
 /* Responsive Design: Media Queries */
 @media (max-width: 768px) {
     header, footer {

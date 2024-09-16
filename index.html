@@ -56,18 +56,18 @@
                 const contentElement = document.getElementById('content');
                 const postElement = document.createElement('div');
                 postElement.innerHTML = data.replace(/<!--[\s\S]*?-->/, ''); // Remove metadata comment before displaying
-                contentElement.appendChild(postElement);
 
-                // Create a metadata element to display tags, date, and author
-                const metadataElement = document.createElement('div');
-                metadataElement.className = 'metadata';
-                metadataElement.innerHTML = `
-                    <p><strong>Title:</strong> ${metadata.title || 'Untitled'}</p>
-                    <p><strong>Author:</strong> ${metadata.author || 'Unknown'}</p>
-                    <p><strong>Date:</strong> ${metadata.date || 'Unknown'}</p>
-                    <p><strong>Tags:</strong> ${(metadata.tags || []).join(', ')}</p>
-                `;
-                postElement.prepend(metadataElement);
+                // Extract the title element from the post
+                const titleElement = postElement.querySelector('h2');
+                if (titleElement) {
+                    // Create a categories element to display categories after the title
+                    const categoriesElement = document.createElement('span');
+                    categoriesElement.className = 'categories';
+                    categoriesElement.textContent = ` (${(metadata.categories || []).join(', ')})`;
+                    titleElement.appendChild(categoriesElement);
+                }
+
+                contentElement.appendChild(postElement);
 
                 // Re-render MathJax to process LaTeX in the newly added content
                 MathJax.typesetPromise([postElement]);
