@@ -80,6 +80,14 @@ img {
     border-left: 3px solid #ddd; /* Optional: add a left border to make it stand out */
 }
 
+.full-content {
+    display: none; /* Ensures full content is hidden by default */
+}
+
+h2 {
+    cursor: pointer; /* Indicates that the title is clickable */
+}
+
 /* Responsive Design: Media Queries */
 @media (max-width: 768px) {
     header, footer {

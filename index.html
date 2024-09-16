@@ -30,11 +30,11 @@
     <!-- Include MathJax Library -->
     <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
 
-    <!-- JavaScript to Load Blog Posts and Extract Metadata -->
-    <script>
+       <!-- JavaScript to Load Blog Posts and Handle Expand/Collapse -->
+       <script>
         document.addEventListener('DOMContentLoaded', async function() {
-            // Array of blog post files (ensure they are ordered as desired)
-            const posts = ['posts/post3.html','posts/post2.html', 'posts/post1.html'];
+            // Array of blog post files
+            const posts = ['posts/post3.html', 'posts/post2.html', 'posts/post1.html'];
 
             // Function to load a single blog post
             async function loadPost(file) {
@@ -48,23 +48,41 @@
                     try {
                         metadata = JSON.parse(metadataMatch[1].trim());
                     } catch (error) {
-                        console.error('Error parsing metadata for:', file);
+                        console.error('Error parsing metadata for:', file, error);
                     }
                 }
 
                 // Create an HTML element for the blog post
                 const contentElement = document.getElementById('content');
                 const postElement = document.createElement('div');
+                postElement.className = 'post'; // Add a class for styling
                 postElement.innerHTML = data.replace(/<!--[\s\S]*?-->/, ''); // Remove metadata comment before displaying
 
                 // Extract the title element from the post
                 const titleElement = postElement.querySelector('h2');
-                if (titleElement && metadata.categories && metadata.categories.length > 0) {
+                if (titleElement) {
+                    // Make the title clickable
+                    titleElement.style.cursor = 'pointer';
+                    titleElement.addEventListener('click', function () {
+                        const fullContent = postElement.querySelector('.full-content');
+                        if (fullContent) {
+                            fullContent.style.display = (fullContent.style.display === 'none' || fullContent.style.display === '') ? 'block' : 'none';
+                        }
+                    });
+
                     // Create a categories element to display categories after the title
-                    const categoriesElement = document.createElement('div');
-                    categoriesElement.className = 'categories';
-                    categoriesElement.textContent = `Categories: ${(metadata.categories || []).join(', ')}`;
-                    titleElement.after(categoriesElement); // Insert categories element after the title
+                    if (metadata.categories && metadata.categories.length > 0) {
+                        const categoriesElement = document.createElement('div');
+                        categoriesElement.className = 'categories';
+                        categoriesElement.textContent = `Categories: ${(metadata.categories || []).join(', ')}`;
+                        titleElement.after(categoriesElement); // Insert categories element after the title
+                    }
+                }
+
+                // Initially hide the full content
+                const fullContent = postElement.querySelector('.full-content');
+                if (fullContent) {
+                    fullContent.style.display = 'none'; // Hide the full content by default
                 }
 
                 contentElement.appendChild(postElement);
