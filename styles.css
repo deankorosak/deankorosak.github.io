@@ -88,6 +88,20 @@ h2 {
     cursor: pointer; /* Indicates that the title is clickable */
 }
 
+/* CSS for Numbered References */
+.references {
+    list-style-type: decimal; /* Uses numbers for list items */
+    margin-left: 0; /* Ensures no left margin */
+    padding-left: 1.5em; /* Adjusts padding to align numbers */
+}
+
+.references li {
+    margin-bottom: 5px; /* Adds some space between reference items */
+    text-indent: 0; /* Resets text indentation */
+    padding-left: 0; /* Ensures text aligns properly with content */
+}
+
+
 /* Responsive Design: Media Queries */
 @media (max-width: 768px) {
     header, footer {
