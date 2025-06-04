@@ -1,0 +1,17 @@
+{
+  "center": [
+    46.441939608454554,
+    15.874061564155861
+  ],
+  "zoom": 12,
+  "layers": [
+    "Mean LST (2019-2024)",
+    "LST Variability (2019-2024)",
+    "Temperature Trend (\u00b0C/year)",
+    "Urban Heat Island Intensity",
+    "Hot Days >35\u00b0C (2019-2024)"
+  ],
+  "study_area": "5.0 km radius around Ptuj",
+  "analysis_period": "2019-2024",
+  "data_points": 107
+}
