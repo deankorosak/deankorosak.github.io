@@ -24084,5 +24084,24 @@
 {"version_major": 2, "version_minor": 0, "model_id": "9945e2c97b224e4eae679cbcc51e1ce2"}
 </script>
 
+<script>
+// Fix for static hosting - replace broken sliders with layer controls
+document.addEventListener('DOMContentLoaded', function() {
+    // Remove broken slider widgets
+    const sliders = document.querySelectorAll('.jupyter-widgets');
+    sliders.forEach(slider => {
+        if (slider.innerHTML.includes('slider') || slider.innerHTML.includes('IntSlider')) {
+            slider.style.display = 'none';
+        }
+    });
+    
+    // Ensure layer control works
+    const layerControl = document.querySelector('.leaflet-control-layers');
+    if (layerControl) {
+        layerControl.style.display = 'block';
+    }
+});
+</script>
+    
 </body>
 </html>
