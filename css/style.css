@@ -1,0 +1,333 @@
+/* ========================================
+   Dean Korošak — Kandidat za rektorja UM
+   Minimalen, berljiv, responsive design
+   ======================================== */
+
+:root {
+  --barva-besedilo: #1a1a1a;
+  --barva-ozadje: #fafaf8;
+  --barva-poudarek: #7b2d3b;
+  --barva-siva: #6b6b6b;
+  --barva-obroba: #e0ddd8;
+  --sirina-besedilo: 38rem;
+  --pisava-serif: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+  --pisava-sans: system-ui, -apple-system, "Segoe UI", Helvetica, Arial, sans-serif;
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  font-size: 18px;
+  scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  font-family: var(--pisava-serif);
+  color: var(--barva-besedilo);
+  background-color: var(--barva-ozadje);
+  line-height: 1.7;
+  padding: 0 1.25rem;
+}
+
+.wrapper {
+  max-width: var(--sirina-besedilo);
+  margin: 0 auto;
+  padding: 2rem 0 4rem;
+}
+
+/* ---- NAVIGACIJA ---- */
+nav {
+  padding: 1.5rem 0 1rem;
+  border-bottom: 1px solid var(--barva-obroba);
+  margin-bottom: 2.5rem;
+}
+
+nav .nav-inner {
+  max-width: var(--sirina-besedilo);
+  margin: 0 auto;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.25rem 1.5rem;
+}
+
+nav .nav-ime {
+  font-family: var(--pisava-sans);
+  font-weight: 700;
+  font-size: 1.05rem;
+  color: var(--barva-besedilo);
+  text-decoration: none;
+  letter-spacing: -0.01em;
+}
+
+nav .nav-ime:hover {
+  color: var(--barva-poudarek);
+}
+
+nav .nav-povezave {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 1.25rem;
+}
+
+nav .nav-povezave a {
+  font-family: var(--pisava-sans);
+  font-size: 0.85rem;
+  color: var(--barva-siva);
+  text-decoration: none;
+  letter-spacing: 0.02em;
+}
+
+nav .nav-povezave a:hover,
+nav .nav-povezave a.aktivna {
+  color: var(--barva-poudarek);
+}
+
+/* ---- TIPOGRAFIJA ---- */
+h1 {
+  font-size: 1.8rem;
+  font-weight: 700;
+  line-height: 1.25;
+  margin-bottom: 0.5rem;
+  letter-spacing: -0.02em;
+}
+
+h2 {
+  font-size: 1.3rem;
+  font-weight: 700;
+  line-height: 1.3;
+  margin-top: 2.5rem;
+  margin-bottom: 0.75rem;
+}
+
+h3 {
+  font-size: 1.05rem;
+  font-weight: 700;
+  line-height: 1.4;
+  margin-top: 2rem;
+  margin-bottom: 0.5rem;
+}
+
+p {
+  margin-bottom: 1.25rem;
+}
+
+a {
+  color: var(--barva-poudarek);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.15em;
+}
+
+a:hover {
+  text-decoration-thickness: 2px;
+}
+
+/* ---- DOMAČA STRAN ---- */
+.domaca-uvod {
+  margin-bottom: 3rem;
+}
+
+.domaca-uvod .podnaslov {
+  font-family: var(--pisava-sans);
+  font-size: 0.9rem;
+  color: var(--barva-siva);
+  margin-bottom: 1.5rem;
+  letter-spacing: 0.01em;
+}
+
+/* ---- ZAPISI ---- */
+.seznam-zapisov {
+  list-style: none;
+}
+
+.seznam-zapisov li {
+  padding: 1rem 0;
+  border-bottom: 1px solid var(--barva-obroba);
+}
+
+.seznam-zapisov li:first-child {
+  border-top: 1px solid var(--barva-obroba);
+}
+
+.seznam-zapisov .datum {
+  font-family: var(--pisava-sans);
+  font-size: 0.8rem;
+  color: var(--barva-siva);
+  display: block;
+  margin-bottom: 0.15rem;
+}
+
+.seznam-zapisov .naslov-zapisa {
+  font-size: 1.05rem;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+.seznam-zapisov .naslov-zapisa a {
+  text-decoration: none;
+}
+
+.seznam-zapisov .naslov-zapisa a:hover {
+  text-decoration: underline;
+}
+
+/* ---- POSAMEZEN ZAPIS ---- */
+.zapis-meta {
+  font-family: var(--pisava-sans);
+  font-size: 0.8rem;
+  color: var(--barva-siva);
+  margin-bottom: 2rem;
+}
+
+.zapis-vsebina p:first-of-type {
+  font-size: 1.05rem;
+}
+
+.zapis-vsebina blockquote {
+  border-left: 3px solid var(--barva-poudarek);
+  padding-left: 1.25rem;
+  margin: 1.5rem 0;
+  color: var(--barva-siva);
+  font-style: italic;
+}
+
+.zapis-vsebina ul,
+.zapis-vsebina ol {
+  margin-bottom: 1.25rem;
+  padding-left: 1.5rem;
+}
+
+.zapis-vsebina li {
+  margin-bottom: 0.4rem;
+}
+
+.nazaj {
+  display: inline-block;
+  margin-top: 2.5rem;
+  font-family: var(--pisava-sans);
+  font-size: 0.85rem;
+}
+
+/* ---- SLIKE ---- */
+.zapis-vsebina img,
+.vsebina img {
+  max-width: 100%;
+  height: auto;
+  margin: 1.5rem 0;
+  border-radius: 2px;
+}
+
+figcaption {
+  font-family: var(--pisava-sans);
+  font-size: 0.8rem;
+  color: var(--barva-siva);
+  margin-top: -1rem;
+  margin-bottom: 1.5rem;
+}
+
+/* ---- O MENI ---- */
+.portret {
+  max-width: 220px;
+  border-radius: 3px;
+  margin-bottom: 1.5rem;
+}
+
+/* ---- NOGA ---- */
+footer {
+  margin-top: 3rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--barva-obroba);
+  font-family: var(--pisava-sans);
+  font-size: 0.78rem;
+  color: var(--barva-siva);
+}
+
+footer a {
+  color: var(--barva-siva);
+}
+
+footer a:hover {
+  color: var(--barva-poudarek);
+}
+
+.social-links {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 0.5rem;
+  align-items: center;
+}
+
+.social-links a {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+}
+
+.social-links svg {
+  width: 20px;
+  height: 20px;
+  fill: var(--barva-siva);
+  transition: fill 0.15s ease;
+}
+
+.social-links a:hover svg {
+  fill: var(--barva-besedilo);
+}
+
+/* ---- ENAČBE (KaTeX) ---- */
+.katex-display {
+  margin: 1.5rem 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+
+/* ---- RESPONSIVE ---- */
+@media (max-width: 600px) {
+  html {
+    font-size: 17px;
+  }
+
+  .wrapper {
+    padding: 1rem 0 3rem;
+  }
+
+  nav {
+    padding: 1rem 0 0.75rem;
+    margin-bottom: 1.75rem;
+  }
+
+  h1 {
+    font-size: 1.5rem;
+  }
+
+  h2 {
+    font-size: 1.15rem;
+  }
+
+  .portret {
+    max-width: 160px;
+  }
+}
+
+/* ---- TISK ---- */
+@media print {
+  body {
+    font-size: 12pt;
+    padding: 0;
+  }
+
+  nav, footer, .nazaj {
+    display: none;
+  }
+
+  a {
+    color: var(--barva-besedilo);
+    text-decoration: none;
+  }
+}
