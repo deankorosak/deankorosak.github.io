@@ -140,6 +140,14 @@ a:hover {
   letter-spacing: 0.01em;
 }
 
+.domaca-uvod blockquote {
+  border-left: 3px solid var(--barva-poudarek);
+  padding-left: 1.25rem;
+  margin: 1.5rem 0;
+  color: var(--barva-siva);
+  font-style: italic;
+}
+
 /* ---- ZAPISI ---- */
 .seznam-zapisov {
   list-style: none;
