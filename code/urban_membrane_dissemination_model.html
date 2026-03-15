@@ -1,0 +1,318 @@
+
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: var(--font-sans, system-ui); color: var(--color-text-primary, #1a1a1a); }
+.grid-wrap { display: flex; gap: 24px; flex-wrap: wrap; padding: 1rem 0; }
+.canvas-col { flex: 1; min-width: 320px; }
+.controls-col { width: 260px; min-width: 240px; }
+canvas { border: 0.5px solid var(--color-border-tertiary, rgba(0,0,0,0.15)); border-radius: var(--border-radius-md, 8px); cursor: crosshair; display: block; }
+.ctrl-group { margin-bottom: 16px; }
+.ctrl-label { font-size: 13px; color: var(--color-text-secondary, #666); margin-bottom: 4px; display: flex; justify-content: space-between; }
+.ctrl-label span { font-weight: 500; color: var(--color-text-primary, #1a1a1a); min-width: 32px; text-align: right; }
+.stats { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 16px; }
+.stat { background: var(--color-background-secondary, #f5f5f5); border-radius: var(--border-radius-md, 8px); padding: 8px 10px; }
+.stat-label { font-size: 11px; color: var(--color-text-secondary, #666); }
+.stat-val { font-size: 18px; font-weight: 500; }
+.legend { font-size: 12px; color: var(--color-text-secondary, #666); margin-bottom: 12px; line-height: 1.6; }
+.legend-item { display: flex; align-items: center; gap: 6px; margin-bottom: 2px; }
+.legend-swatch { width: 12px; height: 12px; border-radius: 2px; flex-shrink: 0; }
+.btn-row { display: flex; gap: 8px; margin-bottom: 16px; }
+.btn-row button { flex: 1; }
+.chart-wrap { position: relative; height: 120px; margin-top: 12px; }
+</style>
+
+<div class="grid-wrap">
+<div class="canvas-col">
+<canvas id="cv"></canvas>
+<div class="chart-wrap"><canvas id="ts"></canvas></div>
+</div>
+<div class="controls-col">
+
+<div class="btn-row">
+<button onclick="initModel()">Reset</button>
+<button id="runBtn" onclick="toggleRun()">Run</button>
+<button onclick="stepModel()">Step</button>
+</div>
+
+<div class="stats">
+<div class="stat"><div class="stat-label">Clusters</div><div class="stat-val" id="sClust">—</div></div>
+<div class="stat"><div class="stat-label">Mean similarity</div><div class="stat-val" id="sSim">—</div></div>
+<div class="stat"><div class="stat-label">Step</div><div class="stat-val" id="sStep">0</div></div>
+<div class="stat"><div class="stat-label">Frozen</div><div class="stat-val" id="sFroz">—</div></div>
+</div>
+
+<div class="legend">
+<div style="font-weight:500; margin-bottom:4px;">Feature channels</div>
+<div class="legend-item"><div class="legend-swatch" style="background:#E24B4A;"></div>Thermal mass (low→high)</div>
+<div class="legend-item"><div class="legend-swatch" style="background:#1D9E75;"></div>Vegetation cover (none→dense)</div>
+<div class="legend-item"><div class="legend-swatch" style="background:#378ADD;"></div>Albedo (dark→reflective)</div>
+<div class="legend-item"><div class="legend-swatch" style="background:#BA7517;"></div>Ventilation permeability</div>
+<div class="legend-item"><div class="legend-swatch" style="background:#D4537E;"></div>Heritage constraint level</div>
+</div>
+
+<div class="ctrl-group">
+<div class="ctrl-label">Grid size <span id="vN">30</span></div>
+<input type="range" min="10" max="60" value="30" step="5" id="rN" oninput="document.getElementById('vN').textContent=this.value">
+</div>
+<div class="ctrl-group">
+<div class="ctrl-label">Traits per feature <span id="vQ">8</span></div>
+<input type="range" min="2" max="20" value="8" step="1" id="rQ" oninput="document.getElementById('vQ').textContent=this.value">
+</div>
+<div class="ctrl-group">
+<div class="ctrl-label">Climate forcing <span id="vT">0.00</span></div>
+<input type="range" min="0" max="100" value="0" step="1" id="rT" oninput="document.getElementById('vT').textContent=(this.value/100).toFixed(2)">
+</div>
+<div class="ctrl-group">
+<div class="ctrl-label">Noise (random mutation) <span id="vNoise">0.00</span></div>
+<input type="range" min="0" max="20" value="0" step="1" id="rNoise" oninput="document.getElementById('vNoise').textContent=(this.value/100).toFixed(2)">
+</div>
+<div class="ctrl-group">
+<div class="ctrl-label">Heritage rigidity <span id="vH">0.00</span></div>
+<input type="range" min="0" max="100" value="0" step="1" id="rH" oninput="document.getElementById('vH').textContent=(this.value/100).toFixed(2)">
+</div>
+
+<button onclick="sendPrompt('Explain the mapping between Axelrod\'s cultural dissemination model and the urban membrane framework in this simulation')">Explain the model mapping</button>
+</div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+const F = 5;
+let N, Q, grid, running = false, step = 0, animId = null;
+let tsData = { steps: [], clusters: [], similarity: [] };
+let tsChart;
+
+function getParams() {
+  return {
+    N: parseInt(document.getElementById('rN').value),
+    Q: parseInt(document.getElementById('rQ').value),
+    climateForcing: parseInt(document.getElementById('rT').value) / 100,
+    noise: parseInt(document.getElementById('rNoise').value) / 100,
+    heritageRigidity: parseInt(document.getElementById('rH').value) / 100
+  };
+}
+
+function initModel() {
+  running = false;
+  if (animId) cancelAnimationFrame(animId);
+  animId = null;
+  document.getElementById('runBtn').textContent = 'Run';
+  const p = getParams();
+  N = p.N; Q = p.Q; step = 0;
+  grid = [];
+  for (let i = 0; i < N; i++) {
+    grid[i] = [];
+    for (let j = 0; j < N; j++) {
+      const traits = [];
+      for (let f = 0; f < F; f++) traits.push(Math.floor(Math.random() * Q));
+      grid[i][j] = { traits };
+    }
+  }
+  tsData = { steps: [], clusters: [], similarity: [] };
+  updateStats();
+  draw();
+  drawTimeSeries();
+}
+
+function similarity(a, b) {
+  let s = 0;
+  for (let f = 0; f < F; f++) if (a.traits[f] === b.traits[f]) s++;
+  return s / F;
+}
+
+function neighbours(i, j) {
+  const nb = [];
+  if (i > 0) nb.push([i-1, j]);
+  if (i < N-1) nb.push([i+1, j]);
+  if (j > 0) nb.push([i, j-1]);
+  if (j < N-1) nb.push([i, j+1]);
+  return nb;
+}
+
+function stepModel() {
+  const p = getParams();
+  const batchSize = N * N;
+  for (let b = 0; b < batchSize; b++) {
+    const i = Math.floor(Math.random() * N);
+    const j = Math.floor(Math.random() * N);
+    const nbs = neighbours(i, j);
+    const [ni, nj] = nbs[Math.floor(Math.random() * nbs.length)];
+    const agent = grid[i][j];
+    const neighbour = grid[ni][nj];
+    const sim = similarity(agent, neighbour);
+    if (sim > 0 && sim < 1 && Math.random() < sim) {
+      const diff = [];
+      for (let f = 0; f < F; f++) if (agent.traits[f] !== neighbour.traits[f]) diff.push(f);
+      if (diff.length > 0) {
+        const f = diff[Math.floor(Math.random() * diff.length)];
+        if (f === 4 && Math.random() < p.heritageRigidity) {
+        } else {
+          agent.traits[f] = neighbour.traits[f];
+        }
+      }
+    }
+    if (p.climateForcing > 0 && Math.random() < p.climateForcing * 0.05) {
+      const ci = Math.floor(Math.random() * N);
+      const cj = Math.floor(Math.random() * N);
+      const target = grid[ci][cj];
+      const f = Math.floor(Math.random() * 3);
+      if (f === 0) {
+        if (target.traits[0] > 0) target.traits[0] = Math.max(0, target.traits[0] - 1);
+      } else if (f === 1) {
+        if (target.traits[1] > 0) target.traits[1] = Math.max(0, target.traits[1] - 1);
+      } else {
+        if (target.traits[2] > 0) target.traits[2] = Math.max(0, target.traits[2] - 1);
+      }
+    }
+    if (p.noise > 0 && Math.random() < p.noise * 0.01) {
+      const mi = Math.floor(Math.random() * N);
+      const mj = Math.floor(Math.random() * N);
+      const mf = Math.floor(Math.random() * F);
+      if (mf === 4 && Math.random() < p.heritageRigidity) {
+      } else {
+        grid[mi][mj].traits[mf] = Math.floor(Math.random() * Q);
+      }
+    }
+  }
+  step++;
+  updateStats();
+  draw();
+  if (step % 5 === 0) drawTimeSeries();
+}
+
+function countClusters() {
+  const visited = Array.from({length: N}, () => Array(N).fill(false));
+  let count = 0;
+  for (let i = 0; i < N; i++) {
+    for (let j = 0; j < N; j++) {
+      if (!visited[i][j]) {
+        count++;
+        const stack = [[i, j]];
+        while (stack.length) {
+          const [ci, cj] = stack.pop();
+          if (visited[ci][cj]) continue;
+          visited[ci][cj] = true;
+          for (const [ni, nj] of neighbours(ci, cj)) {
+            if (!visited[ni][nj] && similarity(grid[ci][cj], grid[ni][nj]) === 1) {
+              stack.push([ni, nj]);
+            }
+          }
+        }
+      }
+    }
+  }
+  return count;
+}
+
+function meanSimilarity() {
+  let total = 0, count = 0;
+  for (let i = 0; i < N; i++) {
+    for (let j = 0; j < N; j++) {
+      for (const [ni, nj] of neighbours(i, j)) {
+        total += similarity(grid[i][j], grid[ni][nj]);
+        count++;
+      }
+    }
+  }
+  return count > 0 ? total / count : 0;
+}
+
+function frozenFraction() {
+  let frozen = 0;
+  for (let i = 0; i < N; i++) {
+    for (let j = 0; j < N; j++) {
+      let isFrozen = true;
+      for (const [ni, nj] of neighbours(i, j)) {
+        const s = similarity(grid[i][j], grid[ni][nj]);
+        if (s > 0 && s < 1) { isFrozen = false; break; }
+      }
+      if (isFrozen) frozen++;
+    }
+  }
+  return frozen / (N * N);
+}
+
+function updateStats() {
+  const cl = countClusters();
+  const ms = meanSimilarity();
+  const fr = frozenFraction();
+  document.getElementById('sClust').textContent = cl;
+  document.getElementById('sSim').textContent = ms.toFixed(2);
+  document.getElementById('sStep').textContent = step;
+  document.getElementById('sFroz').textContent = (fr * 100).toFixed(0) + '%';
+  if (step % 5 === 0) {
+    tsData.steps.push(step);
+    tsData.clusters.push(cl);
+    tsData.similarity.push(ms);
+    if (tsData.steps.length > 200) {
+      tsData.steps.shift();
+      tsData.clusters.shift();
+      tsData.similarity.shift();
+    }
+  }
+}
+
+function traitColor(traits) {
+  const r = Math.round((traits[0] / (Q - 1)) * 180 + 50);
+  const g = Math.round((traits[1] / (Q - 1)) * 180 + 50);
+  const b = Math.round((traits[2] / (Q - 1)) * 180 + 50);
+  return `rgb(${r},${g},${b})`;
+}
+
+function draw() {
+  const cv = document.getElementById('cv');
+  const sz = Math.min(cv.parentElement.clientWidth, 560);
+  cv.width = sz; cv.height = sz;
+  const ctx = cv.getContext('2d');
+  const cell = sz / N;
+  for (let i = 0; i < N; i++) {
+    for (let j = 0; j < N; j++) {
+      ctx.fillStyle = traitColor(grid[i][j].traits);
+      ctx.fillRect(j * cell, i * cell, cell, cell);
+      if (grid[i][j].traits[4] >= Q * 0.7) {
+        ctx.strokeStyle = 'rgba(255,255,255,0.6)';
+        ctx.lineWidth = Math.max(1, cell * 0.15);
+        ctx.strokeRect(j * cell + 1, i * cell + 1, cell - 2, cell - 2);
+      }
+    }
+  }
+}
+
+function drawTimeSeries() {
+  if (!tsData.steps.length) return;
+  if (tsChart) tsChart.destroy();
+  tsChart = new Chart(document.getElementById('ts'), {
+    type: 'line',
+    data: {
+      labels: tsData.steps,
+      datasets: [
+        { label: 'Mean similarity', data: tsData.similarity, borderColor: '#378ADD', borderWidth: 1.5, pointRadius: 0, tension: 0.3, yAxisID: 'y' },
+        { label: 'Clusters', data: tsData.clusters, borderColor: '#E24B4A', borderWidth: 1.5, pointRadius: 0, tension: 0.3, yAxisID: 'y1' }
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false, animation: false,
+      plugins: { legend: { display: true, labels: { font: { size: 11 }, boxWidth: 12, padding: 8 } } },
+      scales: {
+        x: { display: true, ticks: { font: { size: 10 }, maxTicksLimit: 6 }, grid: { display: false } },
+        y: { position: 'left', min: 0, max: 1, ticks: { font: { size: 10 }, maxTicksLimit: 5 }, grid: { color: 'rgba(0,0,0,0.06)' } },
+        y1: { position: 'right', min: 0, ticks: { font: { size: 10 }, maxTicksLimit: 5 }, grid: { display: false } }
+      }
+    }
+  });
+}
+
+function toggleRun() {
+  running = !running;
+  document.getElementById('runBtn').textContent = running ? 'Pause' : 'Run';
+  if (running) loop();
+}
+
+function loop() {
+  if (!running) return;
+  stepModel();
+  animId = requestAnimationFrame(loop);
+}
+
+initModel();
+</script>
