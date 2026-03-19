@@ -1,0 +1,1009 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Membrane Mean-Field Model — Single Microlocation</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=JetBrains+Mono:wght@300;400;500&display=swap');
+
+:root {
+  --bg: #0a0a0d;
+  --bg2: #111114;
+  --bg3: #1a1a1f;
+  --bg4: #222228;
+  --tx: #c8c8d0;
+  --tx2: #8888a0;
+  --tx3: #555568;
+  --accent: #6ee7b7;
+  --accent2: #34d399;
+  --heritage: #f59e0b;
+  --danger: #f87171;
+  --blue: #60a5fa;
+  --cool: #22d3ee;
+  --warm: #fb923c;
+  --pink: #c084fc;
+  --border: rgba(255,255,255,0.05);
+  --glow: rgba(110,231,183,0.08);
+  --serif: 'EB Garamond', Georgia, serif;
+  --mono: 'JetBrains Mono', 'Fira Code', monospace;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { font-size: 13.5px; scroll-behavior: smooth; }
+body { background: var(--bg); color: var(--tx); font-family: var(--mono); min-height: 100vh; }
+
+.app { max-width: 1520px; margin: 0 auto; padding: 1.2rem; }
+
+/* ─── Header ───────────────────────────────────────── */
+header {
+  padding: 2.5rem 0 2rem;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 1.8rem;
+  position: relative;
+}
+header::after {
+  content: '';
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  width: 120px;
+  height: 2px;
+  background: linear-gradient(90deg, var(--accent), transparent);
+}
+header h1 {
+  font-family: var(--serif);
+  font-size: 1.65rem;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  color: var(--tx);
+  line-height: 1.3;
+}
+header .subtitle {
+  font-family: var(--serif);
+  font-size: 1.05rem;
+  font-style: italic;
+  color: var(--tx3);
+  margin-top: 0.35rem;
+}
+header .desc {
+  font-size: 0.76rem;
+  color: var(--tx3);
+  margin-top: 0.8rem;
+  line-height: 1.65;
+  max-width: 90ch;
+}
+
+/* ─── Equation panel ───────────────────────────────── */
+.eq-panel {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 1.4rem 1.6rem;
+  margin-bottom: 1.5rem;
+  position: relative;
+  overflow: hidden;
+}
+.eq-panel::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0;
+  width: 3px; height: 100%;
+  background: linear-gradient(180deg, var(--accent), var(--heritage), var(--danger));
+}
+.eq-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  cursor: pointer;
+  user-select: none;
+}
+.eq-toggle .arrow {
+  font-size: 0.7rem;
+  color: var(--accent);
+  transition: transform 0.25s;
+}
+.eq-toggle.open .arrow { transform: rotate(90deg); }
+.eq-toggle h2 {
+  font-family: var(--serif);
+  font-size: 1.05rem;
+  font-weight: 500;
+  color: var(--tx2);
+}
+.eq-body {
+  display: none;
+  margin-top: 1rem;
+  font-family: var(--serif);
+  font-size: 0.92rem;
+  color: var(--tx2);
+  line-height: 1.75;
+  column-count: 2;
+  column-gap: 2.5rem;
+}
+.eq-body.show { display: block; }
+.eq-body .eq {
+  font-family: var(--mono);
+  font-size: 0.78rem;
+  color: var(--accent);
+  background: var(--bg3);
+  padding: 0.5rem 0.7rem;
+  border-radius: 5px;
+  margin: 0.5rem 0;
+  display: block;
+  break-inside: avoid;
+  white-space: pre-wrap;
+  line-height: 1.55;
+}
+.eq-body p { margin-bottom: 0.6rem; break-inside: avoid; }
+@media (max-width: 900px) { .eq-body { column-count: 1; } }
+
+/* ─── Layout ───────────────────────────────────────── */
+.layout { display: grid; grid-template-columns: 300px 1fr; gap: 1.5rem; }
+@media (max-width: 960px) { .layout { grid-template-columns: 1fr; } }
+
+.sidebar { display: flex; flex-direction: column; gap: 1rem; }
+
+.panel {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 1rem 1.1rem;
+}
+.panel-title {
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--tx3);
+  margin-bottom: 0.8rem;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+.panel-title::before {
+  content: '';
+  width: 6px; height: 6px;
+  border-radius: 2px;
+  background: var(--accent);
+  opacity: 0.5;
+}
+
+/* ─── Controls ─────────────────────────────────────── */
+.ctrl { margin-bottom: 0.9rem; }
+.ctrl-row { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 4px; }
+.ctrl-label { font-size: 0.76rem; color: var(--tx2); }
+.ctrl-val { font-size: 0.76rem; font-weight: 500; color: var(--accent); min-width: 3rem; text-align: right; }
+input[type="range"] {
+  -webkit-appearance: none; width: 100%; height: 3px;
+  background: var(--bg4); border-radius: 2px; outline: none; cursor: pointer;
+}
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none; width: 14px; height: 14px;
+  border-radius: 50%; background: var(--accent); border: 2px solid var(--bg);
+  cursor: pointer; box-shadow: 0 0 8px var(--glow);
+}
+input[type="range"]::-moz-range-thumb {
+  width: 14px; height: 14px; border-radius: 50%;
+  background: var(--accent); border: 2px solid var(--bg); cursor: pointer;
+}
+
+select {
+  width: 100%; padding: 6px 8px; border: 1px solid var(--border);
+  border-radius: 6px; background: var(--bg3); color: var(--tx);
+  font-family: var(--mono); font-size: 0.76rem; cursor: pointer;
+  outline: none; margin-bottom: 0.8rem;
+}
+select:focus { border-color: var(--accent); }
+
+.btn-row { display: flex; gap: 6px; margin-bottom: 0.6rem; }
+.btn {
+  flex: 1; padding: 9px 0;
+  border: 1px solid var(--border); border-radius: 7px;
+  background: var(--bg3); color: var(--tx);
+  font-family: var(--mono); font-size: 0.76rem;
+  cursor: pointer; transition: all 0.2s; text-align: center;
+}
+.btn:hover { background: var(--accent); color: var(--bg); border-color: var(--accent); }
+.btn.active { background: var(--accent); color: var(--bg); border-color: var(--accent); }
+
+/* ─── Stats ────────────────────────────────────────── */
+.stats { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+.stat {
+  background: var(--bg3); border-radius: 7px; padding: 8px 10px;
+  border-left: 2px solid transparent;
+}
+.stat-label { font-size: 0.62rem; color: var(--tx3); text-transform: uppercase; letter-spacing: 0.06em; }
+.stat-val { font-size: 1.05rem; font-weight: 500; margin-top: 2px; }
+.stat-val.green { color: var(--accent); }
+.stat-val.amber { color: var(--heritage); }
+.stat-val.red { color: var(--danger); }
+.stat-val.blue { color: var(--blue); }
+.stat-val.cool { color: var(--cool); }
+.stat-val.pink { color: var(--pink); }
+.stat.hl-green { border-left-color: var(--accent); }
+.stat.hl-amber { border-left-color: var(--heritage); }
+.stat.hl-red { border-left-color: var(--danger); }
+.stat.hl-blue { border-left-color: var(--blue); }
+.stat.hl-cool { border-left-color: var(--cool); }
+
+/* ─── Main area ────────────────────────────────────── */
+.main-area { display: flex; flex-direction: column; gap: 1.2rem; }
+
+/* Membrane radar + bar */
+.viz-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1.2rem; }
+@media (max-width: 1100px) { .viz-row { grid-template-columns: 1fr; } }
+
+.viz-panel {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 1rem;
+}
+.viz-label {
+  font-size: 0.68rem;
+  color: var(--tx3);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 0.6rem;
+}
+
+canvas.radar { display: block; margin: 0 auto; }
+
+/* Bar chart for traits */
+.bar-container { display: flex; flex-direction: column; gap: 6px; padding-top: 4px; }
+.bar-row { display: flex; align-items: center; gap: 8px; }
+.bar-label { font-size: 0.7rem; color: var(--tx2); width: 105px; text-align: right; flex-shrink: 0; }
+.bar-track { flex: 1; height: 14px; background: var(--bg4); border-radius: 3px; overflow: hidden; position: relative; }
+.bar-fill { height: 100%; border-radius: 3px; transition: width 0.3s; position: relative; }
+.bar-fill::after {
+  content: attr(data-val);
+  position: absolute; right: 6px; top: 50%; transform: translateY(-50%);
+  font-size: 0.6rem; color: rgba(0,0,0,0.7); font-weight: 500;
+}
+.bar-env { position: absolute; top: 0; height: 100%; width: 2px; background: rgba(255,255,255,0.5); }
+.bar-val { font-size: 0.68rem; color: var(--tx2); width: 38px; text-align: left; }
+
+/* Charts row */
+.charts-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1.2rem; }
+@media (max-width: 900px) { .charts-row { grid-template-columns: 1fr; } }
+.chart-panel {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 0.9rem;
+}
+.chart-wrap { position: relative; height: 200px; }
+
+/* Phase portrait */
+.phase-canvas { width: 100%; height: 280px; display: block; border-radius: 6px; }
+
+/* Footer */
+footer {
+  margin-top: 2.5rem;
+  padding: 1.5rem 0;
+  border-top: 1px solid var(--border);
+  font-family: var(--serif);
+  font-size: 0.82rem;
+  color: var(--tx3);
+  line-height: 1.7;
+}
+</style>
+</head>
+<body>
+<div class="app">
+
+<header>
+  <h1>The Membrane Mean-Field Model</h1>
+  <div class="subtitle">A single urban microlocation under the collective membrane</div>
+  <div class="desc">
+    Mean-field reduction of the Axelrod–membrane network model to a single node coupled to an effective environment.
+    The neighbourhood is replaced by a homogeneous bath characterised by mean trait values;
+    the stochastic interaction, climate forcing, cooling propagation, and noise yield a deterministic
+    dynamical system for the continuous trait vector σ(t) ∈ [0,1]⁷ of a single microlocation.
+  </div>
+</header>
+
+<!-- ─── Equations Panel (collapsible) ──────────────── -->
+<div class="eq-panel">
+  <div class="eq-toggle" id="eqToggle" onclick="toggleEq()">
+    <span class="arrow">▶</span>
+    <h2>Mean-Field Derivation</h2>
+  </div>
+  <div class="eq-body" id="eqBody">
+    <p>
+      In the full network model, node <em>i</em> interacts stochastically with neighbour <em>j</em> chosen at random.
+      The mean-field approximation replaces the heterogeneous neighbourhood with a single effective
+      environment characterised by the mean trait vector <strong>σ̄</strong> = (σ̄¹, …, σ̄⁷) and
+      an effective coupling strength <em>w̄</em>.
+    </p>
+    <p>
+      The expected change in trait <em>f</em> per time step has four contributions:
+      Axelrod interaction with the bath, climate forcing, cooling propagation from the effective
+      green/blue neighbourhood fraction <em>g</em>, and noise.
+    </p>
+    <span class="eq">dσᶠ/dt = J_axelrod + J_climate + J_cool + J_noise</span>
+    <p>
+      <strong>Axelrod flux.</strong> The interaction probability with the environment is
+      the weighted similarity <em>S</em> = (1/7)·Σ (1 − |σᶠ − σ̄ᶠ|). When interaction occurs,
+      the trait is pulled toward the environment mean. The expected flux is:
+    </p>
+    <span class="eq">J_axelrod = w̄ · S · (σ̄ᶠ − σᶠ) · (1 − δ_{f,H} · ρ_H)</span>
+    <p>
+      where <em>w̄</em> is the effective coupling, <em>S</em> the mean-field similarity,
+      and the last factor enforces heritage rigidity on the heritage feature.
+    </p>
+    <p>
+      <strong>Climate forcing.</strong> Each physical feature degrades according to the
+      temperature-dependent forcing function ϕ<sub>f</sub>(T):
+    </p>
+    <span class="eq">J_climate = −ϕᶠ(T(t)) · σᶠ · (1 − ρ_type)</span>
+    <p>
+      where ρ<sub>type</sub> is the resilience (ρ<sub>G</sub> for green, 0.8 for blue, 0 for built nodes).
+      The forcing functions are: thermal mass degrades above 20°C, vegetation above 25°C
+      (severely above 35°C), albedo proportional to anomaly, ET above 28°C, water above 30°C.
+    </p>
+    <p>
+      <strong>Cooling propagation.</strong> If the node is a built element, the effective
+      green/blue neighbourhood fraction <em>g</em> drives trait improvement in vegetation
+      and evapotranspiration:
+    </p>
+    <span class="eq">J_cool = p_cool · g · w̄ · (σ̄ᶠ_green − σᶠ)
+  for f ∈ {vegetation, ET}, σ̄ᶠ_green > σᶠ</span>
+    <p>
+      <strong>Noise.</strong> The mean effect of uniform noise on trait <em>f</em> is a
+      restoring force toward the midpoint:
+    </p>
+    <span class="eq">J_noise = η · (0.5 − σᶠ)</span>
+    <p>
+      <strong>The full mean-field ODE system</strong> (7 equations for physical features) is
+      integrated numerically with an Euler scheme at monthly time steps. The heritage constraint
+      feature σ⁸ evolves only through the Axelrod channel, blocked with probability ρ<sub>H</sub>.
+    </p>
+    <p>
+      <strong>Order parameters.</strong> The local GLI is the mean of all 7 normalised physical traits.
+      The TAI measures the Euclidean distance from the initial state. The effective temperature
+      T(t) = T₀ + Ṫ·(t/12) + ΔT·sin(2πt/12) drives the seasonal and secular forcing.
+    </p>
+    <p>
+      <strong>Steady-state analysis.</strong> Setting dσᶠ/dt = 0 yields the fixed point
+      at which Axelrod attraction to the bath, climate degradation, cooling, and noise balance.
+      The critical warming rate Ṫ* at which the fixed-point GLI drops below a threshold defines the
+      microlocation's climate resilience. This threshold depends on the node type, heritage rigidity,
+      green fraction, and coupling strength — all tunable below.
+    </p>
+  </div>
+</div>
+
+<!-- ─── Main layout ────────────────────────────────── -->
+<div class="layout">
+<div class="sidebar">
+
+<div class="panel">
+  <div class="panel-title">Microlocation</div>
+  <select id="selType" onchange="resetModel()">
+    <option value="historic">Historic building (pre-1920)</option>
+    <option value="interwar">Interwar building (1920–1945)</option>
+    <option value="socialist">Socialist-era block (1945–1990)</option>
+    <option value="modern" selected>Post-1990 building</option>
+    <option value="park">Park</option>
+    <option value="wood">Piramida (wooded hill)</option>
+    <option value="river">Drava river segment</option>
+    <option value="plaza">Plaza</option>
+    <option value="street">Street segment</option>
+  </select>
+  <div class="btn-row">
+    <button class="btn" onclick="resetModel()">Reset</button>
+    <button class="btn" id="btnRun" onclick="toggleRun()">Run</button>
+    <button class="btn" onclick="stepOnce()">Step</button>
+  </div>
+  <div class="btn-row">
+    <button class="btn" onclick="step10()">+10</button>
+    <button class="btn" onclick="step100()">+100</button>
+    <button class="btn" onclick="runToSteady()">→ Steady</button>
+  </div>
+</div>
+
+<div class="panel">
+  <div class="panel-title">Parameters</div>
+  <div class="ctrl"><div class="ctrl-row"><span class="ctrl-label">Coupling w̄</span><span class="ctrl-val" id="vW">0.40</span></div><input type="range" min="0" max="100" value="40" step="1" id="rW"></div>
+  <div class="ctrl"><div class="ctrl-row"><span class="ctrl-label">Heritage rigidity ρ<sub>H</sub></span><span class="ctrl-val" id="vHR">0.85</span></div><input type="range" min="0" max="100" value="85" step="1" id="rHR"></div>
+  <div class="ctrl"><div class="ctrl-row"><span class="ctrl-label">Warming rate (°C/yr)</span><span class="ctrl-val" id="vWR">0.04</span></div><input type="range" min="0" max="15" value="4" step="1" id="rWR"></div>
+  <div class="ctrl"><div class="ctrl-row"><span class="ctrl-label">Noise rate η</span><span class="ctrl-val" id="vN">0.005</span></div><input type="range" min="0" max="50" value="5" step="1" id="rN"></div>
+  <div class="ctrl"><div class="ctrl-row"><span class="ctrl-label">Cooling propagation</span><span class="ctrl-val" id="vCP">0.12</span></div><input type="range" min="0" max="50" value="12" step="1" id="rCP"></div>
+  <div class="ctrl"><div class="ctrl-row"><span class="ctrl-label">Green fraction g</span><span class="ctrl-val" id="vGF">0.20</span></div><input type="range" min="0" max="100" value="20" step="1" id="rGF"></div>
+  <div class="ctrl"><div class="ctrl-row"><span class="ctrl-label">Green resilience ρ<sub>G</sub></span><span class="ctrl-val" id="vGR">0.60</span></div><input type="range" min="0" max="100" value="60" step="1" id="rGR"></div>
+</div>
+
+<div class="panel">
+  <div class="panel-title">Environment bath σ̄</div>
+  <div class="ctrl"><div class="ctrl-row"><span class="ctrl-label">Thermal mass</span><span class="ctrl-val" id="vE0">0.45</span></div><input type="range" min="0" max="100" value="45" step="1" id="rE0"></div>
+  <div class="ctrl"><div class="ctrl-row"><span class="ctrl-label">Vegetation</span><span class="ctrl-val" id="vE1">0.35</span></div><input type="range" min="0" max="100" value="35" step="1" id="rE1"></div>
+  <div class="ctrl"><div class="ctrl-row"><span class="ctrl-label">Albedo</span><span class="ctrl-val" id="vE2">0.40</span></div><input type="range" min="0" max="100" value="40" step="1" id="rE2"></div>
+  <div class="ctrl"><div class="ctrl-row"><span class="ctrl-label">Ventilation</span><span class="ctrl-val" id="vE3">0.40</span></div><input type="range" min="0" max="100" value="40" step="1" id="rE3"></div>
+  <div class="ctrl"><div class="ctrl-row"><span class="ctrl-label">Evapotrans.</span><span class="ctrl-val" id="vE4">0.30</span></div><input type="range" min="0" max="100" value="30" step="1" id="rE4"></div>
+  <div class="ctrl"><div class="ctrl-row"><span class="ctrl-label">Water</span><span class="ctrl-val" id="vE5">0.10</span></div><input type="range" min="0" max="100" value="10" step="1" id="rE5"></div>
+  <div class="ctrl"><div class="ctrl-row"><span class="ctrl-label">Sky view</span><span class="ctrl-val" id="vE6">0.50</span></div><input type="range" min="0" max="100" value="50" step="1" id="rE6"></div>
+</div>
+
+<div class="panel">
+  <div class="panel-title">Microlocation state</div>
+  <div class="stats">
+    <div class="stat hl-green"><div class="stat-label">Step</div><div class="stat-val" id="sStep">0</div></div>
+    <div class="stat hl-amber"><div class="stat-label">T anomaly</div><div class="stat-val amber" id="sTemp">+0.0°C</div></div>
+    <div class="stat hl-green"><div class="stat-label">GLI</div><div class="stat-val green" id="sGLI">—</div></div>
+    <div class="stat hl-red"><div class="stat-label">TAI</div><div class="stat-val red" id="sTAI">—</div></div>
+    <div class="stat hl-cool"><div class="stat-label">Cooling (W/m²)</div><div class="stat-val cool" id="sCool">—</div></div>
+    <div class="stat hl-blue"><div class="stat-label">Similarity S</div><div class="stat-val blue" id="sSim">—</div></div>
+  </div>
+</div>
+
+</div><!-- sidebar -->
+
+<div class="main-area">
+
+<div class="viz-row">
+  <div class="viz-panel">
+    <div class="viz-label">Membrane profile — node vs environment</div>
+    <div class="bar-container" id="barContainer"></div>
+  </div>
+  <div class="viz-panel">
+    <div class="viz-label">Phase portrait — GLI vs Temperature</div>
+    <canvas class="phase-canvas" id="cvPhase"></canvas>
+  </div>
+</div>
+
+<div class="charts-row">
+  <div class="chart-panel">
+    <div class="viz-label">GLI & TAI evolution</div>
+    <div class="chart-wrap"><canvas id="chGLI"></canvas></div>
+  </div>
+  <div class="chart-panel">
+    <div class="viz-label">Trait dynamics</div>
+    <div class="chart-wrap"><canvas id="chTraits"></canvas></div>
+  </div>
+</div>
+
+<div class="charts-row">
+  <div class="chart-panel">
+    <div class="viz-label">Fluxes — Axelrod / Climate / Cool / Noise</div>
+    <div class="chart-wrap"><canvas id="chFlux"></canvas></div>
+  </div>
+  <div class="chart-panel">
+    <div class="viz-label">Cooling capacity & Temperature</div>
+    <div class="chart-wrap"><canvas id="chCool"></canvas></div>
+  </div>
+</div>
+
+</div><!-- main-area -->
+</div><!-- layout -->
+
+<footer>
+  Dean Korošak · University of Maribor · Faculty of Civil Engineering, Transportation Engineering and Architecture · Centre of Excellence GreenHer · 2026<br>
+  Mean-field reduction of the Axelrod–membrane collective model. See: <em>The City as Collective Membrane</em> (companion network model).
+</footer>
+
+</div><!-- app -->
+
+<script>
+// ═══════════════════════════════════════════════════════
+// MEAN-FIELD MEMBRANE MODEL — SINGLE MICROLOCATION
+// ═══════════════════════════════════════════════════════
+
+const FEATURES = ['Thermal mass','Vegetation','Albedo','Ventilation','Evapotranspiration','Water','Sky view'];
+const F = 7; // physical features only
+const FCOLORS = ['#f87171','#4ade80','#60a5fa','#c084fc','#22d3ee','#3b82f6','#f59e0b'];
+
+// Node types with initial trait profiles σ ∈ [0,1]^7
+const TYPE_PROFILES = {
+  historic:   { sigma: [0.75, 0.08, 0.65, 0.65, 0.04, 0.00, 0.42], heritage: 0.75, resil: 0, label: 'Historic building' },
+  interwar:   { sigma: [0.55, 0.08, 0.45, 0.50, 0.04, 0.00, 0.42], heritage: 0.45, resil: 0, label: 'Interwar building' },
+  socialist:  { sigma: [0.40, 0.06, 0.22, 0.32, 0.03, 0.00, 0.42], heritage: 0.05, resil: 0, label: 'Socialist block' },
+  modern:     { sigma: [0.28, 0.20, 0.50, 0.12, 0.05, 0.00, 0.60], heritage: 0.05, resil: 0, label: 'Post-1990 building' },
+  park:       { sigma: [0.38, 0.65, 0.28, 0.75, 0.70, 0.05, 0.75], heritage: 0.10, resil: 'green', label: 'Park' },
+  wood:       { sigma: [0.38, 0.90, 0.25, 0.75, 0.85, 0.00, 0.28], heritage: 0.08, resil: 'green', label: 'Wooded hill' },
+  river:      { sigma: [0.90, 0.15, 0.08, 0.75, 0.80, 0.90, 0.88], heritage: 0.30, resil: 'blue', label: 'River segment' },
+  plaza:      { sigma: [0.55, 0.03, 0.28, 0.55, 0.02, 0.00, 0.75], heritage: 0.55, resil: 0, label: 'Plaza' },
+  street:     { sigma: [0.48, 0.03, 0.05, 0.50, 0.02, 0.00, 0.45], heritage: 0.04, resil: 0, label: 'Street' },
+};
+
+// Green-bath traits (used for cooling propagation source)
+const GREEN_BATH = [0.38, 0.80, 0.28, 0.75, 0.80, 0.10, 0.70];
+
+let sigma = new Float64Array(F);    // current node traits [0,1]
+let sigma0 = new Float64Array(F);   // initial traits (for TAI)
+let heritage = 0;                    // heritage constraint value
+let step = 0;
+let running = false;
+let animId = null;
+
+let history = { steps:[], gli:[], tai:[], temp:[], sim:[], cool:[], traits:[], fluxA:[], fluxC:[], fluxK:[], fluxN:[] };
+let charts = {};
+
+// Phase portrait data
+let phaseTrail = [];
+
+// ─── Parameter readers ─────────────────────────────
+function params() {
+  return {
+    w:     +document.getElementById('rW').value / 100,
+    hr:    +document.getElementById('rHR').value / 100,
+    wr:    +document.getElementById('rWR').value / 100,
+    noise: +document.getElementById('rN').value / 1000,
+    cp:    +document.getElementById('rCP').value / 100,
+    gf:    +document.getElementById('rGF').value / 100,
+    gr:    +document.getElementById('rGR').value / 100,
+  };
+}
+
+function envBath() {
+  return [
+    +document.getElementById('rE0').value / 100,
+    +document.getElementById('rE1').value / 100,
+    +document.getElementById('rE2').value / 100,
+    +document.getElementById('rE3').value / 100,
+    +document.getElementById('rE4').value / 100,
+    +document.getElementById('rE5').value / 100,
+    +document.getElementById('rE6').value / 100,
+  ];
+}
+
+function nodeType() { return document.getElementById('selType').value; }
+
+// ─── Slider display update ─────────────────────────
+document.querySelectorAll('input[type=range]').forEach(el => {
+  el.addEventListener('input', () => {
+    const id = el.id;
+    let val;
+    if (id === 'rW' || id === 'rHR' || id === 'rGF' || id === 'rGR' || id === 'rCP')
+      val = (el.value / 100).toFixed(2);
+    else if (id === 'rWR')
+      val = (el.value / 100).toFixed(2);
+    else if (id === 'rN')
+      val = (el.value / 1000).toFixed(3);
+    else if (id.startsWith('rE'))
+      val = (el.value / 100).toFixed(2);
+    else val = el.value;
+    const vId = 'v' + id.slice(1);
+    document.getElementById(vId).textContent = val;
+  });
+});
+
+// ─── Climate temperature ───────────────────────────
+function climateTemp(p) {
+  const anomaly = p.wr * Math.floor(step / 12);
+  const seasonal = 11 * Math.sin(2 * Math.PI * step / 12);
+  return { temp: 10.4 + anomaly + seasonal, anomaly };
+}
+
+// ─── Forcing functions ─────────────────────────────
+function forcingRate(f, T, anomaly) {
+  // Returns degradation rate ϕ_f(T) ∈ [0, max]
+  switch (f) {
+    case 0: return T > 20 ? Math.min((T - 20) * 0.008, 0.15) : 0;              // thermal mass
+    case 1: return T > 35 ? Math.min(0.10 + (T - 35) * 0.03, 0.40) :           // vegetation (severe)
+                   T > 25 ? Math.min((T - 25) * 0.01, 0.20) : 0;               // vegetation
+    case 2: return Math.min(Math.max(anomaly * 0.003, 0), 0.05);                // albedo
+    case 3: return 0;                                                             // ventilation (no direct forcing)
+    case 4: return T > 28 ? Math.min((T - 28) * 0.015, 0.25) : 0;              // evapotranspiration
+    case 5: return (T > 30 && anomaly > 2) ? Math.min((anomaly - 2) * 0.01, 0.1) : 0; // water
+    case 6: return 0;                                                             // sky view (no direct forcing)
+    default: return 0;
+  }
+}
+
+// ─── Mean-field similarity ─────────────────────────
+function similarity(sigma, env) {
+  let s = 0;
+  for (let f = 0; f < F; f++) s += 1 - Math.abs(sigma[f] - env[f]);
+  return s / F;
+}
+
+// ─── Single mean-field integration step ────────────
+function modelStep() {
+  const p = params();
+  const env = envBath();
+  const ct = climateTemp(p);
+  const T = ct.temp;
+  const S = similarity(sigma, env);
+  const typeKey = nodeType();
+  const prof = TYPE_PROFILES[typeKey];
+  const isGreen = prof.resil === 'green';
+  const isBlue = prof.resil === 'blue';
+  const isBuilt = !isGreen && !isBlue;
+
+  // Type resilience
+  const resilience = isGreen ? p.gr : (isBlue ? 0.80 : 0);
+
+  let totalFluxA = 0, totalFluxC = 0, totalFluxK = 0, totalFluxN = 0;
+
+  for (let f = 0; f < F; f++) {
+    // 1. Axelrod flux: attraction toward environment mean
+    const jAxelrod = p.w * S * (env[f] - sigma[f]);
+
+    // 2. Climate forcing flux: degradation
+    const phi = forcingRate(f, T, ct.anomaly);
+    const jClimate = -phi * sigma[f] * (1 - resilience);
+
+    // 3. Cooling propagation (only for built nodes, features 1 and 4)
+    let jCool = 0;
+    if (isBuilt && (f === 1 || f === 4)) {
+      const greenTrait = GREEN_BATH[f];
+      if (greenTrait > sigma[f]) {
+        jCool = p.cp * p.gf * p.w * (greenTrait - sigma[f]);
+      }
+    }
+
+    // 4. Noise flux: restoring toward midpoint
+    const jNoise = p.noise * (0.5 - sigma[f]);
+
+    // Total flux
+    const dsigma = jAxelrod + jClimate + jCool + jNoise;
+    sigma[f] = Math.max(0, Math.min(1, sigma[f] + dsigma));
+
+    totalFluxA += Math.abs(jAxelrod);
+    totalFluxC += Math.abs(jClimate);
+    totalFluxK += Math.abs(jCool);
+    totalFluxN += Math.abs(jNoise);
+  }
+
+  // Heritage feature evolution (simplified: Axelrod with rigidity)
+  const hEnv = env[0]; // use thermal mass env as proxy for heritage environment
+  if (Math.random() > p.hr) {
+    heritage += p.w * S * (hEnv - heritage) * 0.1;
+    heritage = Math.max(0, Math.min(1, heritage));
+  }
+
+  step++;
+
+  return { fluxA: totalFluxA / F, fluxC: totalFluxC / F, fluxK: totalFluxK / F, fluxN: totalFluxN / F };
+}
+
+// ─── Observables ───────────────────────────────────
+function computeGLI() {
+  let s = 0;
+  for (let f = 0; f < F; f++) s += sigma[f];
+  return s / F;
+}
+
+function computeTAI() {
+  let d2 = 0;
+  for (let f = 0; f < F; f++) { const d = sigma[f] - sigma0[f]; d2 += d * d; }
+  const maxD = Math.sqrt(F); // max possible distance when traits in [0,1]
+  return 1 - Math.sqrt(d2) / maxD;
+}
+
+function computeCooling() {
+  // W/m² based on vegetation × ET and water
+  return sigma[1] * sigma[4] * 150 + sigma[5] * 100;
+}
+
+function computeStats(fluxes) {
+  const p = params();
+  const env = envBath();
+  const ct = climateTemp(p);
+  return {
+    step,
+    gli: computeGLI(),
+    tai: computeTAI(),
+    temp: ct.temp,
+    anomaly: ct.anomaly,
+    sim: similarity(sigma, env),
+    cool: computeCooling(),
+    traits: Array.from(sigma),
+    ...fluxes
+  };
+}
+
+// ─── History recording ─────────────────────────────
+function recordHistory(s) {
+  const MAX = 600;
+  history.steps.push(s.step);
+  history.gli.push(s.gli);
+  history.tai.push(s.tai);
+  history.temp.push(s.temp);
+  history.sim.push(s.sim);
+  history.cool.push(s.cool);
+  history.traits.push(s.traits.slice());
+  history.fluxA.push(s.fluxA);
+  history.fluxC.push(s.fluxC);
+  history.fluxK.push(s.fluxK);
+  history.fluxN.push(s.fluxN);
+  for (const k of Object.keys(history)) if (history[k].length > MAX) history[k].shift();
+
+  phaseTrail.push({ x: s.temp, y: s.gli });
+  if (phaseTrail.length > MAX) phaseTrail.shift();
+}
+
+// ─── UI update ─────────────────────────────────────
+function updateUI(s) {
+  document.getElementById('sStep').textContent = s.step;
+  document.getElementById('sTemp').textContent = '+' + s.anomaly.toFixed(1) + '°C';
+  document.getElementById('sGLI').textContent = s.gli.toFixed(3);
+  document.getElementById('sTAI').textContent = s.tai.toFixed(3);
+  document.getElementById('sCool').textContent = s.cool.toFixed(1);
+  document.getElementById('sSim').textContent = s.sim.toFixed(3);
+}
+
+// ─── Bar chart rendering ───────────────────────────
+function drawBars() {
+  const env = envBath();
+  const container = document.getElementById('barContainer');
+  container.innerHTML = '';
+  for (let f = 0; f < F; f++) {
+    const val = sigma[f];
+    const envVal = env[f];
+    const pct = (val * 100).toFixed(0);
+    const envPct = (envVal * 100).toFixed(0);
+
+    const row = document.createElement('div');
+    row.className = 'bar-row';
+
+    const label = document.createElement('div');
+    label.className = 'bar-label';
+    label.textContent = FEATURES[f];
+
+    const track = document.createElement('div');
+    track.className = 'bar-track';
+
+    const fill = document.createElement('div');
+    fill.className = 'bar-fill';
+    fill.style.width = pct + '%';
+    fill.style.background = FCOLORS[f];
+    fill.setAttribute('data-val', pct + '%');
+
+    // Environment marker
+    const envMark = document.createElement('div');
+    envMark.className = 'bar-env';
+    envMark.style.left = envPct + '%';
+    envMark.title = 'Environment: ' + envPct + '%';
+
+    track.appendChild(fill);
+    track.appendChild(envMark);
+
+    const valDiv = document.createElement('div');
+    valDiv.className = 'bar-val';
+    valDiv.textContent = val.toFixed(2);
+
+    row.appendChild(label);
+    row.appendChild(track);
+    row.appendChild(valDiv);
+    container.appendChild(row);
+  }
+}
+
+// ─── Phase portrait ────────────────────────────────
+function drawPhase() {
+  const cv = document.getElementById('cvPhase');
+  const rect = cv.parentElement.getBoundingClientRect();
+  cv.width = rect.width - 32;
+  cv.height = 280;
+  const ctx = cv.getContext('2d');
+  const W = cv.width, H = cv.height;
+  ctx.fillStyle = '#0a0a0d';
+  ctx.fillRect(0, 0, W, H);
+
+  // Axes: T ∈ [-5, 40], GLI ∈ [0, 1]
+  const Tmin = -5, Tmax = 42;
+  const Gmin = 0, Gmax = 1;
+  const pad = { l: 40, r: 15, t: 15, b: 30 };
+  const pw = W - pad.l - pad.r;
+  const ph = H - pad.t - pad.b;
+  const tx = v => pad.l + (v - Tmin) / (Tmax - Tmin) * pw;
+  const ty = v => pad.t + (1 - (v - Gmin) / (Gmax - Gmin)) * ph;
+
+  // Grid
+  ctx.strokeStyle = 'rgba(255,255,255,0.04)';
+  ctx.lineWidth = 0.5;
+  for (let t = 0; t <= 40; t += 10) {
+    ctx.beginPath(); ctx.moveTo(tx(t), pad.t); ctx.lineTo(tx(t), H - pad.b); ctx.stroke();
+  }
+  for (let g = 0; g <= 1; g += 0.25) {
+    ctx.beginPath(); ctx.moveTo(pad.l, ty(g)); ctx.lineTo(W - pad.r, ty(g)); ctx.stroke();
+  }
+
+  // Labels
+  ctx.fillStyle = '#555568';
+  ctx.font = '9px "JetBrains Mono", monospace';
+  ctx.textAlign = 'center';
+  for (let t = 0; t <= 40; t += 10) ctx.fillText(t + '°', tx(t), H - pad.b + 14);
+  ctx.textAlign = 'right';
+  for (let g = 0; g <= 1; g += 0.25) ctx.fillText(g.toFixed(2), pad.l - 6, ty(g) + 3);
+  ctx.save();
+  ctx.translate(12, H / 2);
+  ctx.rotate(-Math.PI / 2);
+  ctx.textAlign = 'center';
+  ctx.fillText('GLI', 0, 0);
+  ctx.restore();
+  ctx.textAlign = 'center';
+  ctx.fillText('T (°C)', W / 2, H - 4);
+
+  // Trail
+  if (phaseTrail.length < 2) return;
+  ctx.lineWidth = 1.5;
+  for (let i = 1; i < phaseTrail.length; i++) {
+    const alpha = 0.15 + 0.85 * (i / phaseTrail.length);
+    const p = phaseTrail[i - 1], q = phaseTrail[i];
+    // Color by GLI
+    const g = q.y;
+    const r = Math.round((1 - g) * 220 + 30);
+    const gr = Math.round(g * 200 + 40);
+    ctx.strokeStyle = `rgba(${r},${gr},60,${alpha})`;
+    ctx.beginPath();
+    ctx.moveTo(tx(p.x), ty(p.y));
+    ctx.lineTo(tx(q.x), ty(q.y));
+    ctx.stroke();
+  }
+  // Current point
+  const last = phaseTrail[phaseTrail.length - 1];
+  ctx.fillStyle = '#fff';
+  ctx.beginPath();
+  ctx.arc(tx(last.x), ty(last.y), 4, 0, Math.PI * 2);
+  ctx.fill();
+}
+
+// ─── Chart.js charts ───────────────────────────────
+const chartOpts = {
+  animation: false, responsive: true, maintainAspectRatio: false,
+  plugins: { legend: { display: true, labels: { color: '#8888a0', font: { size: 9, family: '"JetBrains Mono", monospace' }, boxWidth: 10, padding: 6 } } },
+  scales: {
+    x: { ticks: { color: '#555568', font: { size: 8 }, maxTicksLimit: 7 }, grid: { color: 'rgba(255,255,255,0.03)' } },
+    y: { ticks: { color: '#555568', font: { size: 8 }, maxTicksLimit: 5 }, grid: { color: 'rgba(255,255,255,0.04)' } }
+  }
+};
+
+function updateCharts() {
+  const s = history.steps;
+  const n = s.length;
+
+  // Chart 1: GLI & TAI
+  if (charts.gli) charts.gli.destroy();
+  charts.gli = new Chart(document.getElementById('chGLI'), {
+    type: 'line', data: { labels: s, datasets: [
+      { label: 'GLI', data: history.gli, borderColor: '#6ee7b7', borderWidth: 1.8, pointRadius: 0, tension: 0.3 },
+      { label: 'TAI', data: history.tai, borderColor: '#f59e0b', borderWidth: 1.3, pointRadius: 0, tension: 0.3 },
+      { label: 'Similarity', data: history.sim, borderColor: '#60a5fa', borderWidth: 1, pointRadius: 0, tension: 0.3, borderDash: [4, 3] },
+    ]},
+    options: { ...chartOpts, scales: { ...chartOpts.scales, y: { ...chartOpts.scales.y, min: 0, max: 1 } } }
+  });
+
+  // Chart 2: Traits
+  if (charts.traits) charts.traits.destroy();
+  const traitData = [];
+  for (let f = 0; f < F; f++) {
+    traitData.push({
+      label: FEATURES[f],
+      data: history.traits.map(t => t[f]),
+      borderColor: FCOLORS[f],
+      borderWidth: 1.2,
+      pointRadius: 0,
+      tension: 0.3,
+    });
+  }
+  charts.traits = new Chart(document.getElementById('chTraits'), {
+    type: 'line', data: { labels: s, datasets: traitData },
+    options: { ...chartOpts, scales: { ...chartOpts.scales, y: { ...chartOpts.scales.y, min: 0, max: 1 } } }
+  });
+
+  // Chart 3: Fluxes
+  if (charts.flux) charts.flux.destroy();
+  charts.flux = new Chart(document.getElementById('chFlux'), {
+    type: 'line', data: { labels: s, datasets: [
+      { label: 'Axelrod', data: history.fluxA, borderColor: '#6ee7b7', borderWidth: 1.3, pointRadius: 0, tension: 0.3 },
+      { label: 'Climate', data: history.fluxC, borderColor: '#f87171', borderWidth: 1.3, pointRadius: 0, tension: 0.3 },
+      { label: 'Cooling', data: history.fluxK, borderColor: '#22d3ee', borderWidth: 1.3, pointRadius: 0, tension: 0.3 },
+      { label: 'Noise', data: history.fluxN, borderColor: '#c084fc', borderWidth: 1, pointRadius: 0, tension: 0.3, borderDash: [3, 3] },
+    ]},
+    options: chartOpts,
+  });
+
+  // Chart 4: Cooling & temp
+  if (charts.cool) charts.cool.destroy();
+  charts.cool = new Chart(document.getElementById('chCool'), {
+    type: 'line', data: { labels: s, datasets: [
+      { label: 'Cooling (W/m²)', data: history.cool, borderColor: '#22d3ee', borderWidth: 1.5, pointRadius: 0, tension: 0.3, yAxisID: 'y' },
+      { label: 'Temp (°C)', data: history.temp, borderColor: '#f87171', borderWidth: 1, pointRadius: 0, tension: 0.3, yAxisID: 'y1' },
+    ]},
+    options: {
+      ...chartOpts,
+      scales: {
+        x: chartOpts.scales.x,
+        y: { position: 'left', ticks: { color: '#22d3ee', font: { size: 8 } }, grid: { color: 'rgba(255,255,255,0.04)' } },
+        y1: { position: 'right', ticks: { color: '#f87171', font: { size: 8 } }, grid: { display: false } },
+      }
+    }
+  });
+}
+
+// ─── Initialisation ────────────────────────────────
+function resetModel() {
+  if (running) toggleRun();
+  step = 0;
+  const typeKey = nodeType();
+  const prof = TYPE_PROFILES[typeKey];
+  for (let f = 0; f < F; f++) {
+    sigma[f] = prof.sigma[f];
+    sigma0[f] = prof.sigma[f];
+  }
+  heritage = prof.heritage;
+
+  history = { steps:[], gli:[], tai:[], temp:[], sim:[], cool:[], traits:[], fluxA:[], fluxC:[], fluxK:[], fluxN:[] };
+  phaseTrail = [];
+
+  const s = computeStats({ fluxA: 0, fluxC: 0, fluxK: 0, fluxN: 0 });
+  recordHistory(s);
+  updateUI(s);
+  drawBars();
+  drawPhase();
+  updateCharts();
+}
+
+function stepOnce() {
+  const fluxes = modelStep();
+  const s = computeStats(fluxes);
+  recordHistory(s);
+  updateUI(s);
+  drawBars();
+  if (step % 2 === 0) drawPhase();
+  if (step % 3 === 0) updateCharts();
+}
+
+function step10() { for (let i = 0; i < 10; i++) { const fl = modelStep(); const s = computeStats(fl); recordHistory(s); } updateAll(); }
+function step100() { for (let i = 0; i < 100; i++) { const fl = modelStep(); const s = computeStats(fl); recordHistory(s); } updateAll(); }
+
+function runToSteady() {
+  // Run until |dGLI/dt| < threshold or max 2000 steps
+  const maxIter = 2000;
+  let prevGLI = computeGLI();
+  for (let i = 0; i < maxIter; i++) {
+    const fl = modelStep();
+    const s = computeStats(fl);
+    recordHistory(s);
+    const dg = Math.abs(s.gli - prevGLI);
+    prevGLI = s.gli;
+    if (i > 50 && dg < 1e-5) break;
+  }
+  updateAll();
+}
+
+function updateAll() {
+  const s = computeStats({ fluxA: 0, fluxC: 0, fluxK: 0, fluxN: 0 });
+  updateUI(s);
+  drawBars();
+  drawPhase();
+  updateCharts();
+}
+
+function toggleRun() {
+  running = !running;
+  document.getElementById('btnRun').textContent = running ? 'Pause' : 'Run';
+  document.getElementById('btnRun').classList.toggle('active', running);
+  if (running) loop();
+}
+
+function loop() {
+  if (!running) return;
+  for (let i = 0; i < 3; i++) {
+    const fl = modelStep();
+    const s = computeStats(fl);
+    recordHistory(s);
+  }
+  updateAll();
+  animId = requestAnimationFrame(loop);
+}
+
+// ─── Equation toggle ──────────────────────────────
+function toggleEq() {
+  const toggle = document.getElementById('eqToggle');
+  const body = document.getElementById('eqBody');
+  toggle.classList.toggle('open');
+  body.classList.toggle('show');
+}
+
+// ─── Resize handling ──────────────────────────────
+window.addEventListener('resize', () => { if (sigma) drawPhase(); });
+
+// ─── Init ─────────────────────────────────────────
+resetModel();
+</script>
+</body>
+</html>
