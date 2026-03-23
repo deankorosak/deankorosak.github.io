@@ -245,6 +245,14 @@ figcaption {
   margin-bottom: 1.5rem;
 }
 
+.vsebina blockquote {
+  border-left: 3px solid var(--barva-poudarek);
+  padding-left: 1.25rem;
+  margin: 1.5rem 0;
+  color: var(--barva-siva);
+  font-style: italic;
+}
+
 /* ---- NOGA ---- */
 footer {
   margin-top: 3rem;
