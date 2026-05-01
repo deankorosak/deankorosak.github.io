@@ -1,0 +1,1175 @@
+<!doctype html>
+<html lang="sl">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="robots" content="noindex, nofollow, noarchive, nosnippet, noimageindex" />
+<meta name="googlebot" content="noindex, nofollow, noarchive, nosnippet, noimageindex" />
+<title>#UM2030 — Ambiciozno, a realno · Dean Korošak</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;700&family=Newsreader:ital,opsz,wght@0,16,400;0,16,600;1,16,400&family=Crimson+Pro:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet" />
+<style>
+  /* ===== Tokens ===== */
+  :root{
+    --bg:#F8F7F4;
+    --ink:#0A0A0A;
+    --ink-80:rgba(10,10,10,0.8);
+    --ink-60:rgba(10,10,10,0.6);
+    --ink-40:rgba(10,10,10,0.4);
+    --ink-15:rgba(10,10,10,0.15);
+    --ink-08:rgba(10,10,10,0.08);
+    --accent:#0B2545;
+    --accent-light:#85B7EB;
+    --inv-bg:#0A0A0A;
+    --inv-fg:#F8F7F4;
+    --inv-fg-70:rgba(248,247,244,0.7);
+    --sans:'Inter', system-ui, -apple-system, sans-serif;
+    --serif:'Newsreader', 'Crimson Pro', Georgia, serif;
+  }
+
+  /* On drsnica 3 (the inverse spread) the accent is intentionally
+     desaturated to a very light warm gray, so the slide reads as a
+     monochromatic composition rather than a color statement. */
+  .spread.inverse,
+  body.on-inverse-act1{
+    --accent-light:#C8C7C2;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{
+    height:100%;
+    overflow:hidden;
+    background:var(--bg);
+    color:var(--ink);
+    font-family:var(--sans);
+    -webkit-font-smoothing:antialiased;
+    text-rendering:optimizeLegibility;
+    font-feature-settings:"kern","liga","calt";
+  }
+  button{font:inherit;color:inherit;background:none;border:0;cursor:pointer;padding:0}
+
+  /* ===== Stage ===== */
+  /* Each spread fills the whole viewport. Only one is visible at a time. */
+  .stage{
+    position:fixed;
+    inset:0;
+    overflow:hidden;
+  }
+
+  .spread{
+    position:absolute;
+    inset:0;
+    opacity:0;
+    pointer-events:none;
+    transition:opacity 360ms ease;
+    z-index:1;
+  }
+  .spread.is-current{
+    opacity:1;
+    pointer-events:auto;
+    z-index:2;
+  }
+
+  /* ===== Slide layer (act 1: foreground; act 2: blurred backdrop) ===== */
+  .slide-layer{
+    position:absolute;
+    inset:0;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    padding:10vh max(40px,7vw);
+    background:var(--bg);
+    transition:filter 460ms cubic-bezier(0.4,0,0.2,1),
+               opacity 460ms cubic-bezier(0.4,0,0.2,1),
+               transform 460ms cubic-bezier(0.4,0,0.2,1);
+    will-change:filter,transform;
+  }
+  .slide-layer.center{
+    align-items:flex-start;
+  }
+  .slide-layer.center-x{
+    align-items:center;
+    text-align:center;
+  }
+
+  .spread.inverse .slide-layer{
+    background:var(--inv-bg);
+    color:var(--inv-fg);
+  }
+
+  /* In act 2: slide blurs into the background */
+  .spread[data-act="2"] .slide-layer{
+    filter:blur(10px) brightness(0.82) saturate(0.7);
+    transform:scale(1.02);
+  }
+  .spread.inverse[data-act="2"] .slide-layer{
+    filter:blur(10px) brightness(0.62) saturate(0.55);
+  }
+
+  /* ===== Slide chrome inside the slide layer ===== */
+  .slide-eyebrow{
+    position:absolute;
+    top:max(28px,4.5vh);
+    left:max(40px,7vw);
+    font-family:var(--sans);
+    font-weight:500;
+    font-size:11px;
+    letter-spacing:0.18em;
+    text-transform:uppercase;
+    color:var(--accent);
+  }
+  .slide-eyebrow .num{margin-right:1.6em;font-variant-numeric:tabular-nums}
+  .spread.inverse .slide-eyebrow{color:var(--accent-light)}
+
+  /* Tiny progress indicator at bottom-right of slide layer */
+  .slide-progress{
+    position:absolute;
+    bottom:max(24px,4vh);
+    right:max(40px,7vw);
+    height:1px;
+    background:var(--ink);
+    opacity:0.42;
+    transition:width 480ms ease;
+  }
+  .spread.inverse .slide-progress{
+    background:var(--inv-fg);
+    opacity:0.5;
+  }
+
+  /* ===== Slide typography (now sized for full viewport) ===== */
+  .hashtag{
+    font-family:var(--sans);
+    font-weight:500;
+    font-size:clamp(15px,1.4vw,20px);
+    letter-spacing:0.04em;
+    color:var(--accent);
+  }
+  .spread.inverse .hashtag{color:var(--accent-light)}
+
+  .slide-title-xl{
+    font-family:var(--sans);
+    font-weight:700;
+    font-size:clamp(60px,8.5vw,128px);
+    line-height:0.98;
+    letter-spacing:-0.035em;
+    color:var(--ink);
+  }
+  .spread.inverse .slide-title-xl{color:var(--inv-fg)}
+
+  .slide-title-lg{
+    font-family:var(--sans);
+    font-weight:700;
+    font-size:clamp(72px,10vw,160px);
+    line-height:0.96;
+    letter-spacing:-0.04em;
+  }
+  .spread.inverse .slide-title-lg{color:var(--inv-fg)}
+
+  .slide-title-md{
+    font-family:var(--sans);
+    font-weight:400;
+    font-size:clamp(40px,5.2vw,80px);
+    line-height:1.06;
+    letter-spacing:-0.02em;
+    color:var(--ink);
+  }
+
+  .slide-light{
+    font-family:var(--sans);
+    font-weight:300;
+    font-size:clamp(26px,3.4vw,50px);
+    line-height:1.18;
+    letter-spacing:-0.013em;
+    color:var(--ink);
+  }
+  .slide-light.tight{
+    font-size:clamp(20px,2.4vw,32px);
+    line-height:1.32;
+  }
+  .slide-light-60{color:var(--ink-60)}
+  .spread.inverse .slide-light-70{color:var(--inv-fg-70)}
+
+  .slide-bold{
+    font-family:var(--sans);
+    font-weight:700;
+    font-size:clamp(26px,3.4vw,50px);
+    line-height:1.16;
+    letter-spacing:-0.018em;
+    color:var(--ink);
+  }
+  .spread.inverse .slide-bold{color:var(--inv-fg)}
+
+  /* Unified statement (drsnice 2, 4, 5, 7) — regular base, selective emphasis */
+  .statement{
+    font-family:var(--sans);
+    font-weight:400;
+    font-size:clamp(26px,3.4vw,50px);
+    line-height:1.22;
+    letter-spacing:-0.013em;
+    color:var(--ink);
+  }
+  .statement.medium{
+    font-size:clamp(22px,2.8vw,38px);
+    line-height:1.34;
+  }
+  .statement strong{
+    font-weight:700;
+    letter-spacing:-0.018em;
+  }
+  .statement strong.accent{color:var(--accent)}
+  .spread.inverse .statement{color:var(--inv-fg)}
+  .spread.inverse .statement strong.accent{color:var(--accent-light)}
+
+  .accent{color:var(--accent)}
+  .spread.inverse .accent{color:var(--accent-light)}
+
+  .stack-xl > * + *{margin-top:clamp(40px,5.2vh,72px)}
+  .stack-lg > * + *{margin-top:clamp(28px,3.6vh,52px)}
+  .stack-md > * + *{margin-top:clamp(20px,2.6vh,36px)}
+  .stack-sm > * + *{margin-top:clamp(8px,1vh,14px)}
+
+  .max-col{max-width:min(1480px,86vw)}
+  .max-col-sm{max-width:min(1000px,72vw)}
+
+  /* Year list (drsnica 2) */
+  .year-list{
+    display:grid;
+    grid-template-columns:auto 1fr;
+    column-gap:clamp(20px,2.4vw,40px);
+    row-gap:clamp(10px,1.4vh,20px);
+    font-family:var(--sans);
+    font-size:clamp(22px,2.6vw,38px);
+    line-height:1.2;
+  }
+  .year-list .y{
+    font-weight:700;
+    font-variant-numeric:tabular-nums;
+    color:var(--ink);
+    letter-spacing:-0.01em;
+  }
+  .year-list .d{
+    font-weight:400;
+    color:var(--ink);
+    letter-spacing:-0.005em;
+  }
+
+  /* Achievements list (drsnica 4 in 2) */
+  .achievements{
+    font-family:var(--sans);
+    font-weight:300;
+    font-size:clamp(20px,2.2vw,32px);
+    line-height:1.32;
+    color:var(--ink);
+    font-feature-settings:"tnum","kern";
+    letter-spacing:-0.005em;
+  }
+  .achievements > div{
+    display:flex;
+    align-items:baseline;
+    gap:0.7em;
+    padding:clamp(3px,0.4vh,6px) 0;
+    border-bottom:0.5px solid var(--ink-08);
+  }
+  .achievements > div:last-child{border-bottom:0}
+  .achievements .lead{
+    font-weight:700;
+    color:var(--ink);
+    letter-spacing:-0.015em;
+    flex-shrink:0;
+    min-width:6.5em;
+  }
+  .achievements .body{
+    font-weight:300;
+    color:var(--ink);
+  }
+  .achievements .num{
+    font-weight:700;
+    font-variant-numeric:tabular-nums;
+  }
+
+  /* Achievement tiles (drsnica 3) — boxed cards with prominent figures or labels */
+  .achievement-tiles{
+    display:grid;
+    grid-template-columns:repeat(3, 1fr);
+    gap:clamp(10px,1.4vw,20px);
+    width:100%;
+  }
+  .achievement-tiles .tile{
+    display:flex;
+    flex-direction:column;
+    align-items:flex-start;
+    justify-content:space-between;
+    gap:clamp(12px,1.8vh,24px);
+    padding:clamp(18px,2.4vh,32px) clamp(20px,2vw,32px);
+    border:0.5px solid var(--ink-15);
+    border-radius:6px;
+    background:rgba(10,10,10,0.015);
+    min-height:clamp(140px,18vh,200px);
+    transition:background 240ms ease;
+  }
+  .achievement-tiles .tile-figure{
+    font-family:var(--sans);
+    font-weight:700;
+    font-size:clamp(22px,2.8vw,44px);
+    line-height:1.05;
+    letter-spacing:-0.022em;
+    color:var(--accent);
+    font-variant-numeric:tabular-nums;
+    white-space:nowrap;
+  }
+  .achievement-tiles .tile-figure.short{letter-spacing:-0.012em}
+  .achievement-tiles .tile-body{
+    font-family:var(--sans);
+    font-weight:400;
+    font-size:clamp(13px,1.1vw,17px);
+    line-height:1.34;
+    color:var(--ink);
+    letter-spacing:-0.005em;
+  }
+  .achievement-tiles .tile-body strong{font-weight:600}
+
+  /* Echo pair (drsnica 5) */
+  .echo-bold{
+    font-family:var(--sans);
+    font-weight:700;
+    font-size:clamp(52px,7vw,104px);
+    line-height:0.98;
+    letter-spacing:-0.03em;
+    color:var(--ink);
+  }
+  .echo-light{
+    font-family:var(--sans);
+    font-weight:300;
+    font-size:clamp(52px,7vw,104px);
+    line-height:0.98;
+    letter-spacing:-0.03em;
+    color:var(--ink-60);
+  }
+
+  /* Vignette (intro/outro) */
+  .vignette-um{
+    font-family:var(--sans);
+    font-weight:700;
+    font-size:clamp(82px,12.5vw,200px);
+    line-height:0.96;
+    letter-spacing:-0.045em;
+    color:var(--accent);
+  }
+  .vignette-title{
+    font-family:var(--sans);
+    font-weight:400;
+    font-size:clamp(28px,3.6vw,52px);
+    line-height:1.12;
+    letter-spacing:-0.02em;
+    color:var(--ink);
+  }
+  .vignette-instruction{
+    font-family:var(--sans);
+    font-weight:400;
+    font-size:clamp(13px,1.05vw,16px);
+    line-height:1.6;
+    color:var(--ink-60);
+    letter-spacing:0.005em;
+    max-width:38em;
+  }
+  .vignette-instruction .kbd{
+    display:inline-block;
+    border:0.5px solid var(--ink-15);
+    border-radius:3px;
+    padding:1px 7px;
+    font-family:var(--sans);
+    font-size:0.85em;
+    margin:0 0.25em;
+    color:var(--ink-80);
+    letter-spacing:0;
+  }
+
+  /* ===== Act hint (the "↓ preberi" prompt at the bottom of act 1) ===== */
+  .act-hint{
+    position:absolute;
+    bottom:max(28px,5vh);
+    left:50%;
+    transform:translateX(-50%) translateY(0);
+    font-family:var(--sans);
+    font-weight:500;
+    font-size:11px;
+    letter-spacing:0.22em;
+    text-transform:uppercase;
+    color:var(--ink-60);
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:8px;
+    opacity:0;
+    pointer-events:none;
+    transition:opacity 480ms ease;
+    user-select:none;
+    z-index:3;
+  }
+  .act-hint .arrow{
+    width:1px;
+    height:18px;
+    background:var(--ink-40);
+    animation:hintBreath 2.2s ease-in-out infinite;
+  }
+  @keyframes hintBreath{
+    0%,100%{opacity:0.4;height:14px}
+    50%{opacity:0.85;height:22px}
+  }
+  .spread.is-current[data-act="1"] .act-hint{
+    opacity:1;
+    transition-delay:1100ms;
+  }
+  .spread[data-act="2"] .act-hint{
+    opacity:0;
+    transition-delay:0ms;
+  }
+  .spread.inverse .act-hint{color:var(--inv-fg-70)}
+  .spread.inverse .act-hint .arrow{background:rgba(248,247,244,0.55)}
+
+  /* ===== Essay overlay (act 2) ===== */
+  .essay-layer{
+    position:absolute;
+    inset:0;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:5vh 4vw;
+    pointer-events:none;
+    opacity:0;
+    transition:opacity 360ms cubic-bezier(0.4,0,0.2,1);
+    z-index:4;
+  }
+  .spread[data-act="2"] .essay-layer{
+    opacity:1;
+    pointer-events:auto;
+  }
+
+  .essay-panel{
+    position:relative;
+    width:min(880px,82vw);
+    max-height:90vh;
+    overflow-y:auto;
+    background:rgba(244,240,228,0.62);
+    border:0.5px solid rgba(10,10,10,0.06);
+    border-radius:6px;
+    padding:clamp(40px,7vh,72px) clamp(36px,5vw,68px);
+    transform:translateY(18px);
+    transition:transform 460ms cubic-bezier(0.16,1,0.3,1);
+    backdrop-filter:blur(18px) saturate(150%);
+    -webkit-backdrop-filter:blur(18px) saturate(150%);
+    scrollbar-width:thin;
+    scrollbar-color:var(--ink-15) transparent;
+  }
+  .spread.inverse .essay-panel{
+    background:rgba(248,247,244,0.86);
+  }
+  .spread[data-act="2"] .essay-panel{
+    transform:translateY(0);
+    transition-delay:80ms;
+  }
+  .essay-panel::-webkit-scrollbar{width:6px}
+  .essay-panel::-webkit-scrollbar-track{background:transparent}
+  .essay-panel::-webkit-scrollbar-thumb{background:var(--ink-15);border-radius:3px}
+
+  .essay-eyebrow{
+    font-family:var(--sans);
+    font-weight:500;
+    font-size:11px;
+    letter-spacing:0.2em;
+    text-transform:uppercase;
+    color:var(--accent);
+    margin-bottom:clamp(20px,3vh,32px);
+    display:flex;
+    align-items:baseline;
+    gap:1.6em;
+  }
+  .essay-eyebrow .num{font-variant-numeric:tabular-nums}
+  .essay-eyebrow .title{color:var(--ink-80);letter-spacing:0.18em}
+
+  .essay{
+    font-family:var(--serif);
+    font-variation-settings:"opsz" 16;
+    font-weight:400;
+    font-size:clamp(17px,1.32vw,21px);
+    line-height:1.72;
+    color:var(--ink);
+  }
+  .essay p + p{margin-top:0.95em}
+  .essay em{font-style:italic}
+  .essay .small{font-size:0.92em}
+  .essay .italic{font-style:italic}
+
+  .essay-close{
+    position:absolute;
+    top:clamp(14px,2.2vh,22px);
+    right:clamp(16px,2vw,26px);
+    font-family:var(--sans);
+    font-weight:500;
+    font-size:11px;
+    letter-spacing:0.18em;
+    text-transform:uppercase;
+    color:var(--ink-60);
+    padding:6px 8px;
+    transition:color 200ms ease;
+  }
+  .essay-close:hover{color:var(--ink)}
+  .essay-close .x{margin-right:0.4em;font-size:1.3em;line-height:1}
+
+  /* ===== Global chrome ===== */
+  .um-mark{
+    position:fixed;
+    top:max(20px,2.6vh);
+    right:max(28px,2.4vw);
+    font-family:var(--sans);
+    font-weight:500;
+    font-size:12px;
+    letter-spacing:0.22em;
+    color:var(--accent);
+    z-index:50;
+    pointer-events:none;
+    transition:color 360ms ease;
+  }
+  body.on-inverse-act1 .um-mark{color:var(--accent-light)}
+
+  .spread-counter{
+    position:fixed;
+    top:50%;
+    left:18px;
+    transform:translateY(-50%) rotate(-90deg);
+    transform-origin:left center;
+    font-family:var(--sans);
+    font-weight:500;
+    font-size:10px;
+    letter-spacing:0.28em;
+    text-transform:uppercase;
+    color:var(--accent);
+    z-index:50;
+    pointer-events:none;
+    white-space:nowrap;
+    transition:color 360ms ease;
+  }
+  body.on-inverse-act1 .spread-counter{color:var(--accent-light)}
+
+  .help-rail{
+    position:fixed;
+    bottom:max(20px,2.6vh);
+    left:max(28px,2.4vw);
+    font-family:var(--sans);
+    font-weight:500;
+    font-size:10px;
+    letter-spacing:0.22em;
+    text-transform:uppercase;
+    color:var(--ink-60);
+    z-index:50;
+    pointer-events:none;
+    display:flex;
+    gap:1.8em;
+    transition:color 360ms ease, opacity 360ms ease;
+  }
+  body.on-inverse-act1 .help-rail{color:var(--inv-fg-70)}
+  .help-rail .glyph{
+    color:var(--ink);
+    margin-right:0.5em;
+    font-weight:500;
+  }
+  body.on-inverse-act1 .help-rail .glyph{color:var(--inv-fg)}
+
+  .nav-rail{
+    position:fixed;
+    top:50%;
+    right:18px;
+    transform:translateY(-50%);
+    display:flex;
+    flex-direction:column;
+    gap:14px;
+    z-index:50;
+  }
+  .nav-rail button{
+    display:flex;
+    align-items:center;
+    justify-content:flex-end;
+    gap:14px;
+    padding:6px 0;
+    color:var(--ink);
+  }
+  .nav-rail .tick{
+    display:block;
+    width:14px;
+    height:1px;
+    background:var(--ink);
+    opacity:0.32;
+    transition:width 240ms ease, opacity 240ms ease, background 240ms ease;
+  }
+  .nav-rail button:hover .tick{opacity:0.85;width:20px}
+  .nav-rail button.active .tick{
+    width:28px;
+    opacity:1;
+  }
+  .nav-rail .label{
+    font-family:var(--sans);
+    font-size:10px;
+    letter-spacing:0.18em;
+    text-transform:uppercase;
+    color:var(--ink-60);
+    opacity:0;
+    transition:opacity 200ms ease;
+    pointer-events:none;
+    white-space:nowrap;
+  }
+  .nav-rail button:hover .label{opacity:1}
+  body.on-inverse-act1 .nav-rail .tick{background:var(--inv-fg);opacity:0.45}
+  body.on-inverse-act1 .nav-rail button.active .tick{opacity:1}
+  body.on-inverse-act1 .nav-rail .label{color:var(--inv-fg-70)}
+
+  /* ===== Mobile ===== */
+  @media (max-width: 900px){
+    .slide-layer{
+      padding:8vh 6vw;
+    }
+    .slide-eyebrow{top:18px;left:6vw}
+    .slide-progress{bottom:18px;right:6vw}
+    .slide-title-xl{font-size:clamp(44px,11vw,84px)}
+    .slide-title-lg{font-size:clamp(56px,15vw,110px)}
+    .slide-title-md{font-size:clamp(28px,7vw,48px)}
+    .slide-light, .slide-bold{font-size:clamp(20px,4.6vw,32px)}
+    .echo-bold, .echo-light{font-size:clamp(40px,10vw,72px)}
+    .vignette-um{font-size:clamp(54px,15vw,110px)}
+    .vignette-title{font-size:clamp(22px,5.4vw,36px)}
+    .achievements{font-size:clamp(15px,3.8vw,22px)}
+    .achievements .lead{min-width:5em}
+    .achievement-tiles{
+      grid-template-columns:repeat(2, 1fr);
+      gap:8px;
+    }
+    .achievement-tiles .tile{
+      padding:14px 14px;
+      min-height:90px;
+    }
+    .achievement-tiles .tile-figure{font-size:clamp(20px,5.4vw,30px)}
+    .achievement-tiles .tile-body{font-size:clamp(11px,3.2vw,14px);line-height:1.3}
+    .year-list{font-size:clamp(18px,4.4vw,28px);column-gap:18px}
+    .essay-panel{
+      width:92vw;
+      padding:clamp(32px,5vh,52px) clamp(22px,5vw,40px);
+    }
+    .essay{font-size:clamp(15px,4vw,18px);line-height:1.65}
+    .nav-rail{
+      right:auto;
+      left:50%;
+      top:auto;
+      bottom:50px;
+      transform:translateX(-50%);
+      flex-direction:row;
+      gap:8px;
+    }
+    .nav-rail .tick{width:12px}
+    .nav-rail button.active .tick{width:20px}
+    .nav-rail .label{display:none}
+    .spread-counter{
+      top:14px;
+      left:16px;
+      transform:none;
+      writing-mode:horizontal-tb;
+      font-size:9px;
+    }
+    .um-mark{top:14px;right:16px;font-size:11px}
+    .help-rail{
+      bottom:18px;
+      left:50%;
+      transform:translateX(-50%);
+      font-size:9px;
+      gap:1.2em;
+    }
+  }
+
+  /* Reduce motion */
+  @media (prefers-reduced-motion: reduce){
+    .spread, .slide-layer, .essay-layer, .essay-panel, .act-hint{
+      transition-duration:120ms !important;
+    }
+    .act-hint .arrow{animation:none}
+  }
+</style>
+</head>
+<body>
+
+<div class="um-mark" id="umMark">#UM2030</div>
+<div class="spread-counter" id="counter">drsnica 0 / 8</div>
+<div class="help-rail" id="helpRail">
+  <span><span class="glyph">↕</span>besedilo</span>
+  <span><span class="glyph">←→</span>drsnice</span>
+</div>
+
+<nav class="nav-rail" id="navRail" aria-label="Navigacija po drsnicah"></nav>
+
+<main class="stage" id="stage" tabindex="0">
+
+  <!-- ============== DRSNICA 0 — uvodna vinjeta ============== -->
+  <section class="spread" data-index="0" data-act="1" data-title="Uvod" aria-label="Uvodna vinjeta">
+    <div class="slide-layer center-x">
+      <div class="slide-eyebrow"><span class="num">0/8</span>Kolofon</div>
+      <div class="max-col stack-xl" style="display:flex;flex-direction:column;align-items:center">
+        <div class="vignette-um">#UM2030</div>
+        <div class="vignette-title" style="text-align:center">Ambiciozno, a realno</div>
+        <div class="vignette-instruction" style="text-align:center;margin-top:clamp(40px,7vh,80px)">
+          Berite v miru. Vsaka drsnica vsebuje predstavitev in pripadajoče besedilo.
+        </div>
+      </div>
+      <div class="slide-progress" style="width:0%"></div>
+    </div>
+    <div class="essay-layer">
+      <div class="essay-panel">
+        <button class="essay-close" aria-label="Zapri besedilo"><span class="x">×</span>zapri</button>
+        <div class="essay-eyebrow"><span class="num">0/8</span><span class="title">Kolofon</span></div>
+        <div class="essay">
+          <p>Kandidatura za rektorja Univerze v Mariboru, mandat 2026–2030. Zaključni nastop, maj 2026.</p>
+          <p>Dean Korošak.</p>
+          <p class="italic small">Berite v miru. Vsaka drsnica vsebuje prosojnico iz nastopa in dobesedno govorno besedilo k njej.</p>
+        </div>
+      </div>
+    </div>
+    <div class="act-hint"><span>preberi besedilo</span><span class="arrow"></span></div>
+  </section>
+
+  <!-- ============== DRSNICA 1 ============== -->
+  <section class="spread" data-index="1" data-act="1" data-title="Ambiciozno, a realno" aria-label="Drsnica 1: Ambiciozno, a realno">
+    <div class="slide-layer center-x">
+      <div class="slide-eyebrow"><span class="num">I</span>Uvod</div>
+      <div class="max-col stack-lg" style="display:flex;flex-direction:column;align-items:center;text-align:center">
+        <div class="hashtag">#UM2030</div>
+        <div class="slide-title-xl">Ambiciozno,<br/>a realno</div>
+        <div class="slide-light tight stack-sm" style="margin-top:clamp(28px,4vh,52px)">
+          <div>Univerza bodočnosti:</div>
+          <div>povezani v znanju in ustvarjalnosti,</div>
+          <div>pogumni v raziskovanju.</div>
+        </div>
+      </div>
+      <div class="slide-progress" style="width:12.5%"></div>
+    </div>
+    <div class="essay-layer">
+      <div class="essay-panel">
+        <button class="essay-close" aria-label="Zapri besedilo"><span class="x">×</span>zapri</button>
+        <div class="essay-eyebrow"><span class="num">I</span><span class="title">Uvod</span></div>
+        <div class="essay">
+          <p>Spoštovane kolegice in kolegi, spoštovane študentke in študenti, spoštovani sodelavke in sodelavci Univerze v Mariboru.</p>
+          <p>Kandidiram za rektorja, ker verjamem, da Univerza v Mariboru vstopa v eno najpomembnejših obdobij po svoji ustanovitvi. Naslov mojega programa, <span class="accent">#UM2030</span>, ni naključen: ne gre za seznam obljub za nekaj mesecev, ampak za razvojno smer univerze do konca desetletja. Ambiciozno, a realno; to je moja zaveza.</p>
+        </div>
+      </div>
+    </div>
+    <div class="act-hint"><span>preberi besedilo</span><span class="arrow"></span></div>
+  </section>
+
+  <!-- ============== DRSNICA 2 ============== -->
+  <section class="spread" data-index="2" data-act="1" data-title="Mandat 2026–2030" aria-label="Drsnica 2: Mandat 2026–2030">
+    <div class="slide-layer center">
+      <div class="slide-eyebrow"><span class="num">II</span>Mandat 2026–2030</div>
+      <div class="max-col stack-lg">
+        <div class="slide-title-md">Mandat 2026–2030<br/>ni običajen mandat.</div>
+        <div class="achievements">
+          <div><span class="lead"><span class="num">od 2028</span></span><span class="body">šestletna pogodba za raziskovalno dejavnost</span></div>
+          <div><span class="lead"><span class="num">od 2029</span></span><span class="body">šestletna pogodba za študijsko dejavnost in investicije UM</span></div>
+          <div><span class="lead"><span class="num">do 2030</span></span><span class="body">nova razvojna pozicija UM</span></div>
+        </div>
+        <div class="statement">
+          Ne odločamo le o mandatu. Odločamo o <strong>razvojnih pogojih UM</strong> za naslednje desetletje.
+        </div>
+      </div>
+      <div class="slide-progress" style="width:25%"></div>
+    </div>
+    <div class="essay-layer">
+      <div class="essay-panel">
+        <button class="essay-close" aria-label="Zapri besedilo"><span class="x">×</span>zapri</button>
+        <div class="essay-eyebrow"><span class="num">II</span><span class="title">Mandat 2026–2030</span></div>
+        <div class="essay">
+          <p>Mandat 2026–2030 ne bo običajen mandat. V tem obdobju vstopamo v pogajanja o dveh šestletnih pogodbah, najprej leta 2028 za raziskovalno dejavnost, leto kasneje pa za študijsko dejavnost in investicije univerze. Hkrati bomo izvajali največji investicijski cikel v zgodovini univerze in se odločali, kakšna univerza želimo biti leta 2030.</p>
+          <p>Te volitve zato niso le izbira med programi. So izbira med različnimi predstavami o tem, kako se vodi javna slovenska in evropska univerza. Ne odločamo le o mandatu; odločamo o razvojnih pogojih univerze za naslednje desetletje.</p>
+        </div>
+      </div>
+    </div>
+    <div class="act-hint"><span>preberi besedilo</span><span class="arrow"></span></div>
+  </section>
+
+  <!-- ============== DRSNICA 3 ============== -->
+  <section class="spread" data-index="3" data-act="1" data-title="Dosežki so temelj" aria-label="Drsnica 3: Dosežki so temelj">
+    <div class="slide-layer center">
+      <div class="slide-eyebrow"><span class="num">III</span>Dosežki</div>
+      <div class="max-col stack-lg">
+        <div class="slide-title-md">Temelji.<br/>Gradimo na doseženem.</div>
+        <div class="achievement-tiles">
+          <div class="tile">
+            <div class="tile-figure">500 milijonov €</div>
+            <div class="tile-body">investicije UM,<br/><strong>največji cikel doslej</strong></div>
+          </div>
+          <div class="tile">
+            <div class="tile-figure short">Big Science UM</div>
+            <div class="tile-body">Elettra Sincrotrone,<br/>TUG · UM · UP</div>
+          </div>
+          <div class="tile">
+            <div class="tile-figure short">UI na UM</div>
+            <div class="tile-body">SLAIF · KC AI · EDIH</div>
+          </div>
+          <div class="tile">
+            <div class="tile-figure short">JE z I2EN</div>
+            <div class="tile-body">FR/SI partnerstvo za<br/>mednarodni študijski program</div>
+          </div>
+          <div class="tile">
+            <div class="tile-figure short">Stabilno financiranje</div>
+            <div class="tile-body">raziskovalni programi<br/>in mladi raziskovalci</div>
+          </div>
+          <div class="tile">
+            <div class="tile-figure short">Centri odličnosti</div>
+            <div class="tile-body">fotonika, analitika,<br/>zdravje, vesolje, dediščina</div>
+          </div>
+        </div>
+      </div>
+      <div class="slide-progress" style="width:37.5%"></div>
+    </div>
+    <div class="essay-layer">
+      <div class="essay-panel">
+        <button class="essay-close" aria-label="Zapri besedilo"><span class="x">×</span>zapri</button>
+        <div class="essay-eyebrow"><span class="num">III</span><span class="title">Dosežki</span></div>
+        <div class="essay">
+          <p>V zadnjem mandatu smo skupaj naredili pomembne korake. Kot prorektor za znanstvenoraziskovalno dejavnost sem vodil okrepitev raziskovanja in vstop v sistem stabilnega financiranja raziskovalnih programov in mladih raziskovalcev. Pod mojim vodstvom smo podvojili prijave na razpise Evropskega raziskovalnega sveta in odprli univerzo načelom odprte znanosti. Univerzo smo postavili na zemljevid evropske velike znanosti prek konzorcija s sinhrotronom Elettra v Trstu. Vzpostavili smo močno prisotnost na področju umetne inteligence prek SLAIF, kompetenčnih centrov in evropskega digitalnega inovacijskega vozlišča. Skupaj z I2EN v Parizu smo odprli pot novemu mednarodnemu študijskemu programu na področju jedrskega inženiringa. Zagotovili smo več kot pol milijarde evrov za največji investicijski cikel v zgodovini univerze.</p>
+          <p>Tega ni naredil posameznik; vsega tega ni mogla narediti niti samo ekipa. To je ustvarila skupnost. Toda procese sem vodil, povezoval in pripeljal do realizacije. Prav ta izkušnja je temelj mojega programa.</p>
+        </div>
+      </div>
+    </div>
+    <div class="act-hint"><span>preberi besedilo</span><span class="arrow"></span></div>
+  </section>
+
+  <!-- ============== DRSNICA 4 — inverse ============== -->
+  <section class="spread inverse" data-index="4" data-act="1" data-title="Avtonomija" aria-label="Drsnica 4: Avtonomija">
+    <div class="slide-layer center">
+      <div class="slide-eyebrow"><span class="num">IV</span>Avtonomija</div>
+      <div class="max-col stack-lg">
+        <div class="slide-title-lg">Avtonomija</div>
+        <div class="stack-sm">
+          <div class="slide-light slide-light-70">Univerza ni mreža uslug.</div>
+          <div class="slide-bold">Univerza je <span class="accent">skupnost</span>.</div>
+        </div>
+        <div class="stack-sm">
+          <div class="slide-light slide-light-70">Sodelovanje da.</div>
+          <div class="slide-bold">Vmešavanje od zunaj ne.</div>
+        </div>
+      </div>
+      <div class="slide-progress" style="width:50%"></div>
+    </div>
+    <div class="essay-layer">
+      <div class="essay-panel">
+        <button class="essay-close" aria-label="Zapri besedilo"><span class="x">×</span>zapri</button>
+        <div class="essay-eyebrow"><span class="num">IV</span><span class="title">Avtonomija</span></div>
+        <div class="essay">
+          <p>Avtonomija je prva zaveza mojega programa. Univerza v Mariboru ni mreža uslug, ni prostor političnih dolgov, ni institucija, katere prihodnost bi bila odvisna od osebnih dostopov. Univerza je akademska skupnost: učiteljev, raziskovalcev, umetnikov, strokovnih sodelavcev in študentov. Iz te skupnosti izhaja naša legitimnost, in od nikoder drugod.</p>
+          <p>Seveda se mora univerza pogovarjati z državo, ministrstvi, gospodarstvom, lokalnimi skupnostmi in evropskimi partnerji. Toda v te pogovore mora vstopati kot avtonomna institucija, z znanjem, podatki, rezultati in jasno strategijo; ne kot prosilec, ne kot nekdo, ki čaka na ugodne okoliščine. Avtonomija ni ugodnost, ki jo izprosimo; je ustavna vrednota in odgovornost. Gradili jo bomo predvsem tam, kjer dejansko nastaja: v laboratorijih, predavalnicah, ateljejih, knjižnicah, referatih, projektnih pisarnah in strokovnih službah.</p>
+        </div>
+      </div>
+    </div>
+    <div class="act-hint"><span>preberi besedilo</span><span class="arrow"></span></div>
+  </section>
+
+  <!-- ============== DRSNICA 5 ============== -->
+  <section class="spread" data-index="5" data-act="1" data-title="Univerza za ljudi" aria-label="Drsnica 5: Univerza za ljudi">
+    <div class="slide-layer center">
+      <div class="slide-eyebrow"><span class="num">V</span>Univerza za ljudi</div>
+      <div class="max-col stack-lg">
+        <div class="slide-title-md">Univerza,<br/>ki deluje za ljudi.</div>
+        <div class="stack-sm">
+          <div class="slide-light slide-light-60">Študenti v središču univerze.</div>
+          <div class="slide-bold">Študenti so razlog univerze.</div>
+        </div>
+        <div class="stack-sm">
+          <div class="slide-light slide-light-60">Ne univerza brez pravil.</div>
+          <div class="slide-bold">Univerza, kjer pravila služijo<br/>znanju in odličnosti.</div>
+        </div>
+      </div>
+      <div class="slide-progress" style="width:62.5%"></div>
+    </div>
+    <div class="essay-layer">
+      <div class="essay-panel">
+        <button class="essay-close" aria-label="Zapri besedilo"><span class="x">×</span>zapri</button>
+        <div class="essay-eyebrow"><span class="num">V</span><span class="title">Univerza za ljudi</span></div>
+        <div class="essay">
+          <p>Druga zaveza so študenti. Vsi pravimo, da so študenti v središču univerze, in to je prav. Toda zame to ni geslo; to je merilo vsake odločitve. Ko bomo odločali o študijskih programih, tutorstvu, mobilnosti, izbirnosti in podpornih službah, se bomo vsakič vprašali: ali študent zaradi tega lažje uspe, lažje najde svojo pot, lažje vstopi v raziskovanje, ustvarjanje in delo. Univerza obstaja zaradi študentov in zanje, vendar ne kot storitvena organizacija, ampak kot akademsko okolje, v katerem študent postane samostojen, ustvarjalen in odgovoren človek.</p>
+          <p>Univerza, ki deluje za ljudi, potrebuje boljše postopke. Da, potrebujemo manj nepotrebne administracije. Toda univerza ne potrebuje samo manj postopkov; potrebuje takšne, ki varujejo kakovost, zakonitost, pravičnost in akademsko svobodo, in hkrati omogočajo pedagoško, raziskovalno, umetniško in strokovno delo. Ne univerza brez pravil, ampak univerza, kjer pravila služijo znanju in odličnosti. Strokovne službe so pri tem ključni konstitutivni del univerze, ki omogoča delovanje univerze, zato morajo imeti pogoje za razvoj, priznanje, usposabljanje in karierno pot.</p>
+        </div>
+      </div>
+    </div>
+    <div class="act-hint"><span>preberi besedilo</span><span class="arrow"></span></div>
+  </section>
+
+  <!-- ============== DRSNICA 6 ============== -->
+  <section class="spread" data-index="6" data-act="1" data-title="Študij in raziskovanje" aria-label="Drsnica 6: Študij in raziskovanje">
+    <div class="slide-layer center">
+      <div class="slide-eyebrow"><span class="num">VI</span>Študij in raziskovanje</div>
+      <div class="max-col stack-lg">
+        <div class="stack-sm">
+          <div class="echo-bold">Študij raste<br/>iz raziskovanja.</div>
+          <div class="echo-light">Raziskovanje<br/>oblikuje študij.</div>
+        </div>
+        <div class="statement medium" style="margin-top:clamp(28px,4vh,52px)">
+          <strong>Eno poslanstvo,</strong> enakovrednost pedagoškega in raziskovalnega dela.
+        </div>
+      </div>
+      <div class="slide-progress" style="width:75%"></div>
+    </div>
+    <div class="essay-layer">
+      <div class="essay-panel">
+        <button class="essay-close" aria-label="Zapri besedilo"><span class="x">×</span>zapri</button>
+        <div class="essay-eyebrow"><span class="num">VI</span><span class="title">Študij in raziskovanje</span></div>
+        <div class="essay">
+          <p>Tretja zaveza je povezava raziskovanja in izobraževanja. Pred nami sta dve šestletni pogodbi, raziskovalna in študijska. Toda univerza ne sme delovati, kot da ima dve ločeni duši. Raziskovanje in izobraževanje nista ločeni nalogi univerze; sta dve plati istega poslanstva, pedagoško in raziskovalno delo pa enakovredni komponenti akademske kariere.</p>
+          <p>Kot eno prvih dejanj mandata bom imenoval koordinacijsko skupino za celostno pripravo univerze na obe pogodbi. Ne bomo se pripravljali razdrobljeno. Pripravili se bomo kot ena univerza, z jasnimi podatki, argumenti, cilji in razvojnimi prioritetami. Stabilno financiranje obstoječih raziskovalnih programov bomo povečali, programska in kreativna jedra razširili in okrepili, mlade raziskovalke in raziskovalce podprli na začetku njihove kariere, doktorski študij razumeli kot institucionalno zavezo do prihodnosti znanosti, umetnost utrdili kot enakovredno polje raziskovanja in ustvarjanja.</p>
+        </div>
+      </div>
+    </div>
+    <div class="act-hint"><span>preberi besedilo</span><span class="arrow"></span></div>
+  </section>
+
+  <!-- ============== DRSNICA 7 ============== -->
+  <section class="spread" data-index="7" data-act="1" data-title="Skupnost kot institucija" aria-label="Drsnica 7: Skupnost kot institucija">
+    <div class="slide-layer center-x">
+      <div class="slide-eyebrow"><span class="num">VII</span>Skupnost kot institucija</div>
+      <div class="max-col stack-lg" style="display:flex;flex-direction:column;align-items:center;text-align:center">
+        <div class="hashtag">#UM2030</div>
+        <div class="slide-title-xl">Ambiciozno,<br/>a realno</div>
+        <div class="statement medium" style="margin-top:clamp(28px,4vh,52px)">
+          Univerza ne potrebuje rešitelja. Potrebuje <strong class="accent">skupnost</strong>, ki zna nastopiti kot <strong>institucija</strong>. Z znanjem, argumenti, rezultati, zaupanjem, odgovornostjo.
+        </div>
+      </div>
+      <div class="slide-progress" style="width:87.5%"></div>
+    </div>
+    <div class="essay-layer">
+      <div class="essay-panel">
+        <button class="essay-close" aria-label="Zapri besedilo"><span class="x">×</span>zapri</button>
+        <div class="essay-eyebrow"><span class="num">VII</span><span class="title">Skupnost kot institucija</span></div>
+        <div class="essay">
+          <p>Univerza v Mariboru potrebuje spremembo; pravzaprav kontinuum sprememb. Toda sprememba ne pomeni rušenja. Sprememba pomeni, da tisto, kar smo skupaj zgradili, razvijemo v naslednjo stopnjo. Kontinuiteta ni mirovanje; kontinuiteta je odgovorna sposobnost, da iz dosežkov ustvarimo bodočnost.</p>
+          <p>Univerza v Mariboru je moj akademski dom. V njej sem zrasel kot raziskovalec, učitelj in sodelavec. Naučila me je, da univerza ni stavba, ni naziv, ni postopek; univerza so ljudje. Zato kandidiram kot nekdo, ki tej univerzi pripada, in ki jo želi voditi s poslušanjem, povezovanjem, odgovornostjo in jasnim ciljem.</p>
+          <p>Univerza ne potrebuje rešitelja. Potrebuje skupnost, ki zna nastopiti kot institucija: z znanjem, argumenti, rezultati, zaupanjem in odgovornostjo. To je #UM2030. Ambiciozno, a realno.</p>
+        </div>
+      </div>
+    </div>
+    <div class="act-hint"><span>preberi besedilo</span><span class="arrow"></span></div>
+  </section>
+
+  <!-- ============== DRSNICA 8 — zaključna vinjeta ============== -->
+  <section class="spread" data-index="8" data-act="1" data-title="Konec" aria-label="Zaključna vinjeta">
+    <div class="slide-layer center-x">
+      <div class="slide-eyebrow"><span class="num">8/8</span>Kolofon</div>
+      <div class="max-col stack-xl" style="display:flex;flex-direction:column;align-items:center;text-align:center">
+        <div class="vignette-um">#UM2030</div>
+        <div class="vignette-title">Ambiciozno, a realno.</div>
+      </div>
+      <div class="slide-progress" style="width:100%"></div>
+    </div>
+    <div class="essay-layer">
+      <div class="essay-panel">
+        <button class="essay-close" aria-label="Zapri besedilo"><span class="x">×</span>zapri</button>
+        <div class="essay-eyebrow"><span class="num">8/8</span><span class="title">Kolofon</span></div>
+        <div class="essay">
+          <p>Dean Korošak. Kandidat za rektorja Univerze v Mariboru, mandat 2026–2030.</p>
+          <p>Volitve: 12. maj 2026.</p>
+          <p class="italic small">Več: deankorosak.github.io</p>
+        </div>
+      </div>
+    </div>
+    <div class="act-hint"><span>preberi besedilo</span><span class="arrow"></span></div>
+  </section>
+
+</main>
+
+<script>
+(function(){
+  const stage = document.getElementById('stage');
+  const spreads = Array.from(document.querySelectorAll('.spread'));
+  const total = spreads.length;
+  const counter = document.getElementById('counter');
+  const navRail = document.getElementById('navRail');
+
+  // Build nav rail (right edge dots)
+  spreads.forEach((sp, i) => {
+    const btn = document.createElement('button');
+    btn.dataset.index = i;
+    btn.setAttribute('aria-label', 'Drsnica ' + i + ': ' + (sp.dataset.title || ''));
+    btn.innerHTML = '<span class="label">' + (sp.dataset.title || '') + '</span><span class="tick"></span>';
+    btn.addEventListener('click', () => goTo(i));
+    navRail.appendChild(btn);
+  });
+  const navButtons = Array.from(navRail.children);
+
+  let current = 0;
+
+  function applyInverseChrome(){
+    // Chrome (UM mark, counter, help, nav) follows act 1 of inverse spread
+    const sp = spreads[current];
+    const isInverse = sp.classList.contains('inverse');
+    const inAct1 = sp.dataset.act === '1';
+    document.body.classList.toggle('on-inverse-act1', isInverse && inAct1);
+  }
+
+  function setActive(i){
+    if (i < 0) i = 0;
+    if (i >= total) i = total - 1;
+    if (i === current) return;
+    // Reset outgoing spread to act 1 so returning to it later starts fresh
+    spreads[current].dataset.act = '1';
+    current = i;
+    spreads.forEach((sp, idx) => {
+      sp.classList.toggle('is-current', idx === i);
+    });
+    navButtons.forEach((b, idx) => {
+      b.classList.toggle('active', idx === i);
+    });
+    counter.textContent = 'drsnica ' + i + ' / ' + (total - 1);
+    applyInverseChrome();
+  }
+
+  function goTo(i){
+    if (i < 0) i = 0;
+    if (i >= total) i = total - 1;
+    if (i === current){
+      // Already on this spread — return to act 1
+      setAct(1);
+      return;
+    }
+    setActive(i);
+  }
+
+  function setAct(act){
+    const sp = spreads[current];
+    if (sp.dataset.act === String(act)) return;
+    sp.dataset.act = String(act);
+    applyInverseChrome();
+  }
+
+  function toggleAct(){
+    const sp = spreads[current];
+    setAct(sp.dataset.act === '1' ? 2 : 1);
+  }
+
+  // Keyboard
+  window.addEventListener('keydown', (e) => {
+    // ignore if user is typing in something focusable (none here, but safe)
+    if (e.target && e.target.tagName === 'INPUT') return;
+
+    if (e.key === 'ArrowRight' || e.key === 'PageDown'){
+      e.preventDefault();
+      goTo(current + 1);
+    } else if (e.key === 'ArrowLeft' || e.key === 'PageUp'){
+      e.preventDefault();
+      goTo(current - 1);
+    } else if (e.key === 'ArrowDown' || e.key === ' ' || e.key === 'Enter'){
+      e.preventDefault();
+      setAct(2);
+    } else if (e.key === 'ArrowUp' || e.key === 'Escape'){
+      e.preventDefault();
+      setAct(1);
+    } else if (e.key === 'Home'){
+      e.preventDefault(); goTo(0);
+    } else if (e.key === 'End'){
+      e.preventDefault(); goTo(total - 1);
+    } else if (/^[1-9]$/.test(e.key)){
+      const n = parseInt(e.key, 10) - 1;
+      if (n < total) { e.preventDefault(); goTo(n); }
+    } else if (e.key === '0'){
+      e.preventDefault(); goTo(0);
+    } else if (e.key === 'g' || e.key === 'G'){
+      e.preventDefault();
+      if (!document.fullscreenElement){
+        document.documentElement.requestFullscreen && document.documentElement.requestFullscreen();
+      } else {
+        document.exitFullscreen && document.exitFullscreen();
+      }
+    }
+  });
+
+  // Click on slide layer to open act 2 (but not when already open or on overlay)
+  spreads.forEach(sp => {
+    const slide = sp.querySelector('.slide-layer');
+    slide.addEventListener('click', (e) => {
+      // Only when this spread is current and in act 1
+      if (sp.dataset.act === '1' && sp.classList.contains('is-current')){
+        setAct(2);
+      }
+    });
+    // Close button on essay panel
+    const closeBtn = sp.querySelector('.essay-close');
+    if (closeBtn){
+      closeBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        setAct(1);
+      });
+    }
+    // Click on essay-layer outside the panel closes the essay
+    const essayLayer = sp.querySelector('.essay-layer');
+    essayLayer.addEventListener('click', (e) => {
+      if (e.target === essayLayer){
+        setAct(1);
+      }
+    });
+  });
+
+  // Wheel: toggle act, never change spread
+  let wheelLock = false;
+  let wheelAccum = 0;
+  let wheelTimer = null;
+  window.addEventListener('wheel', (e) => {
+    e.preventDefault();
+    if (wheelLock) return;
+    wheelAccum += e.deltaY;
+    if (Math.abs(wheelAccum) < 28) {
+      // collect more before deciding
+      clearTimeout(wheelTimer);
+      wheelTimer = setTimeout(() => { wheelAccum = 0; }, 220);
+      return;
+    }
+    wheelLock = true;
+    if (wheelAccum > 0){
+      setAct(2);
+    } else {
+      setAct(1);
+    }
+    wheelAccum = 0;
+    setTimeout(() => { wheelLock = false; }, 720);
+  }, { passive: false });
+
+  // Touch: vertical swipe toggles act, horizontal swipe changes spread
+  let touchStartX = null, touchStartY = null, touchTime = 0;
+  stage.addEventListener('touchstart', (e) => {
+    if (e.touches.length !== 1) return;
+    touchStartX = e.touches[0].clientX;
+    touchStartY = e.touches[0].clientY;
+    touchTime = Date.now();
+  }, {passive: true});
+  stage.addEventListener('touchend', (e) => {
+    if (touchStartX == null) return;
+    const t = e.changedTouches[0];
+    const dx = t.clientX - touchStartX;
+    const dy = t.clientY - touchStartY;
+    const dt = Date.now() - touchTime;
+    touchStartX = touchStartY = null;
+    if (dt > 700) return;
+    const ax = Math.abs(dx), ay = Math.abs(dy);
+    if (Math.max(ax, ay) < 40) return; // tap, ignore
+    if (ax > ay){
+      // Horizontal swipe — change spread
+      if (dx < 0) goTo(current + 1);
+      else goTo(current - 1);
+    } else {
+      // Vertical swipe — toggle act
+      if (dy < 0) setAct(2); // swipe up -> open
+      else setAct(1);        // swipe down -> close
+    }
+  }, {passive: true});
+
+  // Initialise
+  spreads[0].classList.add('is-current');
+  navButtons[0].classList.add('active');
+  applyInverseChrome();
+  stage.focus();
+})();
+</script>
+
+</body>
+</html>
