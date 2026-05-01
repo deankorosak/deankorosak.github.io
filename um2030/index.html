@@ -2,7 +2,7 @@
 <html lang="sl">
 <head>
 <meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
 <meta name="robots" content="noindex, nofollow, noarchive, nosnippet, noimageindex" />
 <meta name="googlebot" content="noindex, nofollow, noarchive, nosnippet, noimageindex" />
 <title>#UM2030 — Ambiciozno, a realno · Dean Korošak</title>
@@ -37,23 +37,50 @@
   }
   *{box-sizing:border-box;margin:0;padding:0}
   html,body{
+    /* Use 100dvh on supporting browsers (handles iOS URL bar correctly);
+       fall back to 100% for older browsers. Allow scrolling on mobile so
+       that overflowing slide content is reachable. */
     height:100%;
-    overflow:hidden;
     background:var(--bg);
     color:var(--ink);
     font-family:var(--sans);
     -webkit-font-smoothing:antialiased;
     text-rendering:optimizeLegibility;
     font-feature-settings:"kern","liga","calt";
+    overscroll-behavior:none;
+  }
+  /* On true desktop (broad pointer + sufficient height) keep the full-screen
+     fixed-stage behavior. On all touch/mobile devices, allow normal scroll
+     within the active slide so nothing is ever hidden off-screen. */
+  body{
+    overflow:hidden;
+  }
+  @media (max-width: 900px), (max-height: 600px){
+    body{
+      overflow:auto;
+      -webkit-overflow-scrolling:touch;
+    }
   }
   button{font:inherit;color:inherit;background:none;border:0;cursor:pointer;padding:0}
 
-  /* ===== Stage ===== */
-  /* Each spread fills the whole viewport. Only one is visible at a time. */
+  /* ===== Stage =====
+     Desktop: fixed full-screen container. Only one spread visible at a time.
+     Mobile: stage flows in document; only the active spread is rendered to keep
+     scroll position predictable when navigating. */
   .stage{
     position:fixed;
     inset:0;
     overflow:hidden;
+  }
+  @media (max-width: 900px), (max-height: 600px){
+    .stage{
+      position:relative;
+      inset:auto;
+      width:100%;
+      min-height:100vh;
+      min-height:100dvh;
+      overflow:visible;
+    }
   }
 
   .spread{
@@ -69,6 +96,19 @@
     pointer-events:auto;
     z-index:2;
   }
+  /* On mobile: only the current spread renders, no transition (fade is jarring
+     when combined with scroll position changes). */
+  @media (max-width: 900px), (max-height: 600px){
+    .spread{
+      position:relative;
+      inset:auto;
+      display:none;
+      transition:none;
+    }
+    .spread.is-current{
+      display:block;
+    }
+  }
 
   /* ===== Slide layer (act 1: foreground; act 2: blurred backdrop) ===== */
   .slide-layer{
@@ -83,6 +123,23 @@
                opacity 460ms cubic-bezier(0.4,0,0.2,1),
                transform 460ms cubic-bezier(0.4,0,0.2,1);
     will-change:filter,transform;
+  }
+  /* On mobile: slide layer flows in document, generous touch-friendly padding */
+  @media (max-width: 900px), (max-height: 600px){
+    .slide-layer{
+      position:relative;
+      inset:auto;
+      min-height:100vh;
+      min-height:100dvh;
+      padding:calc(env(safe-area-inset-top, 0) + 80px) 6vw calc(env(safe-area-inset-bottom, 0) + 96px) 6vw;
+      justify-content:flex-start;
+      transition:none;
+      will-change:auto;
+    }
+    /* In act 2 on mobile we don't blur the slide — we replace it with the essay */
+    .spread[data-act="2"] .slide-layer{
+      display:none;
+    }
   }
   .slide-layer.center{
     align-items:flex-start;
@@ -444,6 +501,24 @@
     opacity:1;
     pointer-events:auto;
   }
+  /* On mobile: essay becomes the full-page content for the spread, scrollable
+     in document flow. No blur backdrop, no fixed positioning. */
+  @media (max-width: 900px), (max-height: 600px){
+    .essay-layer{
+      position:relative;
+      inset:auto;
+      display:none;
+      padding:0;
+      opacity:1;
+      pointer-events:auto;
+      transition:none;
+    }
+    .spread[data-act="2"] .essay-layer{
+      display:flex;
+      min-height:100vh;
+      min-height:100dvh;
+    }
+  }
 
   .essay-panel{
     position:relative;
@@ -471,6 +546,25 @@
   .essay-panel::-webkit-scrollbar{width:6px}
   .essay-panel::-webkit-scrollbar-track{background:transparent}
   .essay-panel::-webkit-scrollbar-thumb{background:var(--ink-15);border-radius:3px}
+  /* On mobile: panel becomes a full-width column flowing in document */
+  @media (max-width: 900px), (max-height: 600px){
+    .essay-panel{
+      width:100%;
+      max-width:none;
+      max-height:none;
+      overflow-y:visible;
+      background:var(--bg);
+      border:0;
+      border-radius:0;
+      padding:calc(env(safe-area-inset-top, 0) + 80px) 6vw calc(env(safe-area-inset-bottom, 0) + 96px) 6vw;
+      transform:none;
+      backdrop-filter:none;
+      -webkit-backdrop-filter:none;
+    }
+    .spread.inverse .essay-panel{
+      background:var(--bg);
+    }
+  }
 
   .essay-eyebrow{
     font-family:var(--sans);
@@ -622,13 +716,18 @@
   body.on-inverse-act1 .nav-rail button.active .tick{opacity:1}
   body.on-inverse-act1 .nav-rail .label{color:var(--inv-fg-70)}
 
-  /* ===== Mobile ===== */
-  @media (max-width: 900px){
-    .slide-layer{
-      padding:8vh 6vw;
+  /* ===== Mobile (portrait phones, narrow tablets) ===== */
+  @media (max-width: 900px), (max-height: 600px){
+    /* Slide eyebrow positioned in normal flow within the slide-layer padding */
+    .slide-eyebrow{
+      position:static;
+      margin-bottom:clamp(20px,4vh,40px);
+      font-size:10px;
     }
-    .slide-eyebrow{top:18px;left:6vw}
-    .slide-progress{bottom:18px;right:6vw}
+    /* Hide the tiny progress hairline on mobile — segment rail at top serves
+       the same purpose more legibly */
+    .slide-progress{display:none}
+
     .slide-title-xl{font-size:clamp(44px,11vw,84px)}
     .slide-title-lg{font-size:clamp(56px,15vw,110px)}
     .slide-title-md{font-size:clamp(28px,7vw,48px)}
@@ -636,59 +735,222 @@
     .echo-bold, .echo-light{font-size:clamp(40px,10vw,72px)}
     .vignette-um{font-size:clamp(54px,15vw,110px)}
     .vignette-title{font-size:clamp(22px,5.4vw,36px)}
+    .vignette-instruction{font-size:13px}
     .achievements{font-size:clamp(15px,3.8vw,22px)}
     .achievements .lead{min-width:5em}
+    .statement{font-size:clamp(20px,4.6vw,32px)}
+    .statement.medium{font-size:clamp(17px,4vw,24px)}
+
+    /* Achievement tiles: 2 columns on mobile portrait, comfortable padding */
     .achievement-tiles{
       grid-template-columns:repeat(2, 1fr);
       gap:8px;
     }
     .achievement-tiles .tile{
-      padding:14px 14px;
-      min-height:90px;
-    }
-    .achievement-tiles .tile-figure{font-size:clamp(20px,5.4vw,30px)}
-    .achievement-tiles .tile-body{font-size:clamp(11px,3.2vw,14px);line-height:1.3}
-    .year-list{font-size:clamp(18px,4.4vw,28px);column-gap:18px}
-    .essay-panel{
-      width:92vw;
-      padding:clamp(32px,5vh,52px) clamp(22px,5vw,40px);
-    }
-    .essay{font-size:clamp(15px,4vw,18px);line-height:1.65}
-    .nav-rail{
-      right:auto;
-      left:50%;
-      top:auto;
-      bottom:50px;
-      transform:translateX(-50%);
-      flex-direction:row;
+      padding:14px 12px;
+      min-height:auto;
       gap:8px;
     }
-    .nav-rail .tick{width:12px}
-    .nav-rail button.active .tick{width:20px}
-    .nav-rail .label{display:none}
+    .achievement-tiles .tile-figure{
+      font-size:clamp(16px,4.2vw,22px);
+      white-space:normal;
+      letter-spacing:-0.01em;
+    }
+    .achievement-tiles .tile-figure.short{font-size:clamp(15px,3.8vw,20px)}
+    .achievement-tiles .tile-body{font-size:clamp(11px,3vw,13px);line-height:1.3}
+    .achievement-tiles .tile-body br{display:none} /* Let text reflow naturally */
+
+    .year-list{font-size:clamp(18px,4.4vw,28px);column-gap:18px}
+    .essay{font-size:clamp(15px,4vw,17px);line-height:1.7}
+
+    /* Top chrome bar: spread counter (left) and #UM2030 mark (right) */
+    .um-mark{
+      top:calc(env(safe-area-inset-top, 0) + 14px);
+      right:16px;
+      font-size:11px;
+      letter-spacing:0.18em;
+    }
     .spread-counter{
-      top:14px;
+      top:calc(env(safe-area-inset-top, 0) + 14px);
       left:16px;
       transform:none;
       writing-mode:horizontal-tb;
-      font-size:9px;
+      font-size:10px;
+      letter-spacing:0.22em;
     }
-    .um-mark{top:14px;right:16px;font-size:11px}
-    .help-rail{
-      bottom:18px;
+
+    /* Bottom navigation: remove the bottom-center nav-rail on mobile.
+       Instead, the top of the screen shows a Stories-style progress bar with
+       segments (one per spread). Tap on a segment jumps to that spread. */
+    .nav-rail{
+      position:fixed;
+      right:auto;
       left:50%;
+      top:calc(env(safe-area-inset-top, 0) + 38px);
+      bottom:auto;
       transform:translateX(-50%);
-      font-size:9px;
-      gap:1.2em;
+      flex-direction:row;
+      gap:3px;
+      padding:0;
+      width:calc(100% - 32px);
+      max-width:600px;
+      background:transparent;
+      backdrop-filter:none;
+      -webkit-backdrop-filter:none;
+      border:0;
+      border-radius:0;
+      box-shadow:none;
     }
+    .nav-rail button{
+      display:block;
+      flex:1;
+      width:auto;
+      height:14px; /* taller invisible tap area */
+      padding:6px 0;
+      gap:0;
+      border-radius:0;
+      position:relative;
+    }
+    .nav-rail .tick{
+      position:absolute;
+      top:50%;
+      left:0;
+      right:0;
+      transform:translateY(-50%);
+      width:auto;
+      height:2px;
+      border-radius:2px;
+      background:var(--ink-15);
+      opacity:1;
+      transition:background 200ms ease;
+    }
+    .nav-rail button:hover .tick,
+    .nav-rail button:active .tick{
+      background:var(--ink-40);
+      width:auto;
+    }
+    .nav-rail button.active .tick{
+      width:auto;
+      background:var(--accent);
+    }
+    .nav-rail .label{display:none}
+    body.on-inverse-act1 .nav-rail{
+      background:transparent;
+      border-color:transparent;
+    }
+    body.on-inverse-act1 .nav-rail .tick{background:rgba(248,247,244,0.25)}
+    body.on-inverse-act1 .nav-rail button.active .tick{background:var(--accent-light)}
+
+    /* Help rail: hide on mobile — tap zones serve as instructions instead */
+    .help-rail{display:none}
+
+    /* Mobile act toggle: floating action button bottom-right that switches
+       between slide and essay (act 1 ↔ act 2) */
+    .mobile-act-toggle{
+      display:flex !important;
+    }
+
+    /* Hide act-hint on mobile — replaced by the visible act-toggle button */
+    .act-hint{display:none}
+
+    /* Essay close button positioned for mobile: top-right with safe area */
+    .essay-close{
+      position:fixed;
+      top:calc(env(safe-area-inset-top, 0) + 14px);
+      right:16px;
+      font-size:11px;
+      letter-spacing:0.18em;
+      padding:8px 10px;
+      background:rgba(248,247,244,0.92);
+      backdrop-filter:blur(12px);
+      -webkit-backdrop-filter:blur(12px);
+      border-radius:999px;
+      z-index:51;
+    }
+    /* When in act 2 on mobile, hide the #UM2030 mark (essay-close takes its spot) */
+    .spread[data-act="2"] ~ .um-mark,
+    body.on-act2 .um-mark{display:none}
   }
 
-  /* Reduce motion */
+  /* ===== Phone landscape (very short viewport) =====
+     Same layout strategy as portrait mobile but tighter spacing, since
+     vertical room is the scarce resource here. */
+  @media (max-height: 500px) and (orientation: landscape){
+    .slide-layer{
+      padding:calc(env(safe-area-inset-top, 0) + 64px) 5vw calc(env(safe-area-inset-bottom, 0) + 80px) 5vw;
+    }
+    .essay-panel{
+      padding:calc(env(safe-area-inset-top, 0) + 64px) 6vw calc(env(safe-area-inset-bottom, 0) + 80px) 6vw;
+    }
+    .slide-title-xl{font-size:clamp(36px,7vw,64px)}
+    .slide-title-lg{font-size:clamp(44px,8vw,80px)}
+    .slide-title-md{font-size:clamp(24px,4.5vw,40px)}
+    .slide-light, .slide-bold{font-size:clamp(18px,3.4vw,26px)}
+    .echo-bold, .echo-light{font-size:clamp(32px,6vw,52px)}
+    .vignette-um{font-size:clamp(48px,9vw,90px)}
+    .vignette-title{font-size:clamp(20px,3.8vw,32px)}
+    .achievement-tiles{
+      grid-template-columns:repeat(3, 1fr);
+    }
+    .achievement-tiles .tile{padding:10px 10px;gap:6px}
+    .achievement-tiles .tile-figure{font-size:clamp(13px,2.6vw,18px)}
+    .achievement-tiles .tile-figure.short{font-size:clamp(13px,2.4vw,17px)}
+    .achievement-tiles .tile-body{font-size:clamp(10px,2vw,12px)}
+    .essay{font-size:14px;line-height:1.65}
+  }
+
+  /* ===== Reduce motion ===== */
   @media (prefers-reduced-motion: reduce){
     .spread, .slide-layer, .essay-layer, .essay-panel, .act-hint{
       transition-duration:120ms !important;
     }
     .act-hint .arrow{animation:none}
+  }
+
+  /* ===== Mobile act-toggle button (hidden on desktop) ===== */
+  .mobile-act-toggle{
+    display:none;
+    position:fixed;
+    bottom:calc(env(safe-area-inset-bottom, 0) + 16px);
+    right:16px;
+    align-items:center;
+    gap:8px;
+    padding:14px 22px;
+    background:var(--accent);
+    color:var(--bg);
+    border-radius:999px;
+    font-family:var(--sans);
+    font-size:12px;
+    font-weight:500;
+    letter-spacing:0.18em;
+    text-transform:uppercase;
+    z-index:51;
+    box-shadow:0 8px 24px rgba(11,37,69,0.36), 0 2px 8px rgba(0,0,0,0.18);
+    transition:transform 180ms ease, box-shadow 180ms ease;
+    min-height:44px;
+  }
+  .mobile-act-toggle:active{
+    transform:scale(0.96);
+    box-shadow:0 4px 12px rgba(11,37,69,0.32);
+  }
+  .mobile-act-toggle .toggle-text-1,
+  .mobile-act-toggle .toggle-text-2{display:none}
+  .spread[data-act="1"] .mobile-act-toggle .toggle-text-1{display:inline}
+  .spread[data-act="2"] .mobile-act-toggle .toggle-text-2{display:inline}
+  .mobile-act-toggle .arrow-icon{
+    display:inline-block;
+    width:8px;
+    height:8px;
+    border-right:1.5px solid currentColor;
+    border-bottom:1.5px solid currentColor;
+    transform:rotate(45deg);
+    margin-bottom:2px;
+    margin-left:4px;
+  }
+  .spread[data-act="2"] .mobile-act-toggle .arrow-icon{
+    transform:rotate(-135deg);
+    margin-bottom:-2px;
+    margin-top:2px;
   }
 </style>
 </head>
@@ -758,6 +1020,11 @@
       </div>
     </div>
     <div class="act-hint"><span>preberi besedilo</span><span class="arrow"></span></div>
+    <button class="mobile-act-toggle" data-toggle-act type="button" aria-label="Preklopi med drsnico in besedilom">
+      <span class="toggle-text-1">preberi besedilo</span>
+      <span class="toggle-text-2">zapri besedilo</span>
+      <span class="arrow-icon"></span>
+    </button>
   </section>
 
   <!-- ============== DRSNICA 2 ============== -->
@@ -788,6 +1055,11 @@
       </div>
     </div>
     <div class="act-hint"><span>preberi besedilo</span><span class="arrow"></span></div>
+    <button class="mobile-act-toggle" data-toggle-act type="button" aria-label="Preklopi med drsnico in besedilom">
+      <span class="toggle-text-1">preberi besedilo</span>
+      <span class="toggle-text-2">zapri besedilo</span>
+      <span class="arrow-icon"></span>
+    </button>
   </section>
 
   <!-- ============== DRSNICA 3 ============== -->
@@ -836,6 +1108,11 @@
       </div>
     </div>
     <div class="act-hint"><span>preberi besedilo</span><span class="arrow"></span></div>
+    <button class="mobile-act-toggle" data-toggle-act type="button" aria-label="Preklopi med drsnico in besedilom">
+      <span class="toggle-text-1">preberi besedilo</span>
+      <span class="toggle-text-2">zapri besedilo</span>
+      <span class="arrow-icon"></span>
+    </button>
   </section>
 
   <!-- ============== DRSNICA 4 — inverse ============== -->
@@ -866,6 +1143,11 @@
       </div>
     </div>
     <div class="act-hint"><span>preberi besedilo</span><span class="arrow"></span></div>
+    <button class="mobile-act-toggle" data-toggle-act type="button" aria-label="Preklopi med drsnico in besedilom">
+      <span class="toggle-text-1">preberi besedilo</span>
+      <span class="toggle-text-2">zapri besedilo</span>
+      <span class="arrow-icon"></span>
+    </button>
   </section>
 
   <!-- ============== DRSNICA 5 ============== -->
@@ -896,6 +1178,11 @@
       </div>
     </div>
     <div class="act-hint"><span>preberi besedilo</span><span class="arrow"></span></div>
+    <button class="mobile-act-toggle" data-toggle-act type="button" aria-label="Preklopi med drsnico in besedilom">
+      <span class="toggle-text-1">preberi besedilo</span>
+      <span class="toggle-text-2">zapri besedilo</span>
+      <span class="arrow-icon"></span>
+    </button>
   </section>
 
   <!-- ============== DRSNICA 6 ============== -->
@@ -924,6 +1211,11 @@
       </div>
     </div>
     <div class="act-hint"><span>preberi besedilo</span><span class="arrow"></span></div>
+    <button class="mobile-act-toggle" data-toggle-act type="button" aria-label="Preklopi med drsnico in besedilom">
+      <span class="toggle-text-1">preberi besedilo</span>
+      <span class="toggle-text-2">zapri besedilo</span>
+      <span class="arrow-icon"></span>
+    </button>
   </section>
 
   <!-- ============== DRSNICA 7 ============== -->
@@ -951,6 +1243,11 @@
       </div>
     </div>
     <div class="act-hint"><span>preberi besedilo</span><span class="arrow"></span></div>
+    <button class="mobile-act-toggle" data-toggle-act type="button" aria-label="Preklopi med drsnico in besedilom">
+      <span class="toggle-text-1">preberi besedilo</span>
+      <span class="toggle-text-2">zapri besedilo</span>
+      <span class="arrow-icon"></span>
+    </button>
   </section>
 
   <!-- ============== DRSNICA 8 — zaključna vinjeta ============== -->
@@ -1023,6 +1320,11 @@
     });
     counter.textContent = 'drsnica ' + i + ' / ' + (total - 1);
     applyInverseChrome();
+    document.body.classList.remove('on-act2');
+    // On mobile, ensure the new spread starts from the top
+    if (isMobile()){
+      window.scrollTo({top:0, behavior:'instant' in window.scrollTo ? 'instant' : 'auto'});
+    }
   }
 
   function goTo(i){
@@ -1041,11 +1343,21 @@
     if (sp.dataset.act === String(act)) return;
     sp.dataset.act = String(act);
     applyInverseChrome();
+    // Reflect act state on body so chrome can react
+    document.body.classList.toggle('on-act2', act === 2);
+    // On mobile, scroll to top whenever the act changes so user starts from top
+    if (isMobile()){
+      window.scrollTo({top:0, behavior:'instant' in window.scrollTo ? 'instant' : 'auto'});
+    }
   }
 
   function toggleAct(){
     const sp = spreads[current];
     setAct(sp.dataset.act === '1' ? 2 : 1);
+  }
+
+  function isMobile(){
+    return window.matchMedia('(max-width: 900px), (max-height: 600px)').matches;
   }
 
   // Keyboard
@@ -1084,11 +1396,13 @@
     }
   });
 
-  // Click on slide layer to open act 2 (but not when already open or on overlay)
+  // Click on slide layer to open act 2 — desktop only.
+  // On mobile, the explicit toggle button serves this role to avoid
+  // accidental triggers and to keep the slide tappable as scrollable content.
   spreads.forEach(sp => {
     const slide = sp.querySelector('.slide-layer');
     slide.addEventListener('click', (e) => {
-      // Only when this spread is current and in act 1
+      if (isMobile()) return;
       if (sp.dataset.act === '1' && sp.classList.contains('is-current')){
         setAct(2);
       }
@@ -1101,25 +1415,36 @@
         setAct(1);
       });
     }
-    // Click on essay-layer outside the panel closes the essay
+    // Click on essay-layer outside the panel closes the essay (desktop only)
     const essayLayer = sp.querySelector('.essay-layer');
     essayLayer.addEventListener('click', (e) => {
+      if (isMobile()) return;
       if (e.target === essayLayer){
         setAct(1);
       }
     });
+    // Mobile act-toggle button
+    const toggleBtn = sp.querySelector('.mobile-act-toggle');
+    if (toggleBtn){
+      toggleBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        toggleAct();
+      });
+    }
   });
 
-  // Wheel: toggle act, never change spread
+  // Wheel: desktop only. Toggles act, never change spread.
+  // On mobile, wheel events from a connected mouse should also not block
+  // native scroll, so we skip the handler entirely there.
   let wheelLock = false;
   let wheelAccum = 0;
   let wheelTimer = null;
   window.addEventListener('wheel', (e) => {
+    if (isMobile()) return; // mobile uses native scroll
     e.preventDefault();
     if (wheelLock) return;
     wheelAccum += e.deltaY;
     if (Math.abs(wheelAccum) < 28) {
-      // collect more before deciding
       clearTimeout(wheelTimer);
       wheelTimer = setTimeout(() => { wheelAccum = 0; }, 220);
       return;
@@ -1134,32 +1459,34 @@
     setTimeout(() => { wheelLock = false; }, 720);
   }, { passive: false });
 
-  // Touch: vertical swipe toggles act, horizontal swipe changes spread
+  // Touch: horizontal swipe changes spread. Vertical swipe is left to native
+  // scroll (so essay text and tile grids stay scrollable). On desktop the
+  // touch handler is irrelevant.
   let touchStartX = null, touchStartY = null, touchTime = 0;
-  stage.addEventListener('touchstart', (e) => {
+  document.addEventListener('touchstart', (e) => {
     if (e.touches.length !== 1) return;
+    // Skip if the touch starts on an interactive element
+    const target = e.target;
+    if (target.closest('button, a, .mobile-act-toggle, .essay-close, .nav-rail')) return;
     touchStartX = e.touches[0].clientX;
     touchStartY = e.touches[0].clientY;
     touchTime = Date.now();
   }, {passive: true});
-  stage.addEventListener('touchend', (e) => {
+  document.addEventListener('touchend', (e) => {
     if (touchStartX == null) return;
     const t = e.changedTouches[0];
     const dx = t.clientX - touchStartX;
     const dy = t.clientY - touchStartY;
     const dt = Date.now() - touchTime;
+    const sx = touchStartX, sy = touchStartY;
     touchStartX = touchStartY = null;
     if (dt > 700) return;
     const ax = Math.abs(dx), ay = Math.abs(dy);
-    if (Math.max(ax, ay) < 40) return; // tap, ignore
-    if (ax > ay){
-      // Horizontal swipe — change spread
+    if (Math.max(ax, ay) < 60) return; // tap or tiny drag, ignore
+    // Only horizontal swipe with strong horizontal dominance triggers nav
+    if (ax > ay * 1.6 && ax > 80){
       if (dx < 0) goTo(current + 1);
       else goTo(current - 1);
-    } else {
-      // Vertical swipe — toggle act
-      if (dy < 0) setAct(2); // swipe up -> open
-      else setAct(1);        // swipe down -> close
     }
   }, {passive: true});
 
