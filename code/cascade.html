@@ -1,0 +1,1386 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Directed-cascade microscopic model · live simulation</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,wght@0,300;0,400;0,500;1,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0a0a0c;
+  --surface:#141416;
+  --surface2:#1c1c1f;
+  --rule:#2b2b30;
+  --rule2:#3a3a40;
+  --text:#ededeb;
+  --text2:#b8b6b1;
+  --muted:#7a7872;
+  --warm:#f59e0b;
+  --warm2:#fbbf24;
+  --cool:#38bdf8;
+  --cool2:#60a5fa;
+  --rose:#f43f5e;
+  --teal:#10b981;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--text);
+  font-family:'Inter',sans-serif;font-weight:400;line-height:1.5;
+  -webkit-font-smoothing:antialiased;font-feature-settings:"ss01","cv11"}
+body{
+  background-image:radial-gradient(ellipse 80% 50% at 50% 0%, rgba(245,158,11,0.04), transparent 70%);
+}
+.wrap{max-width:1320px;margin:0 auto;padding:56px 56px 80px}
+
+header{border-bottom:1px solid var(--rule);padding-bottom:32px;margin-bottom:40px}
+.eyebrow{font-family:'Inter',sans-serif;font-size:11px;letter-spacing:0.22em;
+  text-transform:uppercase;color:var(--muted);font-weight:500;margin-bottom:18px}
+.eyebrow::before{content:"";display:inline-block;width:24px;height:1px;
+  background:var(--warm);vertical-align:middle;margin-right:12px;margin-bottom:3px}
+h1{font-family:'Newsreader',serif;font-weight:400;font-size:46px;line-height:1.1;
+  margin:0 0 18px;letter-spacing:-0.012em;color:var(--text)}
+h1 em{font-style:italic;color:var(--warm)}
+.lede{font-family:'Newsreader',serif;font-style:italic;font-weight:300;font-size:20px;
+  color:var(--text2);max-width:780px;margin:0;line-height:1.5}
+.lede a{color:var(--cool)}
+
+.controls{display:flex;flex-wrap:wrap;gap:24px 36px;align-items:center;
+  padding:20px 24px;background:var(--surface);border:1px solid var(--rule);
+  margin-bottom:32px;border-radius:2px}
+.ctrl{display:flex;flex-direction:column;gap:6px;min-width:124px}
+.ctrl label{font-size:10px;letter-spacing:0.10em;text-transform:uppercase;
+  color:var(--muted);font-weight:500}
+.ctrl input[type=range]{width:144px;accent-color:var(--warm);background:transparent}
+.ctrl .val{font-family:'Newsreader',serif;font-style:italic;font-size:18px;
+  color:var(--text);font-weight:400}
+.ctrl select{font-family:'Newsreader',serif;font-style:italic;font-size:16px;
+  background:var(--surface2);color:var(--text);
+  border:1px solid var(--rule2);padding:5px 10px;border-radius:2px;outline:none}
+button{font-family:'Inter',sans-serif;font-size:11px;letter-spacing:0.12em;
+  padding:10px 22px;background:var(--warm);color:#0a0a0c;border:0;cursor:pointer;
+  font-weight:600;text-transform:uppercase;border-radius:2px}
+button.ghost{background:transparent;color:var(--text2);border:1px solid var(--rule2);}
+button:hover{filter:brightness(1.1)}
+button.ghost:hover{background:var(--surface2);color:var(--text)}
+.btnrow{display:flex;gap:10px}
+
+.readout{display:flex;gap:36px;margin-left:auto;align-items:baseline}
+.readout > div{display:flex;flex-direction:column;align-items:flex-end}
+.readout .lab{font-size:9px;letter-spacing:0.18em;text-transform:uppercase;
+  color:var(--muted);font-weight:500}
+.readout .num{font-family:'Newsreader',serif;font-style:italic;
+  font-weight:400;font-size:26px;color:var(--text);font-variant-numeric:tabular-nums;
+  line-height:1}
+.readout .num.warm{color:var(--warm)}
+
+.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:32px}
+.panel{background:var(--surface);border:1px solid var(--rule);padding:20px 22px;border-radius:2px;
+  position:relative;overflow:hidden}
+.panel::before{content:"";position:absolute;top:0;left:0;width:36px;height:1px;background:var(--warm)}
+.panel h2{font-family:'Newsreader',serif;font-weight:400;font-size:19px;
+  margin:6px 0 4px;letter-spacing:-0.005em;color:var(--text)}
+.panel .sub{font-size:12px;color:var(--muted);margin:0 0 14px;
+  font-style:italic;font-family:'Newsreader',serif}
+.panel.full{grid-column:1/-1}
+canvas{display:block;width:100%;height:auto;background:transparent}
+
+footer{margin-top:56px;padding-top:24px;border-top:1px solid var(--rule);
+  font-size:13px;color:var(--muted);font-style:italic;font-family:'Newsreader',serif;
+  max-width:780px}
+
+.scrub{font-variant-numeric:tabular-nums}
+
+@media (max-width: 900px){
+  .wrap{padding:28px}
+  h1{font-size:32px}
+  .grid{grid-template-columns:1fr}
+  .controls{padding:16px}
+  .readout{margin-left:0;width:100%;justify-content:flex-start;gap:24px}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <div class="eyebrow">interactive companion · cascade microscopic model</div>
+  <h1>The first-order transition in pancreatic islets</h1>
+  <p class="lede">Each cell flips by the majority-voter rule with glucose-modulated bias; activations have a fixed pulse duration, refractoriness preserves the cascade ordering. The mean-field limit is Eq. (6) of the paper. The panels below show the same observables that the experiments measure.</p>
+</header>
+
+<div class="controls">
+  <div class="btnrow">
+    <button id="run">Start</button>
+    <button id="reset" class="ghost">Reset</button>
+  </div>
+  <div class="ctrl">
+    <label>α coupling</label>
+    <input type="range" id="alpha" min="0.5" max="0.95" step="0.01" value="0.90">
+    <span class="val" id="alpha-val">0.90</span>
+  </div>
+  <div class="ctrl">
+    <label>σ<sub>δ</sub> heterogeneity</label>
+    <input type="range" id="sigma" min="0" max="0.30" step="0.01" value="0.10">
+    <span class="val" id="sigma-val">0.10</span>
+  </div>
+  <div class="ctrl">
+    <label>ramp speed</label>
+    <input type="range" id="ramp" min="0.5" max="6.0" step="0.5" value="3.5">
+    <span class="val" id="ramp-val">3.5×</span>
+  </div>
+  <div class="ctrl">
+    <label>glucose mode</label>
+    <select id="mode">
+      <option value="auto">automatic ramp</option>
+      <option value="manual">manual</option>
+    </select>
+  </div>
+  <div class="ctrl" id="manual-ctrl" style="display:none">
+    <label>G [mM]</label>
+    <input type="range" id="manualG" min="6.0" max="7.5" step="0.01" value="6.5">
+    <span class="val" id="manualG-val">6.50</span>
+  </div>
+  <div class="readout">
+    <div><span class="lab">G</span><span class="num scrub" id="G-out">6.20</span></div>
+    <div><span class="lab">⟨n<sub>act</sub>⟩/N</span><span class="num scrub warm" id="D-out">0.00</span></div>
+    <div><span class="lab">t</span><span class="num scrub" id="t-out">0</span></div>
+    <div><span class="lab">λ<sub>max</sub></span><span class="num scrub" id="L-out">1.0</span></div>
+  </div>
+</div>
+
+<div class="grid">
+
+  <div class="panel full">
+    <h2>Activity raster · glucose protocol · order parameter</h2>
+    <p class="sub">cells × time, with G(t) and ⟨n<sub>act</sub>⟩(t)/N traces overlaid below</p>
+    <canvas id="raster" width="1200" height="320"></canvas>
+  </div>
+
+  <div class="panel">
+    <h2>Hysteresis loop</h2>
+    <p class="sub">Δ vs G binned and averaged across ramp cycles, ±1σ band</p>
+    <canvas id="hyst" width="600" height="380"></canvas>
+  </div>
+
+  <div class="panel">
+    <h2>Pairwise correlation distribution</h2>
+    <p class="sub">basal (cyan) vs current (amber), with two-Gaussian mixture fit</p>
+    <canvas id="corrhist" width="600" height="380"></canvas>
+  </div>
+
+  <div class="panel">
+    <h2>Eigenvalue spectrum</h2>
+    <p class="sub">basal (cyan) vs current (amber), Marčenko–Pastur edge dashed</p>
+    <canvas id="spec" width="600" height="380"></canvas>
+  </div>
+
+  <div class="panel">
+    <h2>Functional clusters</h2>
+    <p class="sub">amber = cells in cluster now (top-25% by leading mode) · cyan = cells outside · lines = top correlated pairs · histogram = how often each cell appears in cluster across sync phases</p>
+    <canvas id="clust" width="600" height="380"></canvas>
+  </div>
+
+</div>
+
+<footer>
+  Live cascade simulation reproducing the empirical phenomenology of
+  Korošak <em>et al.</em>, “Stable Functional Clusters Drive the First-Order
+  Transition in Pancreatic Islet Synchronization” (2026). Dynamics: voter
+  rule with refractoriness and fixed pulse duration on a random k-regular
+  graph. All computation runs in your browser.
+</footer>
+
+</div>
+
+<script>
+'use strict';
+
+// =================================================================
+// Utilities
+// =================================================================
+function randn(){
+  const u=Math.random()||1e-9, v=Math.random()||1e-9;
+  return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v);
+}
+function poisson(lambda){
+  if(lambda<=0) return 0;
+  if(lambda<25){
+    const L=Math.exp(-lambda); let k=0, p=1;
+    do{k++; p*=Math.random();} while(p>L);
+    return k-1;
+  }
+  return Math.max(0,Math.round(lambda+Math.sqrt(lambda)*randn()));
+}
+function fGlucose(G, Gc, dG){
+  return 1.0/(1.0+Math.exp(-(G-Gc)/dG));
+}
+
+// =================================================================
+// Random k-regular graph
+// =================================================================
+function buildKRegular(N, k){
+  for(let attempt=0; attempt<400; attempt++){
+    const stubs=new Int32Array(N*k);
+    for(let i=0;i<N;i++) for(let j=0;j<k;j++) stubs[i*k+j]=i;
+    for(let i=stubs.length-1;i>0;i--){
+      const j=Math.floor(Math.random()*(i+1));
+      [stubs[i],stubs[j]]=[stubs[j],stubs[i]];
+    }
+    const adj=Array.from({length:N},()=>new Set());
+    let ok=true;
+    for(let i=0;i<stubs.length;i+=2){
+      const a=stubs[i], b=stubs[i+1];
+      if(a===b||adj[a].has(b)){ok=false;break;}
+      adj[a].add(b); adj[b].add(a);
+    }
+    if(ok){
+      return adj.map(s=>new Int32Array([...s]));
+    }
+  }
+  const adj=Array.from({length:N},()=>new Set());
+  for(let i=0;i<N;i++)
+    for(let j=1;j<=k>>1;j++){adj[i].add((i+j)%N); adj[i].add((i-j+N)%N);}
+  return adj.map(s=>new Int32Array([...s]));
+}
+
+// =================================================================
+// Cascade simulation
+// =================================================================
+class CascadeSim{
+  constructor({N=120, k=7, alpha=0.85, Gc=6.76, dG=0.075,
+               nu=1.0, tauActive=8.0, tauRef=3.0, sigmaDelta=0.10}={}){
+    this.N=N; this.k=k; this.alpha=alpha; this.Gc=Gc; this.dG=dG;
+    this.nu=nu; this.tauActive=tauActive; this.tauRef=tauRef;
+    this.h=(k+1)>>1; this.sigmaDelta=sigmaDelta;
+    this.adj=buildKRegular(N,k);
+    this.delta=new Float32Array(N);
+    for(let i=0;i<N;i++) this.delta[i]=sigmaDelta*randn();
+    this.state=new Int8Array(N);
+    this.activeUntil=new Float32Array(N).fill(-1e6);
+    this.lastFlip=new Float32Array(N).fill(-1e6);
+    this.flipTime=new Float32Array(N).fill(-1e6);
+    this.predecessor=new Int32Array(N).fill(-1);
+    this.t=0;
+  }
+  setAlpha(a){this.alpha=a;}
+  setSigmaDelta(s){
+    this.sigmaDelta=s;
+    for(let i=0;i<this.N;i++) this.delta[i]=s*randn();
+  }
+  step(dt, G){
+    this.t+=dt;
+    for(let i=0;i<this.N;i++){
+      if(this.state[i]===1 && this.t>=this.activeUntil[i]){
+        this.state[i]=0; this.lastFlip[i]=this.t;
+      }
+    }
+    const nUp=poisson(this.nu*this.N*dt);
+    for(let u=0;u<nUp;u++){
+      const i=(Math.random()*this.N)|0;
+      if(this.state[i]!==0) continue;
+      if(this.t-this.lastFlip[i]<=this.tauRef) continue;
+      const nbrs=this.adj[i];
+      let nAct=0;
+      for(let m=0;m<nbrs.length;m++) if(this.state[nbrs[m]]===1) nAct++;
+      const maj=nAct>=this.h?1:0;
+      const fi=fGlucose(G+this.delta[i],this.Gc,this.dG);
+      const p=this.alpha*maj+(1-this.alpha)*fi;
+      if(Math.random()<p){
+        let bestT=-1e9, bestJ=-1;
+        for(let m=0;m<nbrs.length;m++){
+          const j=nbrs[m];
+          if(this.state[j]===1 && this.flipTime[j]>bestT){
+            bestT=this.flipTime[j]; bestJ=j;
+          }
+        }
+        this.predecessor[i]=bestJ;
+        this.state[i]=1;
+        this.activeUntil[i]=this.t+this.tauActive;
+        this.lastFlip[i]=this.t;
+        this.flipTime[i]=this.t;
+      }
+    }
+  }
+  reset(){
+    this.state.fill(0);
+    this.activeUntil.fill(-1e6);
+    this.lastFlip.fill(-1e6);
+    this.flipTime.fill(-1e6);
+    this.predecessor.fill(-1);
+    this.t=0;
+  }
+}
+
+// =================================================================
+// Rolling activity buffer
+// =================================================================
+class ActivityBuffer{
+  constructor(N, capacity){
+    this.N=N; this.capacity=capacity;
+    this.buf=new Uint8Array(N*capacity);
+    this.G=new Float32Array(capacity);
+    this.D=new Float32Array(capacity);
+    this.t=new Float32Array(capacity);
+    this.head=0; this.size=0;
+  }
+  push(state, G, t){
+    const off=this.head*this.N;
+    for(let i=0;i<this.N;i++) this.buf[off+i]=state[i];
+    this.G[this.head]=G;
+    let n=0; for(let i=0;i<this.N;i++) n+=state[i];
+    this.D[this.head]=n/this.N;
+    this.t[this.head]=t;
+    this.head=(this.head+1)%this.capacity;
+    if(this.size<this.capacity) this.size++;
+  }
+  windowAt(idx, w){
+    const out=[];
+    for(let k=0;k<w;k++){
+      const i=((idx-k)+this.capacity)%this.capacity;
+      out.push(i);
+      if(out.length>=this.size) break;
+    }
+    return out.reverse();
+  }
+}
+
+// =================================================================
+// Correlation matrix
+// =================================================================
+function computeCorr(buf, indices){
+  const N=buf.N, T=indices.length;
+  const X=new Float32Array(N*T);
+  for(let t=0;t<T;t++){
+    const off=indices[t]*N;
+    for(let i=0;i<N;i++) X[i*T+t]=buf.buf[off+i];
+  }
+  const mu=new Float32Array(N), std=new Float32Array(N);
+  for(let i=0;i<N;i++){
+    let m=0; for(let t=0;t<T;t++) m+=X[i*T+t]; m/=T; mu[i]=m;
+    let v=0; for(let t=0;t<T;t++){const d=X[i*T+t]-m; v+=d*d;} v/=T;
+    std[i]=Math.sqrt(v);
+  }
+  for(let i=0;i<N;i++){
+    if(std[i]<1e-3){for(let t=0;t<T;t++) X[i*T+t]=0;}
+    else{for(let t=0;t<T;t++) X[i*T+t]=(X[i*T+t]-mu[i])/std[i];}
+  }
+  const C=new Float32Array(N*N);
+  for(let i=0;i<N;i++){
+    for(let j=i;j<N;j++){
+      let s=0; for(let t=0;t<T;t++) s+=X[i*T+t]*X[j*T+t]; s/=T;
+      C[i*N+j]=s; C[j*N+i]=s;
+    }
+  }
+  return C;
+}
+
+// =================================================================
+// Jacobi eigenvalue
+// =================================================================
+function jacobi(A_in, N){
+  const A=new Float32Array(N*N);
+  for(let i=0;i<N*N;i++) A[i]=A_in[i];
+  const V=new Float32Array(N*N);
+  for(let i=0;i<N;i++) V[i*N+i]=1;
+  for(let sweep=0;sweep<60;sweep++){
+    let off=0;
+    for(let p=0;p<N-1;p++){
+      for(let q=p+1;q<N;q++){
+        const apq=A[p*N+q]; off+=apq*apq;
+        if(Math.abs(apq)<1e-9) continue;
+        const app=A[p*N+p], aqq=A[q*N+q];
+        let theta=(aqq-app)/(2*apq), t;
+        if(Math.abs(theta)>1e10) t=1/(2*theta);
+        else t=(theta>=0?1:-1)/(Math.abs(theta)+Math.sqrt(theta*theta+1));
+        const c=1/Math.sqrt(t*t+1), s=t*c;
+        A[p*N+p]=app-t*apq; A[q*N+q]=aqq+t*apq;
+        A[p*N+q]=0; A[q*N+p]=0;
+        for(let i=0;i<N;i++){
+          if(i!==p && i!==q){
+            const aip=A[i*N+p], aiq=A[i*N+q];
+            A[i*N+p]=c*aip-s*aiq; A[p*N+i]=A[i*N+p];
+            A[i*N+q]=s*aip+c*aiq; A[q*N+i]=A[i*N+q];
+          }
+          const vip=V[i*N+p], viq=V[i*N+q];
+          V[i*N+p]=c*vip-s*viq; V[i*N+q]=s*vip+c*viq;
+        }
+      }
+    }
+    if(off<1e-10) break;
+  }
+  const eigs=new Float32Array(N);
+  for(let i=0;i<N;i++) eigs[i]=A[i*N+i];
+  return {eigs, vecs:V};
+}
+
+// =================================================================
+// 2-component GMM
+// =================================================================
+function gaussPdf(x,mu,sig){
+  const d=(x-mu)/sig;
+  return Math.exp(-0.5*d*d)/(sig*Math.sqrt(2*Math.PI));
+}
+function fitGMM2(data){
+  if(data.length<20) return null;
+  const sorted=[...data].sort((a,b)=>a-b);
+  let mu1=sorted[Math.floor(sorted.length*0.25)];
+  let mu2=sorted[Math.floor(sorted.length*0.75)];
+  let s1=0.15, s2=0.15, p1=0.5;
+  for(let it=0;it<40;it++){
+    let r1Sum=0,r2Sum=0,m1=0,m2=0,v1=0,v2=0;
+    for(let i=0;i<data.length;i++){
+      const x=data[i];
+      const a=p1*gaussPdf(x,mu1,s1);
+      const b=(1-p1)*gaussPdf(x,mu2,s2);
+      const sum=a+b||1e-12;
+      const r1=a/sum, r2=b/sum;
+      r1Sum+=r1; r2Sum+=r2; m1+=r1*x; m2+=r2*x;
+    }
+    const newMu1=m1/Math.max(r1Sum,1e-9), newMu2=m2/Math.max(r2Sum,1e-9);
+    for(let i=0;i<data.length;i++){
+      const x=data[i];
+      const a=p1*gaussPdf(x,mu1,s1);
+      const b=(1-p1)*gaussPdf(x,mu2,s2);
+      const sum=a+b||1e-12;
+      const r1=a/sum, r2=b/sum;
+      v1+=r1*(x-newMu1)**2; v2+=r2*(x-newMu2)**2;
+    }
+    mu1=newMu1; mu2=newMu2;
+    s1=Math.max(0.02,Math.sqrt(v1/Math.max(r1Sum,1e-9)));
+    s2=Math.max(0.02,Math.sqrt(v2/Math.max(r2Sum,1e-9)));
+    p1=r1Sum/data.length;
+  }
+  if(mu1>mu2){[mu1,mu2]=[mu2,mu1]; [s1,s2]=[s2,s1]; p1=1-p1;}
+  return {mu1,mu2,s1,s2,pLow:p1,pHigh:1-p1};
+}
+
+function mpEdges(N,T){
+  const q=N/T;
+  return {q, lower:(1-Math.sqrt(q))**2, upper:(1+Math.sqrt(q))**2};
+}
+
+// =================================================================
+// Globals
+// =================================================================
+const N=120, K=7;
+const dt=0.1;
+let sim=new CascadeSim({N, k:K, alpha:0.90, sigmaDelta:0.10});
+const histLen=2400;
+const buf=new ActivityBuffer(N, histLen);
+
+// Hysteresis: binned accumulators
+const HYST_BINS=36;
+const HYST_GMIN=6.0, HYST_GMAX=7.5;
+const hystUpSum=new Float32Array(HYST_BINS);
+const hystUpSumSq=new Float32Array(HYST_BINS);
+const hystUpCount=new Int32Array(HYST_BINS);
+const hystDnSum=new Float32Array(HYST_BINS);
+const hystDnSumSq=new Float32Array(HYST_BINS);
+const hystDnCount=new Int32Array(HYST_BINS);
+
+function recordHyst(G, D, dir){
+  const bin=Math.floor((G-HYST_GMIN)/(HYST_GMAX-HYST_GMIN)*HYST_BINS);
+  if(bin<0||bin>=HYST_BINS) return;
+  if(dir==='up'){
+    hystUpSum[bin]+=D; hystUpSumSq[bin]+=D*D; hystUpCount[bin]++;
+  }else if(dir==='down'){
+    hystDnSum[bin]+=D; hystDnSumSq[bin]+=D*D; hystDnCount[bin]++;
+  }
+}
+function resetHyst(){
+  hystUpSum.fill(0); hystUpSumSq.fill(0); hystUpCount.fill(0);
+  hystDnSum.fill(0); hystDnSumSq.fill(0); hystDnCount.fill(0);
+}
+
+// Glucose protocol
+const G_low=6.10, G_high=7.40;
+let rampSpeed=3.5;
+let manualMode=false;
+let manualG=6.5;
+let phaseT0=0;
+
+function getG(){
+  if(manualMode) return manualG;
+  const period=1200/rampSpeed;
+  const tt=(sim.t-phaseT0)%period;
+  if(tt<period/2) return G_low+(G_high-G_low)*(tt/(period/2));
+  return G_high-(G_high-G_low)*((tt-period/2)/(period/2));
+}
+function rampDirection(){
+  if(manualMode) return 'static';
+  const period=1200/rampSpeed;
+  const tt=(sim.t-phaseT0)%period;
+  return tt<period/2?'up':'down';
+}
+
+// =================================================================
+// Observable cache
+// =================================================================
+let cache={
+  corrCurrent:null, corrBasal:null, gmmCurrent:null,
+  eigsCurrent:[], eigsBasal:[],
+  leadingVec:null,
+  clusterHistory:[],   // each: {t, mask:Uint8Array, vec, delta}
+  topPairs:[],
+  mpEdge:1, lastEigMax:1,
+};
+const SYNC_D_THRESH=0.20;
+
+function buildBasalReference(){
+  const T=400;
+  const fakeBuf=new ActivityBuffer(N, T);
+  const fake=new Int8Array(N);
+  for(let s=0;s<T;s++){
+    for(let i=0;i<N;i++) fake[i]=Math.random()<0.05?1:0;
+    fakeBuf.push(fake, 6.0, s*dt);
+  }
+  const idxs=fakeBuf.windowAt(fakeBuf.head===0?fakeBuf.capacity-1:fakeBuf.head-1, T);
+  const C=computeCorr(fakeBuf, idxs);
+  const {eigs}=jacobi(C, N);
+  cache.corrBasal=C;
+  cache.eigsBasal=Array.from(eigs).sort((a,b)=>a-b);
+  cache.mpEdge=mpEdges(N,T).upper;
+}
+buildBasalReference();
+
+const TOP_FRAC=0.25;
+const TOP_K=Math.floor(N*TOP_FRAC);
+
+function recomputeObservables(){
+  if(buf.size<200) return;
+  const w=Math.min(400, buf.size);
+  const headIdx=(buf.head-1+buf.capacity)%buf.capacity;
+  const idxs=buf.windowAt(headIdx, w);
+  const C=computeCorr(buf, idxs);
+  cache.corrCurrent=C;
+  const rho=[];
+  for(let i=0;i<N;i++) for(let j=i+1;j<N;j++){
+    const r=C[i*N+j]; if(Math.abs(r)>1e-6) rho.push(r);
+  }
+  cache.gmmCurrent=fitGMM2(rho);
+  const {eigs, vecs}=jacobi(C, N);
+  const idxOrder=Array.from(eigs.keys()).sort((a,b)=>eigs[a]-eigs[b]);
+  cache.eigsCurrent=idxOrder.map(i=>eigs[i]);
+  cache.lastEigMax=cache.eigsCurrent[cache.eigsCurrent.length-1];
+  cache.mpEdge=mpEdges(N,w).upper;
+  const topI=idxOrder[idxOrder.length-1];
+  const vec=new Float32Array(N);
+  for(let i=0;i<N;i++) vec[i]=Math.abs(vecs[i*N+topI]);
+  cache.leadingVec=vec;
+  // Build binary "in cluster" mask: top-25% cells
+  const sortedCellIdx=Array.from(vec.keys()).sort((a,b)=>vec[b]-vec[a]);
+  const mask=new Uint8Array(N);
+  for(let m=0;m<TOP_K;m++) mask[sortedCellIdx[m]]=1;
+  // Snapshot current global activity (used downstream to weight only sync-phase frames)
+  let nAct=0; for(let i=0;i<N;i++) nAct+=sim.state[i];
+  const deltaNow=nAct/N;
+  cache.clusterHistory.push({t:sim.t, mask:mask, vec:vec.slice(), delta:deltaNow});
+  if(cache.clusterHistory.length>240) cache.clusterHistory.shift();
+
+  // Top-K strongest correlation pairs (for the network visualization)
+  const NPAIRS=90;
+  const heap=[];  // simple top-K via insertion
+  for(let i=0;i<N;i++){
+    for(let j=i+1;j<N;j++){
+      const c=C[i*N+j];
+      if(c<0.10) continue;
+      if(heap.length<NPAIRS){
+        heap.push({i,j,c});
+        if(heap.length===NPAIRS) heap.sort((a,b)=>a.c-b.c);
+      }else if(c>heap[0].c){
+        heap[0]={i,j,c};
+        // bubble up since heap[0] is min
+        let k=0;
+        while(k+1<heap.length && heap[k].c>heap[k+1].c){
+          [heap[k],heap[k+1]]=[heap[k+1],heap[k]];
+          k++;
+        }
+      }
+    }
+  }
+  cache.topPairs=heap;
+}
+
+// =================================================================
+// Rendering helpers
+// =================================================================
+const PALETTE={
+  bg:'#0a0a0c', surface:'#141416', surface2:'#1c1c1f',
+  rule:'#2b2b30', rule2:'#3a3a40',
+  text:'#ededeb', text2:'#b8b6b1', muted:'#7a7872',
+  warm:'#f59e0b', warm2:'#fbbf24', warmFaint:'rgba(245,158,11,0.18)',
+  cool:'#38bdf8', cool2:'#60a5fa', coolFaint:'rgba(56,189,248,0.18)',
+  rose:'#f43f5e',
+};
+
+function clearCanvas(ctx,w,h){
+  ctx.clearRect(0,0,w,h);
+}
+function panelBg(ctx,x0,y0,w,h){
+  ctx.fillStyle=PALETTE.surface2;
+  ctx.fillRect(x0,y0,w,h);
+}
+function panelFrame(ctx,x0,y0,w,h){
+  ctx.strokeStyle=PALETTE.rule2;
+  ctx.lineWidth=1;
+  ctx.strokeRect(x0+0.5,y0+0.5,w-1,h-1);
+}
+function gridLines(ctx,x0,y0,w,h,nx,ny){
+  ctx.save(); ctx.strokeStyle=PALETTE.rule; ctx.lineWidth=1;
+  for(let i=1;i<nx;i++){const x=x0+i*w/nx; ctx.beginPath();ctx.moveTo(x+0.5,y0);ctx.lineTo(x+0.5,y0+h);ctx.stroke();}
+  for(let i=1;i<ny;i++){const y=y0+i*h/ny; ctx.beginPath();ctx.moveTo(x0,y+0.5);ctx.lineTo(x0+w,y+0.5);ctx.stroke();}
+  ctx.restore();
+}
+function drawAxisText(ctx, txt, x, y, opts={}){
+  ctx.save();
+  ctx.fillStyle=opts.color||PALETTE.text2;
+  if(opts.italic){
+    ctx.font="italic "+(opts.size||13)+"px 'Newsreader', serif";
+  }else{
+    ctx.font="500 "+(opts.size||11)+"px 'Inter', sans-serif";
+  }
+  ctx.textAlign=opts.align||'left';
+  ctx.textBaseline=opts.baseline||'alphabetic';
+  if(opts.rotate){
+    ctx.translate(x,y);
+    ctx.rotate(opts.rotate);
+    ctx.fillText(txt,0,0);
+  }else{
+    ctx.fillText(txt,x,y);
+  }
+  ctx.restore();
+}
+
+// -----------------------------------------------------------------
+// Raster + time series
+// -----------------------------------------------------------------
+function setupCanvas(c, w, h){
+  const dpi=window.devicePixelRatio||1;
+  if(c.width!==w*dpi){
+    c.width=w*dpi; c.height=h*dpi;
+    c.style.width=w+'px'; c.style.height=h+'px';
+    const ctx=c.getContext('2d');
+    ctx.setTransform(dpi,0,0,dpi,0,0);
+  }
+  return c.getContext('2d');
+}
+function drawRaster(){
+  const c=document.getElementById('raster');
+  const W=1200, H=320;
+  const ctx=setupCanvas(c, W, H);
+  clearCanvas(ctx, W, H);
+  const left=68, right=20, top=10, mid=190, bot=10;
+  const rasterH=mid-top-12, tsH=H-mid-bot-30;
+  // Raster
+  ctx.save(); ctx.translate(left, top);
+  const rW=W-left-right, rH=rasterH;
+  panelBg(ctx, 0, 0, rW, rH);
+  if(buf.size>0){
+    const T=buf.size;
+    const start=buf.size===buf.capacity?buf.head:0;
+    // Build offscreen canvas at native data resolution (T columns, N rows)
+    const offCanvas=document.createElement('canvas');
+    offCanvas.width=T; offCanvas.height=N;
+    const offCtx=offCanvas.getContext('2d');
+    const offImg=offCtx.createImageData(T, N);
+    for(let tIdx=0;tIdx<T;tIdx++){
+      const bufIdx=(start+tIdx)%buf.capacity;
+      const off=bufIdx*N;
+      for(let cell=0;cell<N;cell++){
+        const isOn=buf.buf[off+cell];
+        const p=(cell*T+tIdx)*4;
+        if(isOn){
+          offImg.data[p]=245; offImg.data[p+1]=158; offImg.data[p+2]=11; offImg.data[p+3]=255;
+        }else{
+          offImg.data[p]=28; offImg.data[p+1]=28; offImg.data[p+2]=31; offImg.data[p+3]=255;
+        }
+      }
+    }
+    offCtx.putImageData(offImg, 0, 0);
+    ctx.imageSmoothingEnabled=false;
+    ctx.drawImage(offCanvas, 0, 0, T, N, 0, 0, rW, rH);
+  }
+  panelFrame(ctx, 0, 0, rW, rH);
+  ctx.restore();
+  drawAxisText(ctx, 'cell', 22, top+rasterH/2, {italic:true, size:13, color:PALETTE.text2,
+    rotate:-Math.PI/2, align:'center', baseline:'middle'});
+  drawAxisText(ctx, '120', 56, top+8, {size:10, color:PALETTE.muted, align:'right'});
+  drawAxisText(ctx, '1', 56, top+rasterH-2, {size:10, color:PALETTE.muted, align:'right'});
+
+  // Time series
+  ctx.save(); ctx.translate(left, mid);
+  const tW=W-left-right, tH=tsH;
+  panelBg(ctx, 0, 0, tW, tH);
+  // Δ horizontal grid (left axis 0..1)
+  for(let v=0;v<=1.001;v+=0.25){
+    const y=tH*(1-v);
+    ctx.strokeStyle=PALETTE.rule; ctx.lineWidth=1;
+    ctx.beginPath(); ctx.moveTo(0,y+0.5); ctx.lineTo(tW,y+0.5); ctx.stroke();
+  }
+  if(buf.size>1){
+    const T=buf.size;
+    const start=buf.size===buf.capacity?buf.head:0;
+    const Gmin=6.0, Gmax=7.5;
+    // G(t) line
+    ctx.strokeStyle=PALETTE.cool; ctx.lineWidth=1.6;
+    ctx.beginPath();
+    for(let k=0;k<T;k++){
+      const i=(start+k)%buf.capacity;
+      const x=k/(T-1)*tW;
+      const Gn=(buf.G[i]-Gmin)/(Gmax-Gmin);
+      const y=tH*(1-Gn);
+      if(k===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
+    }
+    ctx.stroke();
+    // Δ line
+    ctx.strokeStyle=PALETTE.warm; ctx.lineWidth=2.2;
+    ctx.beginPath();
+    for(let k=0;k<T;k++){
+      const i=(start+k)%buf.capacity;
+      const x=k/(T-1)*tW;
+      const y=tH*(1-buf.D[i]);
+      if(k===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
+    }
+    ctx.stroke();
+    // Gc reference
+    const yGc=tH*(1-(6.76-Gmin)/(Gmax-Gmin));
+    ctx.strokeStyle=PALETTE.muted; ctx.setLineDash([3,4]);
+    ctx.beginPath(); ctx.moveTo(0,yGc); ctx.lineTo(tW,yGc); ctx.stroke();
+    ctx.setLineDash([]);
+  }
+  panelFrame(ctx, 0, 0, tW, tH);
+  ctx.restore();
+  // labels
+  drawAxisText(ctx, 'G(t)', left-8, mid+12, {italic:true, size:13,
+    color:PALETTE.cool, align:'right'});
+  drawAxisText(ctx, 'Δ(t)', left-8, mid+tH-2, {italic:true, size:13,
+    color:PALETTE.warm, align:'right'});
+  drawAxisText(ctx, 'time →', W-right-50, H-2, {size:10, color:PALETTE.muted});
+}
+
+// -----------------------------------------------------------------
+// Hysteresis (binned)
+// -----------------------------------------------------------------
+function drawHyst(){
+  const c=document.getElementById('hyst');
+  const W=600, H=380;
+  const ctx=setupCanvas(c, W, H);
+  clearCanvas(ctx, W, H);
+  const left=66, right=24, top=24, bot=46;
+  const pW=W-left-right, pH=H-top-bot;
+  ctx.save(); ctx.translate(left, top);
+  panelBg(ctx, 0, 0, pW, pH);
+  // grid
+  const Gmin=HYST_GMIN, Gmax=HYST_GMAX;
+  for(let g=6.0;g<=7.5;g+=0.25){
+    const x=pW*(g-Gmin)/(Gmax-Gmin);
+    ctx.strokeStyle=PALETTE.rule; ctx.lineWidth=1;
+    ctx.beginPath();ctx.moveTo(x+0.5,0);ctx.lineTo(x+0.5,pH);ctx.stroke();
+  }
+  for(let v=0;v<=1.001;v+=0.25){
+    const y=pH*(1-v);
+    ctx.strokeStyle=PALETTE.rule; ctx.lineWidth=1;
+    ctx.beginPath();ctx.moveTo(0,y+0.5);ctx.lineTo(pW,y+0.5);ctx.stroke();
+  }
+
+  function binStats(sum, sumSq, count){
+    const out=[];
+    for(let b=0;b<HYST_BINS;b++){
+      if(count[b]<3) continue;
+      const G=Gmin+(b+0.5)*(Gmax-Gmin)/HYST_BINS;
+      const mean=sum[b]/count[b];
+      const variance=Math.max(0, sumSq[b]/count[b]-mean*mean);
+      const std=Math.sqrt(variance);
+      out.push({G, mean, std, n:count[b]});
+    }
+    return out;
+  }
+  const upStats=binStats(hystUpSum, hystUpSumSq, hystUpCount);
+  const dnStats=binStats(hystDnSum, hystDnSumSq, hystDnCount);
+
+  function plotBranch(stats, color, faint){
+    if(stats.length<2) return;
+    // Fill ±1σ band
+    ctx.fillStyle=faint;
+    ctx.beginPath();
+    for(let k=0;k<stats.length;k++){
+      const s=stats[k];
+      const x=pW*(s.G-Gmin)/(Gmax-Gmin);
+      const y=pH*(1-(s.mean+s.std));
+      if(k===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
+    }
+    for(let k=stats.length-1;k>=0;k--){
+      const s=stats[k];
+      const x=pW*(s.G-Gmin)/(Gmax-Gmin);
+      const y=pH*(1-(s.mean-s.std));
+      ctx.lineTo(x,y);
+    }
+    ctx.closePath(); ctx.fill();
+    // Mean line
+    ctx.strokeStyle=color; ctx.lineWidth=2.2;
+    ctx.beginPath();
+    for(let k=0;k<stats.length;k++){
+      const s=stats[k];
+      const x=pW*(s.G-Gmin)/(Gmax-Gmin);
+      const y=pH*(1-s.mean);
+      if(k===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
+    }
+    ctx.stroke();
+    // Markers
+    for(const s of stats){
+      const x=pW*(s.G-Gmin)/(Gmax-Gmin);
+      const y=pH*(1-s.mean);
+      ctx.fillStyle=color;
+      ctx.beginPath(); ctx.arc(x,y,2.5,0,Math.PI*2); ctx.fill();
+    }
+  }
+  plotBranch(upStats, PALETTE.cool, PALETTE.coolFaint);
+  plotBranch(dnStats, PALETTE.warm, PALETTE.warmFaint);
+  // Gc dashed
+  const xGc=pW*(6.76-Gmin)/(Gmax-Gmin);
+  ctx.strokeStyle=PALETTE.muted; ctx.setLineDash([3,4]); ctx.lineWidth=1;
+  ctx.beginPath();ctx.moveTo(xGc+0.5,0);ctx.lineTo(xGc+0.5,pH);ctx.stroke();
+  ctx.setLineDash([]);
+  panelFrame(ctx, 0, 0, pW, pH);
+  ctx.restore();
+  // ticks
+  for(let g=6.0;g<=7.5;g+=0.25){
+    const x=left+pW*(g-Gmin)/(Gmax-Gmin);
+    drawAxisText(ctx, g.toFixed(2), x, top+pH+16,
+      {size:10, color:PALETTE.muted, align:'center'});
+  }
+  for(let v=0;v<=1.001;v+=0.25){
+    const y=top+pH*(1-v);
+    drawAxisText(ctx, v.toFixed(2), left-8, y+4,
+      {size:10, color:PALETTE.muted, align:'right'});
+  }
+  drawAxisText(ctx, 'glucose G [mM]', left+pW/2, top+pH+34,
+    {italic:true, size:13, color:PALETTE.text2, align:'center'});
+  drawAxisText(ctx, 'Δ', 22, top+pH/2,
+    {italic:true, size:14, color:PALETTE.text2, rotate:-Math.PI/2,
+     align:'center', baseline:'middle'});
+  // Legend
+  drawAxisText(ctx, '— up sweep', left+8, top+18,
+    {size:11, color:PALETTE.cool});
+  drawAxisText(ctx, '— down sweep', left+96, top+18,
+    {size:11, color:PALETTE.warm});
+
+  // Numerical readout: max gap
+  let maxGap=0, maxGapG=0;
+  if(upStats.length>0 && dnStats.length>0){
+    const upMap=new Map(upStats.map(s=>[Math.round(s.G*100), s.mean]));
+    for(const s of dnStats){
+      const u=upMap.get(Math.round(s.G*100));
+      if(u!==undefined){
+        const gap=s.mean-u;
+        if(gap>maxGap){maxGap=gap; maxGapG=s.G;}
+      }
+    }
+  }
+  if(maxGap>0.01){
+    drawAxisText(ctx,
+      `max gap ≈ ${maxGap.toFixed(2)} at G ≈ ${maxGapG.toFixed(2)}`,
+      left+pW-8, top+18, {size:11, italic:true, color:PALETTE.text2, align:'right'});
+  }
+}
+
+// -----------------------------------------------------------------
+// Correlation distribution + GMM
+// -----------------------------------------------------------------
+function drawCorrHist(){
+  const c=document.getElementById('corrhist');
+  const W=600, H=380;
+  const ctx=setupCanvas(c, W, H);
+  clearCanvas(ctx, W, H);
+  const left=58, right=26, top=24, bot=46;
+  const pW=W-left-right, pH=H-top-bot;
+  ctx.save(); ctx.translate(left, top);
+  panelBg(ctx, 0, 0, pW, pH);
+
+  function histogram(arr, nBins=40, range=[-1,1]){
+    const h=new Float32Array(nBins);
+    const [a,b]=range;
+    for(const v of arr){
+      let bi=Math.floor((v-a)/(b-a)*nBins);
+      if(bi<0||bi>=nBins) continue;
+      h[bi]++;
+    }
+    let max=0; for(let i=0;i<nBins;i++) if(h[i]>max) max=h[i];
+    return {h, max};
+  }
+  // basal
+  const NBINS=40;
+  if(cache.corrBasal){
+    const C=cache.corrBasal;
+    const rho=[];
+    for(let i=0;i<N;i++) for(let j=i+1;j<N;j++) rho.push(C[i*N+j]);
+    const {h,max}=histogram(rho, NBINS);
+    const binW=pW/NBINS;
+    for(let i=0;i<NBINS;i++){
+      const hh=pH*0.55*(h[i]/Math.max(1,max));
+      ctx.fillStyle=PALETTE.coolFaint;
+      ctx.fillRect(i*binW, pH-hh, binW-0.5, hh);
+    }
+  }
+  // current
+  let curMax=1;
+  if(cache.corrCurrent){
+    const C=cache.corrCurrent;
+    const rho=[];
+    for(let i=0;i<N;i++) for(let j=i+1;j<N;j++){
+      const r=C[i*N+j]; if(Math.abs(r)>1e-6) rho.push(r);
+    }
+    const {h,max}=histogram(rho, NBINS);
+    curMax=max;
+    const binW=pW/NBINS;
+    for(let i=0;i<NBINS;i++){
+      const hh=pH*0.92*(h[i]/Math.max(1,max));
+      ctx.fillStyle=PALETTE.warm;
+      ctx.globalAlpha=0.7;
+      ctx.fillRect(i*binW, pH-hh, binW-0.5, hh);
+    }
+    ctx.globalAlpha=1.0;
+    if(cache.gmmCurrent){
+      const g=cache.gmmCurrent;
+      // GMM curve, scaled to histogram height
+      ctx.strokeStyle=PALETTE.text;
+      ctx.lineWidth=1.6;
+      ctx.beginPath();
+      const dxBin=2/NBINS;
+      let peakY=0;
+      for(let xp=0;xp<=pW;xp+=2){
+        const x=-1+(xp/pW)*2;
+        const dens=g.pLow*gaussPdf(x,g.mu1,g.s1)+g.pHigh*gaussPdf(x,g.mu2,g.s2);
+        // density to count: count_per_bin = dens * dxBin * total_count;
+        // height = count_per_bin / max * 0.92 * pH
+        const totalRho=N*(N-1)/2;
+        const expectedCount=dens*dxBin*totalRho;
+        const hh=pH*0.92*(expectedCount/Math.max(1,curMax));
+        if(hh>peakY) peakY=hh;
+        const yp=pH-hh;
+        if(xp===0) ctx.moveTo(xp,yp); else ctx.lineTo(xp,yp);
+      }
+      ctx.stroke();
+      // means as warm dashed verticals
+      ctx.strokeStyle=PALETTE.warm2; ctx.setLineDash([3,3]); ctx.lineWidth=1;
+      const xMu1=pW*(g.mu1+1)/2, xMu2=pW*(g.mu2+1)/2;
+      ctx.beginPath();ctx.moveTo(xMu1+0.5,0);ctx.lineTo(xMu1+0.5,pH);ctx.stroke();
+      ctx.beginPath();ctx.moveTo(xMu2+0.5,0);ctx.lineTo(xMu2+0.5,pH);ctx.stroke();
+      ctx.setLineDash([]);
+    }
+  }
+  // x grid lines
+  for(let v=-1;v<=1.001;v+=0.5){
+    const x=pW*(v+1)/2;
+    ctx.strokeStyle=PALETTE.rule; ctx.lineWidth=1;
+    ctx.beginPath();ctx.moveTo(x+0.5,0);ctx.lineTo(x+0.5,pH);ctx.stroke();
+  }
+  panelFrame(ctx, 0, 0, pW, pH);
+  ctx.restore();
+  for(let v=-1;v<=1.001;v+=0.5){
+    const x=left+pW*(v+1)/2;
+    drawAxisText(ctx, v.toFixed(1), x, top+pH+16,
+      {size:10, color:PALETTE.muted, align:'center'});
+  }
+  drawAxisText(ctx, 'pairwise correlation ρᵢⱼ', left+pW/2, top+pH+34,
+    {italic:true, size:13, color:PALETTE.text2, align:'center'});
+  drawAxisText(ctx, 'density', 22, top+pH/2,
+    {italic:true, size:13, color:PALETTE.text2, rotate:-Math.PI/2,
+     align:'center', baseline:'middle'});
+  // Legend
+  ctx.save(); ctx.translate(left+8, top+18);
+  ctx.fillStyle=PALETTE.coolFaint; ctx.fillRect(0,-9,12,12);
+  ctx.fillStyle=PALETTE.cool; ctx.fillRect(0,-9,12,2);
+  drawAxisText(ctx, 'basal', 18, 0, {size:11, color:PALETTE.cool});
+  ctx.fillStyle=PALETTE.warm; ctx.globalAlpha=0.7;
+  ctx.fillRect(72,-9,12,12); ctx.globalAlpha=1;
+  drawAxisText(ctx, 'current', 90, 0, {size:11, color:PALETTE.warm});
+  ctx.restore();
+  if(cache.gmmCurrent){
+    const g=cache.gmmCurrent;
+    drawAxisText(ctx,
+      `μ_low ${g.mu1.toFixed(2)}   μ_high ${g.mu2.toFixed(2)}   w_high ${g.pHigh.toFixed(2)}`,
+      left+pW-8, top+18,
+      {size:11, italic:true, color:PALETTE.text2, align:'right'});
+  }
+}
+
+// -----------------------------------------------------------------
+// Eigenvalue spectrum
+// -----------------------------------------------------------------
+function drawSpec(){
+  const c=document.getElementById('spec');
+  const W=600, H=380;
+  const ctx=setupCanvas(c, W, H);
+  clearCanvas(ctx, W, H);
+  const left=60, right=26, top=24, bot=46;
+  const pW=W-left-right, pH=H-top-bot;
+  ctx.save(); ctx.translate(left, top);
+  panelBg(ctx, 0, 0, pW, pH);
+  let xmax=4;
+  if(cache.eigsCurrent.length>0){
+    xmax=Math.max(4, Math.min(80, cache.eigsCurrent[cache.eigsCurrent.length-1]*1.10));
+  }
+  function histo(arr, range, nBins=64){
+    const [a,b]=range; const h=new Float32Array(nBins);
+    for(const v of arr){
+      const bi=Math.floor((v-a)/(b-a)*nBins);
+      if(bi>=0 && bi<nBins) h[bi]++;
+    }
+    let mx=0; for(let i=0;i<nBins;i++) if(h[i]>mx) mx=h[i];
+    return {h, max:mx};
+  }
+  const NBINS=64;
+  const range=[0, xmax];
+  const basal=histo(cache.eigsBasal, range, NBINS);
+  const cur=histo(cache.eigsCurrent, range, NBINS);
+  const binW=pW/NBINS;
+  for(let i=0;i<NBINS;i++){
+    const hh=pH*0.5*(basal.h[i]/Math.max(1,basal.max));
+    ctx.fillStyle=PALETTE.coolFaint;
+    ctx.fillRect(i*binW, pH-hh, binW-0.5, hh);
+  }
+  for(let i=0;i<NBINS;i++){
+    const hh=pH*0.92*(cur.h[i]/Math.max(1,cur.max));
+    ctx.fillStyle=PALETTE.warm;
+    ctx.globalAlpha=0.75;
+    ctx.fillRect(i*binW, pH-hh, binW-0.5, hh);
+  }
+  ctx.globalAlpha=1;
+  // MP edge
+  const xMP=pW*(cache.mpEdge-range[0])/(range[1]-range[0]);
+  ctx.strokeStyle=PALETTE.text; ctx.lineWidth=1.4; ctx.setLineDash([5,3]);
+  ctx.beginPath();ctx.moveTo(xMP+0.5,0);ctx.lineTo(xMP+0.5,pH);ctx.stroke();
+  ctx.setLineDash([]);
+  drawAxisText(ctx, `λ₊ = ${cache.mpEdge.toFixed(2)}`, xMP+6, 18,
+    {italic:true, size:12, color:PALETTE.text});
+  // λ_max marker
+  if(cache.eigsCurrent.length>0){
+    const lmax=cache.eigsCurrent[cache.eigsCurrent.length-1];
+    const xL=pW*(lmax-range[0])/(range[1]-range[0]);
+    ctx.fillStyle=PALETTE.rose;
+    ctx.beginPath(); ctx.moveTo(xL,pH); ctx.lineTo(xL-5,pH+10); ctx.lineTo(xL+5,pH+10); ctx.fill();
+    drawAxisText(ctx, `λ_max ${lmax.toFixed(2)}`,
+      Math.max(60, xL-50), pH-8,
+      {italic:true, size:11, color:PALETTE.rose});
+  }
+  panelFrame(ctx, 0, 0, pW, pH);
+  ctx.restore();
+  for(let i=0;i<=4;i++){
+    const v=range[0]+(range[1]-range[0])*(i/4);
+    const x=left+pW*(i/4);
+    drawAxisText(ctx, v.toFixed(1), x, top+pH+16,
+      {size:10, color:PALETTE.muted, align:'center'});
+  }
+  drawAxisText(ctx, 'eigenvalue λ', left+pW/2, top+pH+34,
+    {italic:true, size:13, color:PALETTE.text2, align:'center'});
+  drawAxisText(ctx, 'density', 22, top+pH/2,
+    {italic:true, size:13, color:PALETTE.text2, rotate:-Math.PI/2,
+     align:'center', baseline:'middle'});
+}
+
+// -----------------------------------------------------------------
+// Functional clusters: binary mask, cells sorted by stability
+// -----------------------------------------------------------------
+function drawClusters(){
+  const c=document.getElementById('clust');
+  const W=600, H=380;
+  const ctx=setupCanvas(c, W, H);
+  clearCanvas(ctx, W, H);
+  const left=22, right=22, top=22;
+  const gridH=222;
+  const gap=42;
+  const histH=70;
+  const pW=W-left-right;
+  const hist=cache.clusterHistory;
+
+  // Compute mask-based stability: fraction of sync frames where cell was in
+  // the leading-eigenvector top-25%. Only sync frames count, so during basal
+  // (random masks) no signal is accumulated.
+  const stability=new Float32Array(N);
+  let nSyncFrames=0;
+  for(const e of hist){
+    if(e.delta>SYNC_D_THRESH){
+      nSyncFrames++;
+      for(let i=0;i<N;i++) if(e.mask[i]) stability[i]+=1;
+    }
+  }
+  if(nSyncFrames>0) for(let i=0;i<N;i++) stability[i]/=nSyncFrames;
+
+  // === TOP: stability-sorted live grid ===
+  ctx.save(); ctx.translate(left, top);
+  panelBg(ctx, 0, 0, pW, gridH);
+  if(nSyncFrames>5){
+    const order=Array.from(stability.keys()).sort((a,b)=>stability[b]-stability[a]);
+    // Recency-of-activation per cell; smoothly decays after a cell goes silent
+    const recentAct=new Float32Array(N);
+    for(let i=0;i<N;i++){
+      if(sim.state[i]===1){
+        recentAct[i]=1.0;
+      }else{
+        const dtRec=sim.t-sim.lastFlip[i];
+        recentAct[i]=dtRec>0?Math.max(0,Math.exp(-dtRec/8)):0;
+      }
+    }
+    // Grid: 15 cols × 8 rows = 120 cells
+    const cols=15, rows=8;
+    const padInner=14, topMargin=18, botMargin=14;
+    const innerW=pW-2*padInner;
+    const innerH=gridH-topMargin-botMargin;
+    const cellW=innerW/cols, cellH=innerH/rows;
+    const bgR=Math.min(cellW,cellH)*0.40;
+    // Precompute cell position lookup so we can connect by cell index
+    const cellPos=new Array(N).fill(null);
+    for(let k=0;k<N && k<cols*rows;k++){
+      const row=Math.floor(k/cols);
+      const col=k%cols;
+      const cellIdx=order[k];
+      cellPos[cellIdx]={
+        x: padInner+(col+0.5)*cellW,
+        y: topMargin+(row+0.5)*cellH
+      };
+    }
+    // Correlation lines under cells: top-K strongest pairs from current C.
+    // Tint is amber if both endpoints are in the current cluster (intra-cluster
+    // structure), faint cyan if at least one endpoint is outside (peripheral
+    // coupling). This makes the assembly's network skeleton legible at a glance.
+    if(cache.topPairs && cache.topPairs.length>0){
+      ctx.lineCap='round';
+      const m=hist.length>0?hist[hist.length-1].mask:null;
+      for(const p of cache.topPairs){
+        const a=cellPos[p.i], b=cellPos[p.j];
+        if(!a||!b) continue;
+        const both=m && m[p.i] && m[p.j];
+        const alpha=Math.max(0, p.c-0.18)*(both?0.85:0.35);
+        if(alpha<0.015) continue;
+        ctx.strokeStyle=both
+          ?`rgba(245,158,11,${Math.min(0.62, alpha)})`
+          :`rgba(140,138,133,${Math.min(0.28, alpha)})`;
+        ctx.lineWidth=both?Math.min(2.4, 0.9+p.c*1.7):0.9;
+        ctx.beginPath();
+        ctx.moveTo(a.x, a.y);
+        ctx.lineTo(b.x, b.y);
+        ctx.stroke();
+      }
+    }
+    // Get latest cluster mask (top-25% by leading eigenvector RIGHT NOW)
+    const latestMask=hist.length>0?hist[hist.length-1].mask:null;
+    // Draw cells: in-cluster cells are bright amber, out-cluster are dim cyan.
+    // Stability modulates ring size — persistent assembly cells appear larger even out of cluster.
+    for(let k=0;k<N && k<cols*rows;k++){
+      const row=Math.floor(k/cols);
+      const col=k%cols;
+      const cx=padInner+(col+0.5)*cellW;
+      const cy=topMargin+(row+0.5)*cellH;
+      const cellIdx=order[k];
+      const stab=stability[cellIdx];
+      const act=recentAct[cellIdx];
+      const inCluster=latestMask && latestMask[cellIdx];
+      const r=bgR*(0.35+0.65*stab);
+      if(inCluster){
+        // Active glow halo (only when firing)
+        if(act>0.05){
+          const haloR=r*1.9;
+          const grad=ctx.createRadialGradient(cx,cy,0,cx,cy,haloR);
+          grad.addColorStop(0,`rgba(253,230,138,${0.75*act})`);
+          grad.addColorStop(0.5,`rgba(245,158,11,${0.40*act})`);
+          grad.addColorStop(1,'rgba(245,158,11,0)');
+          ctx.fillStyle=grad;
+          ctx.beginPath(); ctx.arc(cx,cy,haloR,0,Math.PI*2); ctx.fill();
+        }
+        // Filled amber disc
+        ctx.fillStyle=`rgba(245,158,11,${0.55+stab*0.35})`;
+        ctx.beginPath(); ctx.arc(cx,cy,r,0,Math.PI*2); ctx.fill();
+        // Bright core when active
+        if(act>0.05){
+          ctx.fillStyle=`rgba(253,230,138,${Math.min(1,0.55+act*0.4)})`;
+          ctx.beginPath(); ctx.arc(cx,cy,r*0.45,0,Math.PI*2); ctx.fill();
+        }
+        // Crisp outline
+        ctx.strokeStyle=`rgba(253,191,36,0.85)`;
+        ctx.lineWidth=1;
+        ctx.beginPath(); ctx.arc(cx,cy,r,0,Math.PI*2); ctx.stroke();
+      }else{
+        // Out of current cluster: dim cyan ring
+        ctx.strokeStyle=`rgba(56,189,248,${0.25+stab*0.30})`;
+        ctx.lineWidth=1;
+        ctx.beginPath(); ctx.arc(cx,cy,r,0,Math.PI*2); ctx.stroke();
+        // Tiny center dot if firing (transient activity outside the dominant mode)
+        if(act>0.05){
+          ctx.fillStyle=`rgba(96,165,250,${Math.min(0.85,0.45+act*0.45)})`;
+          ctx.beginPath(); ctx.arc(cx,cy,Math.max(1.5,r*0.30),0,Math.PI*2); ctx.fill();
+        }
+      }
+    }
+    // Header annotations (rank goes left-to-right, top-to-bottom)
+    drawAxisText(ctx, '↖ most stable',
+      padInner+2, topMargin-6,
+      {size:10, color:PALETTE.warm, italic:true});
+    drawAxisText(ctx, 'least stable ↘',
+      padInner+innerW, gridH-botMargin+12,
+      {size:10, color:PALETTE.muted, italic:true, align:'right'});
+  }else{
+    drawAxisText(ctx, 'accumulating sync-phase data…',
+      pW/2, gridH/2,
+      {italic:true, size:14, color:PALETTE.muted, align:'center'});
+  }
+  panelFrame(ctx, 0, 0, pW, gridH);
+  ctx.restore();
+  // Caption
+  drawAxisText(ctx,
+    'cells in fixed slots ordered by long-term participation rank · amber filled = in current cluster · cyan ring = outside',
+    left+pW/2, top+gridH+18,
+    {italic:true, size:11, color:PALETTE.text2, align:'center'});
+
+  // === BOTTOM: stability histogram (time-aggregate) ===
+  const hY=top+gridH+gap;
+  ctx.save(); ctx.translate(left, hY);
+  panelBg(ctx, 0, 0, pW, histH);
+  if(nSyncFrames>5){
+    const NBINS=30;
+    const arr=new Int32Array(NBINS);
+    for(let i=0;i<N;i++){
+      const bi=Math.min(NBINS-1, Math.floor(stability[i]*NBINS));
+      arr[bi]++;
+    }
+    let mx=0; for(let i=0;i<NBINS;i++) if(arr[i]>mx) mx=arr[i];
+    const padHX=14, padHY=8;
+    const hw=pW-2*padHX, hh=histH-2*padHY-14;
+    const binW=hw/NBINS;
+    // Bars colored by participation: cool on the low end, warm on the high end
+    for(let i=0;i<NBINS;i++){
+      const h=hh*(arr[i]/Math.max(1,mx));
+      const t_pos=i/(NBINS-1);
+      const r=Math.round(120+t_pos*(245-120));
+      const g=Math.round(118+t_pos*(158-118));
+      const b=Math.round(113+t_pos*(11-113));
+      ctx.fillStyle=`rgb(${r},${g},${b})`;
+      ctx.fillRect(padHX+i*binW, padHY+hh-h, Math.max(1,binW-1), h);
+    }
+    // Random-expectation reference: top-25% mask means random cells score 0.25
+    const xRand=padHX+hw*TOP_FRAC;
+    ctx.strokeStyle=PALETTE.muted;
+    ctx.setLineDash([3,3]);
+    ctx.beginPath();
+    ctx.moveTo(xRand, padHY); ctx.lineTo(xRand, padHY+hh);
+    ctx.stroke();
+    ctx.setLineDash([]);
+    drawAxisText(ctx, 'random', xRand+4, padHY+8,
+      {size:9, color:PALETTE.muted, italic:true});
+    // x-axis ticks
+    for(let v=0;v<=1.001;v+=0.25){
+      const x=padHX+hw*v;
+      drawAxisText(ctx, v.toFixed(2), x, padHY+hh+12,
+        {size:9, color:PALETTE.muted, align:'center'});
+    }
+    // Counts using thresholds relative to random expectation (0.25)
+    let stable=0, transient=0, nonm=0;
+    for(let i=0;i<N;i++){
+      if(stability[i]>0.40) stable++;
+      else if(stability[i]<0.10) nonm++;
+      else transient++;
+    }
+    drawAxisText(ctx,
+      `stable assembly: ${stable}    transient: ${transient}    non-members: ${nonm}`,
+      padHX+hw-6, padHY+12,
+      {italic:true, size:11, color:PALETTE.text2, align:'right'});
+  }else{
+    drawAxisText(ctx, 'accumulating data…',
+      pW/2, histH/2+4,
+      {italic:true, size:12, color:PALETTE.muted, align:'center'});
+  }
+  panelFrame(ctx, 0, 0, pW, histH);
+  ctx.restore();
+  drawAxisText(ctx, 'time-aggregate · fraction of synchronized snapshots in which each cell appeared in the cluster',
+    left+pW/2, hY+histH+18,
+    {italic:true, size:11, color:PALETTE.text2, align:'center'});
+}
+
+// =================================================================
+// Main loop
+// =================================================================
+let running=false;
+let frame=0;
+let lastObsFrame=-100;
+
+function tick(){
+  if(running){
+    const stepsPerFrame=20;
+    for(let s=0;s<stepsPerFrame;s++){
+      const G=getG();
+      sim.step(dt, G);
+      const compoundIdx=s+frame*stepsPerFrame;
+      if((compoundIdx&3)===0) buf.push(sim.state, G, sim.t);
+      if(sim.t>30 && (compoundIdx&15)===0){
+        const D=sim.state.reduce((a,b)=>a+b,0)/sim.N;
+        recordHyst(G, D, rampDirection());
+      }
+    }
+    if(frame-lastObsFrame>=14){
+      recomputeObservables();
+      lastObsFrame=frame;
+    }
+    frame++;
+  }
+  drawRaster();
+  drawHyst();
+  drawCorrHist();
+  drawSpec();
+  drawClusters();
+  document.getElementById('G-out').textContent=getG().toFixed(2);
+  const D=sim.state.reduce((a,b)=>a+b,0)/sim.N;
+  document.getElementById('D-out').textContent=D.toFixed(2);
+  document.getElementById('t-out').textContent=Math.round(sim.t);
+  document.getElementById('L-out').textContent=cache.lastEigMax.toFixed(2);
+  requestAnimationFrame(tick);
+}
+
+// =================================================================
+// UI wiring
+// =================================================================
+const runBtn=document.getElementById('run');
+runBtn.onclick=()=>{
+  running=!running;
+  runBtn.textContent=running?'Pause':'Start';
+  if(running) phaseT0=sim.t;
+};
+document.getElementById('reset').onclick=()=>{
+  sim.reset();
+  buf.head=0; buf.size=0;
+  resetHyst();
+  cache.eigsCurrent=[]; cache.corrCurrent=null;
+  cache.clusterHistory=[];
+  cache.gmmCurrent=null; cache.lastEigMax=1;
+  cache.topPairs=[];
+  phaseT0=0; frame=0; lastObsFrame=-100;
+};
+document.getElementById('alpha').oninput=(e)=>{
+  const v=parseFloat(e.target.value);
+  document.getElementById('alpha-val').textContent=v.toFixed(2);
+  sim.setAlpha(v);
+};
+document.getElementById('sigma').oninput=(e)=>{
+  const v=parseFloat(e.target.value);
+  document.getElementById('sigma-val').textContent=v.toFixed(2);
+  sim.setSigmaDelta(v);
+};
+document.getElementById('ramp').oninput=(e)=>{
+  const v=parseFloat(e.target.value);
+  document.getElementById('ramp-val').textContent=v.toFixed(1)+'×';
+  rampSpeed=v;
+};
+document.getElementById('mode').onchange=(e)=>{
+  manualMode=(e.target.value==='manual');
+  document.getElementById('manual-ctrl').style.display=manualMode?'flex':'none';
+  if(!manualMode) phaseT0=sim.t;
+};
+document.getElementById('manualG').oninput=(e)=>{
+  manualG=parseFloat(e.target.value);
+  document.getElementById('manualG-val').textContent=manualG.toFixed(2);
+};
+
+requestAnimationFrame(tick);
+</script>
+</body>
+</html>
