@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Nuclear Multilayer Ecosystem — Explorer</title>
+  <meta name="description"
+        content="Interactive exploration of the European civilian nuclear research and education ecosystem (1995–2025), reconstructed as a temporal multilayer network from the OpenAlex publication record." />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Source+Serif+4:ital,wght@0,400;0,600;1,400&family=JetBrains+Mono:wght@400;500&display=swap" />
+
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg" />
+</head>
+<body>
+
+  <header class="topbar">
+    <div class="topbar-inner">
+      <div class="brand">
+        Nuclear Multilayer Ecosystem
+        <span class="brand-sub">1995–2025</span>
+      </div>
+      <nav class="nav" id="nav">
+        <a href="#/overview"  data-route="overview">Overview</a>
+        <a href="#/topics"    data-route="topics">Topics</a>
+        <a href="#/policy"    data-route="policy">Policy shocks</a>
+        <a href="#/cohorts"   data-route="cohorts">Cohorts</a>
+        <a href="#/network"   data-route="network">Network</a>
+        <a href="#/countries" data-route="countries">Countries</a>
+        <a href="#/about"     data-route="about">About</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="view"></main>
+
+  <footer>
+    <p>
+      Companion explorer to the <em>Nuclear Multilayer Ecosystem</em> project.
+      Code released under the MIT license; data, models, and figures under CC-BY-4.0.
+      Source: <a href="https://github.com/deankorosak/nuclear-multilayer-app" target="_blank" rel="noopener">deankorosak/nuclear-multilayer-app</a>
+      &nbsp;·&nbsp; Data pipeline: <a href="https://github.com/deankorosak/nuclear-multilayer" target="_blank" rel="noopener">deankorosak/nuclear-multilayer</a>
+    </p>
+    <p class="muted" id="footer-data-info">Loading data manifest…</p>
+  </footer>
+
+  <script src="https://cdn.plot.ly/plotly-2.35.2.min.js" charset="utf-8"></script>
+
+  <script src="js/data.js"></script>
+  <script src="js/views/overview.js"></script>
+  <script src="js/views/topics.js"></script>
+  <script src="js/views/policy.js"></script>
+  <script src="js/views/cohorts.js"></script>
+  <script src="js/views/network.js"></script>
+  <script src="js/views/countries.js"></script>
+  <script src="js/views/about.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

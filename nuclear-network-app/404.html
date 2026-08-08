@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Redirecting…</title>
+  <script>
+    // GitHub Pages serves 404.html for unknown paths. Forward to index with the
+    // intended hash preserved so deep-linked SPA routes resolve correctly.
+    (function () {
+      var segs = window.location.pathname.split('/').filter(Boolean);
+      var base = segs.length ? '/' + segs[0] + '/' : '/';
+      var rest = segs.slice(1).join('/');
+      var hash = rest ? '#/' + rest : (window.location.hash || '');
+      window.location.replace(base + hash);
+    })();
+  </script>
+  <meta http-equiv="refresh" content="0; url=/" />
+</head>
+<body>
+  <p>Redirecting to <a href="/">home</a>…</p>
+</body>
+</html>
