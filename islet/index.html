@@ -1,0 +1,1680 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Islet Recruitment Simulator</title>
+<meta name="description" content="Interactive microscopic stochastic simulation of the majority-rule recruitment model for the first-order synchronization transition in pancreatic islets (companion to Fig. 9 of the manuscript)." />
+<style>
+/* ------------------------------------------------------------------ */
+/* Theme tokens                                                        */
+/* ------------------------------------------------------------------ */
+:root {
+  color-scheme: light;
+  --bg: #f7f6f2;
+  --surface: #ffffff;
+  --surface-2: #f1efe9;
+  --border: #dcd8ce;
+  --ink: #1b1d20;
+  --ink-2: #4f545c;
+  --ink-3: #8a9099;
+  --grid: #e6e3db;
+  --axis: #9ea4ab;
+  --accent: #2a78d6;
+  --s1: #2a78d6;   /* blue    : forward / primary          */
+  --s2: #eb6834;   /* orange  : backward / secondary       */
+  --s3: #1baf7a;   /* aqua    : fitted curves / references */
+  --s4: #8b5cf6;   /* violet  : mean-field / theory        */
+  --neutral: #8a9099;
+  --neutral-2: #c7cbd1;
+  --fill-soft: rgba(42,120,214,0.14);
+  --danger: #c93c3c;
+  --ok: #2c8a52;
+  --shadow: 0 1px 2px rgba(0,0,0,0.05), 0 4px 16px rgba(0,0,0,0.05);
+  --radius: 10px;
+  --font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #121417;
+  --surface: #1a1d22;
+  --surface-2: #22262c;
+  --border: #30353d;
+  --ink: #e9ebee;
+  --ink-2: #b6bcc5;
+  --ink-3: #7f8791;
+  --grid: #2a2f36;
+  --axis: #5c646e;
+  --accent: #3987e5;
+  --s1: #3987e5;
+  --s2: #d95926;
+  --s3: #199e70;
+  --s4: #a78bfa;
+  --neutral: #8f97a1;
+  --neutral-2: #4b525b;
+  --fill-soft: rgba(57,135,229,0.22);
+  --danger: #ef6b6b;
+  --ok: #4fbf7a;
+  --shadow: 0 1px 2px rgba(0,0,0,0.4), 0 6px 20px rgba(0,0,0,0.35);
+}
+
+/* ------------------------------------------------------------------ */
+/* Layout                                                              */
+/* ------------------------------------------------------------------ */
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font);
+  font-size: 14px;
+  line-height: 1.5;
+}
+a { color: var(--accent); }
+h1, h2, h3 { font-weight: 600; letter-spacing: -0.01em; margin: 0; }
+h1 { font-size: 22px; }
+h2 { font-size: 16px; margin-bottom: 6px; }
+h3 { font-size: 13.5px; }
+p { margin: 0 0 8px; }
+.muted { color: var(--ink-2); }
+.small { font-size: 12.5px; }
+code, .mono { font-family: var(--mono); font-size: 12.5px; }
+
+header.masthead {
+  display: flex; align-items: flex-start; justify-content: space-between; gap: 16px;
+  padding: 18px 22px 12px; border-bottom: 1px solid var(--border);
+  background: var(--surface);
+  position: sticky; top: 0; z-index: 20;
+}
+header .title-block { max-width: 1000px; }
+header .subtitle { color: var(--ink-2); margin-top: 3px; font-size: 13px; }
+header .actions { display: flex; gap: 8px; flex-wrap: wrap; justify-content: flex-end; align-items: center; }
+
+button {
+  font: inherit; font-size: 13px; padding: 7px 13px; border-radius: 8px;
+  border: 1px solid var(--border); background: var(--surface-2); color: var(--ink);
+  cursor: pointer; transition: background .15s, border-color .15s;
+}
+button:hover { border-color: var(--ink-3); }
+button.primary { background: var(--accent); border-color: var(--accent); color: #fff; font-weight: 600; }
+button.primary:hover { filter: brightness(1.08); }
+button:disabled { opacity: .5; cursor: not-allowed; }
+button.ghost { background: transparent; }
+
+.layout {
+  display: grid; grid-template-columns: 320px minmax(0, 1fr); gap: 0;
+  min-height: calc(100vh - 70px);
+}
+aside.sidebar {
+  border-right: 1px solid var(--border); background: var(--surface);
+  padding: 14px 16px 40px; overflow-y: auto; position: sticky; top: 70px;
+  height: calc(100vh - 70px);
+}
+main.content { padding: 18px 22px 60px; min-width: 0; }
+.drawer-backdrop { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.45); z-index: 30; }
+.mobilebar { display: none; }
+.drawer-head { display: none; }
+@media (max-width: 980px) {
+  .layout { grid-template-columns: 1fr; min-height: 0; }
+  header.masthead { position: static; padding: 14px 16px 10px; flex-direction: column; align-items: stretch; gap: 8px; }
+  header .actions { justify-content: flex-start; overflow-x: auto; flex-wrap: nowrap; padding-bottom: 2px; scrollbar-width: none; }
+  header .actions::-webkit-scrollbar { display: none; }
+  header .actions button { white-space: nowrap; flex: 0 0 auto; }
+  header .subtitle { font-size: 12.5px; }
+  h1 { font-size: 20px; }
+  #btn-run { display: none; }
+  main.content { padding: 14px 12px 90px; }
+  /* parameters become an off-canvas drawer */
+  aside.sidebar {
+    position: fixed; top: 0; left: 0; bottom: 0; width: min(340px, 88vw); height: 100vh; height: 100dvh;
+    z-index: 40; transform: translateX(-105%); transition: transform .25s ease; box-shadow: var(--shadow);
+    padding-bottom: 32px; padding-top: 0;
+  }
+  body.drawer-open aside.sidebar { transform: translateX(0); }
+  body.drawer-open .drawer-backdrop { display: block; }
+  .drawer-head { display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; background: var(--surface); padding: 12px 0 8px; margin-bottom: 4px; border-bottom: 1px solid var(--border); z-index: 1; font-weight: 600; }
+  /* sticky bottom action bar */
+  .mobilebar {
+    display: flex; gap: 8px; position: fixed; left: 0; right: 0; bottom: 0; z-index: 25;
+    padding: 8px 12px calc(8px + env(safe-area-inset-bottom)); background: var(--surface); border-top: 1px solid var(--border);
+  }
+  .mobilebar button { flex: 1; padding: 10px 12px; font-size: 14px; }
+  .mobilebar .progress-wrap { position: absolute; left: 0; right: 0; top: -1px; }
+  .mobilebar .progress { height: 3px; border: 0; border-radius: 0; background: transparent; }
+}
+
+/* ------------------------------------------------------------------ */
+/* Controls                                                            */
+/* ------------------------------------------------------------------ */
+details.group { border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 10px; background: var(--surface); }
+details.group > summary {
+  cursor: pointer; padding: 8px 12px; font-weight: 600; font-size: 13px; list-style: none;
+  display: flex; justify-content: space-between; align-items: center;
+}
+details.group > summary::-webkit-details-marker { display: none; }
+details.group > summary::after { content: "+"; color: var(--ink-3); font-weight: 400; }
+details.group[open] > summary::after { content: "–"; }
+details.group > .body { padding: 4px 12px 10px; border-top: 1px solid var(--border); }
+.ctrl { margin: 8px 0; }
+.ctrl label { display: block; font-size: 12.5px; color: var(--ink-2); }
+.ctrl label b { float: right; color: var(--ink); font-weight: 600; font-family: var(--mono); font-size: 12px; }
+.ctrl input[type="range"] { width: 100%; margin: 2px 0 0; accent-color: var(--accent); height: 28px; }
+.ctrl input[type="number"], .ctrl select {
+  width: 100%; font: inherit; font-size: 13px; padding: 5px 8px; border-radius: 6px;
+  border: 1px solid var(--border); background: var(--surface-2); color: var(--ink);
+}
+@media (pointer: coarse) { .ctrl input[type="number"], .ctrl select { font-size: 16px; } button { min-height: 40px; } }
+.ctrl .hint { display: block; color: var(--ink-3); font-size: 11.5px; margin-top: 1px; }
+.row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.presets { display: flex; flex-wrap: wrap; gap: 6px; margin: 6px 0 10px; }
+.presets button { padding: 5px 9px; font-size: 12px; }
+.presets button.active { border-color: var(--accent); color: var(--accent); }
+
+.runbar { display: flex; gap: 8px; margin: 6px 0 10px; }
+.runbar button { flex: 1; }
+.progress { height: 6px; background: var(--surface-2); border-radius: 4px; overflow: hidden; border: 1px solid var(--border); }
+.progress > i { display: block; height: 100%; width: 0%; background: var(--accent); transition: width .12s; }
+.status { font-size: 12px; color: var(--ink-2); margin-top: 6px; min-height: 18px; }
+.stale-banner { display: none; font-size: 12px; color: var(--s2); margin-top: 4px; }
+.stale .stale-banner { display: block; }
+
+/* ------------------------------------------------------------------ */
+/* Derived quantities strip                                            */
+/* ------------------------------------------------------------------ */
+.derived { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 8px; margin: 12px 0 18px; }
+.tile { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 8px 12px; }
+.tile .k { font-size: 11.5px; color: var(--ink-3); text-transform: uppercase; letter-spacing: .04em; }
+.tile .v { font-family: var(--mono); font-size: 15px; font-weight: 600; margin-top: 2px; }
+.tile .s { font-size: 11.5px; color: var(--ink-2); }
+
+/* ------------------------------------------------------------------ */
+/* Panels                                                              */
+/* ------------------------------------------------------------------ */
+section.block { margin-bottom: 26px; }
+section.block > h2 { display: flex; align-items: baseline; gap: 10px; }
+section.block > h2 .tag { font-size: 11.5px; color: var(--ink-3); font-weight: 400; }
+.panels { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(420px, 100%), 1fr)); gap: 14px; }
+.panel {
+  background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+  padding: 10px 12px 10px; box-shadow: var(--shadow); min-width: 0; position: relative;
+}
+.panel h3 { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
+.panel h3 .letter { font-family: var(--mono); color: var(--ink-3); font-weight: 500; font-size: 12px; }
+.panel canvas { width: 100%; height: clamp(190px, 55vw, 260px); display: block; margin-top: 4px; touch-action: pan-y; }
+.panel.tall canvas { height: clamp(220px, 60vw, 300px); }
+.panel .caption { font-size: 12.5px; color: var(--ink-2); margin-top: 6px; }
+.panel .caption b { color: var(--ink); font-weight: 600; }
+.panel.stale::after { max-width: 60%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  content: "parameters changed – press Run"; position: absolute; top: 8px; right: 10px;
+  font-size: 11px; color: var(--s2); background: var(--surface); padding: 1px 6px; border-radius: 4px; border: 1px solid var(--border);
+}
+.legend { display: flex; flex-wrap: wrap; gap: 4px 14px; font-size: 12px; color: var(--ink-2); margin-top: 4px; }
+.legend span::before { content: ""; display: inline-block; width: 14px; height: 3px; border-radius: 2px; vertical-align: middle; margin-right: 6px; background: var(--c); }
+.legend span.dash::before { background: repeating-linear-gradient(90deg, var(--c) 0 4px, transparent 4px 7px); }
+.legend span.fill::before { height: 10px; opacity: .35; }
+
+.tooltip {
+  position: fixed; pointer-events: none; z-index: 50; display: none;
+  background: var(--surface); color: var(--ink); border: 1px solid var(--border);
+  box-shadow: var(--shadow); border-radius: 6px; padding: 6px 8px; font-size: 12px; font-family: var(--mono);
+  white-space: pre; line-height: 1.35;
+}
+
+/* Live view */
+.live { display: grid; grid-template-columns: minmax(280px, 1fr) minmax(0, 1.6fr); gap: 14px; }
+@media (max-width: 820px) { .live { grid-template-columns: 1fr; } }
+.live .panel canvas { height: clamp(240px, 70vw, 300px); }
+.live-controls { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-top: 6px; font-size: 12.5px; color: var(--ink-2); }
+.live-controls input[type="range"] { flex: 1; min-width: 120px; accent-color: var(--accent); }
+.live-controls .readout { font-family: var(--mono); font-size: 12px; color: var(--ink); }
+
+/* Explanation */
+.explain { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 12px 16px; margin-bottom: 18px; }
+.explain summary { cursor: pointer; font-weight: 600; }
+.explain .eq { font-family: "Times New Roman", Times, serif; font-size: 15.5px; text-align: center; margin: 8px 0 10px; overflow-x: auto; white-space: nowrap; padding-bottom: 2px; }
+.explain p { margin: 6px 0; }
+.explain .cols { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 12px 20px; margin-top: 8px; }
+
+/* Results table */
+.table-wrap { overflow-x: auto; border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); }
+table.results { border-collapse: collapse; width: 100%; min-width: 560px; font-size: 12.5px; }
+table.results th, table.results td { padding: 6px 10px; text-align: left; border-bottom: 1px solid var(--border); }
+table.results th { color: var(--ink-3); font-weight: 600; font-size: 11.5px; text-transform: uppercase; letter-spacing: .04em; background: var(--surface-2); }
+table.results td.num { font-family: var(--mono); }
+table.results tr:last-child td { border-bottom: 0; }
+.good { color: var(--ok); } .warn { color: var(--s2); }
+
+footer { padding: 20px 22px; color: var(--ink-3); font-size: 12px; border-top: 1px solid var(--border); }
+</style>
+</head>
+<body>
+
+<div class="tooltip" id="tooltip"></div>
+
+<header class="masthead">
+  <div class="title-block">
+    <h1>Islet recruitment simulator</h1>
+    <p class="subtitle">
+      The microscopic stochastic realization of the majority-rule cusp model, run in the browser and pushed
+      through the same analysis pipeline as the calcium recordings. Every panel of the manuscript's simulation
+      figure is regenerated live from the parameters; nothing is precomputed.
+    </p>
+  </div>
+  <div class="actions">
+    <button id="btn-theme" class="ghost" title="Toggle light / dark">Dark theme</button>
+    <button id="btn-png" title="Download the eight panels as one PNG figure">Export figure</button>
+    <button id="btn-json" title="Download all computed series as JSON">Export data</button>
+    <button id="btn-run" class="primary">Run simulation</button>
+  </div>
+</header>
+
+<div class="layout">
+<div class="drawer-backdrop" id="drawer-backdrop"></div>
+<aside class="sidebar" id="sidebar">
+  <div class="drawer-head"><span>Parameters</span><button id="btn-drawer-close" class="ghost">Close</button></div>
+  <div class="presets" id="presets">
+    <button data-preset="paper" class="active" title="Table 1 of the manuscript, N = 100">paper</button>
+    <button data-preset="quick" title="N = 60, shorter windows – fast">quick</button>
+    <button data-preset="nearcusp" title="α close to α_c: narrow loop, rounded jump">near cusp</button>
+    <button data-preset="uncoupled" title="α below α_c: no bistability, smooth crossover">uncoupled</button>
+    <button data-preset="disorder" title="strong quenched field σ_G: rounded transition">strong disorder</button>
+    <button data-preset="oneregion" title="a single coherent region: one detached eigenvalue">one region</button>
+  </div>
+
+  <div class="runbar">
+    <button id="btn-run2" class="primary">Run</button>
+    <button id="btn-stop">Stop</button>
+    <button id="btn-reset" title="Restore the manuscript parameters">Reset</button>
+  </div>
+  <div class="progress"><i id="progress"></i></div>
+  <div class="status" id="status">Ready. Press Run to simulate.</div>
+  <div class="stale-banner">Parameters changed since the last run – the panels show the previous run.</div>
+
+  <details class="group" open>
+    <summary>Recruitment layer</summary>
+    <div class="body">
+      <div class="ctrl"><label for="N">cells N <b id="N-val"></b></label><input id="N" type="range" min="30" max="200" step="10" value="100" /><span class="hint">also sets the demographic noise D ∝ 1/N and the Kramers time</span></div>
+      <div class="ctrl"><label for="k">partners per cell k <b id="k-val"></b></label><input id="k" type="range" min="3" max="15" step="2" value="7" /><span class="hint">odd, so a strict majority is defined; α_c ≈ √(π/2k)</span></div>
+      <div class="ctrl"><label for="alpha">coupling α <b id="alpha-val"></b></label><input id="alpha" type="range" min="0.20" max="0.95" step="0.005" value="0.71" /><span class="hint">weight of the majority rule against the glucose sensor</span></div>
+      <div class="ctrl"><label for="gc">midpoint G<sub>c</sub> (mM) <b id="gc-val"></b></label><input id="gc" type="range" min="6.2" max="7.3" step="0.01" value="6.76" /></div>
+      <div class="ctrl"><label for="dg">width dG (mM) <b id="dg-val"></b></label><input id="dg" type="range" min="0.02" max="0.25" step="0.005" value="0.075" /><span class="hint">sharpness of the single-cell logistic f(G)</span></div>
+      <div class="ctrl"><label for="sigmaG">midpoint dispersion σ<sub>G</sub> (mM) <b id="sigmaG-val"></b></label><input id="sigmaG" type="range" min="0" max="0.30" step="0.005" value="0.03" /><span class="hint">the quenched random field ξ<sub>i</sub></span></div>
+      <div class="ctrl"><label for="pu">redraw probability p<sub>u</sub> <b id="pu-val"></b></label><input id="pu" type="range" min="0.05" max="1" step="0.05" value="0.4" /><span class="hint">sets the time unit: one mean-field time = 1/p<sub>u</sub> sweeps</span></div>
+    </div>
+  </details>
+
+  <details class="group">
+    <summary>Emission layer</summary>
+    <div class="body">
+      <div class="ctrl"><label for="m">regions m <b id="m-val"></b></label><input id="m" type="range" min="1" max="12" step="1" value="5" /><span class="hint">coherent modes; m eigenvalues detach on the plateau</span></div>
+      <div class="ctrl"><label for="w0">common drive w<sub>0</sub> <b id="w0-val"></b></label><input id="w0" type="range" min="0" max="2" step="0.05" value="0.4" /></div>
+      <div class="ctrl"><label for="wr">regional w<sub>r</sub> <b id="wr-val"></b></label><input id="wr" type="range" min="0" max="2" step="0.05" value="1.0" /></div>
+      <div class="ctrl"><label for="s">private noise s <b id="s-val"></b></label><input id="s" type="range" min="0.1" max="2" step="0.05" value="0.7" /><span class="hint">ρ<sub>in</sub> = (w₀²+w<sub>r</sub>²)/(w₀²+w<sub>r</sub>²+s²)</span></div>
+      <div class="ctrl"><label for="rho">AR(1) coefficient ϱ <b id="rho-val"></b></label><input id="rho" type="range" min="0" max="0.98" step="0.01" value="0.8" /><span class="hint">correlation time −1/ln ϱ sweeps</span></div>
+    </div>
+  </details>
+
+  <details class="group">
+    <summary>Protocol</summary>
+    <div class="body">
+      <div class="ctrl"><label for="seg">segment length (sweeps) <b id="seg-val"></b></label><input id="seg" type="range" min="80" max="500" step="10" value="250" /><span class="hint">5 segments: base, ramp up, plateau, ramp down, base</span></div>
+      <div class="row2">
+        <div class="ctrl"><label for="gbase">G<sub>base</sub></label><input id="gbase" type="number" step="0.05" value="6.0" /></div>
+        <div class="ctrl"><label for="gpeak">G<sub>peak</sub></label><input id="gpeak" type="number" step="0.05" value="7.5" /></div>
+      </div>
+      <div class="ctrl"><label for="phi0">initial recruited fraction <b id="phi0-val"></b></label><input id="phi0" type="range" min="0" max="1" step="0.05" value="0.1" /></div>
+    </div>
+  </details>
+
+  <details class="group">
+    <summary>Analysis</summary>
+    <div class="body">
+      <div class="ctrl"><label for="win">window W (sweeps) <b id="win-val"></b></label><input id="win" type="range" min="40" max="400" step="10" value="120" /><span class="hint">keep W &gt; N so every correlation matrix is full rank</span></div>
+      <div class="ctrl"><label for="stride">stride (sweeps) <b id="stride-val"></b></label><input id="stride" type="range" min="5" max="60" step="5" value="15" /></div>
+      <div class="ctrl"><label for="edges">edges defining S(t) <b id="edges-val"></b></label><input id="edges" type="range" min="10" max="300" step="1" value="81" /></div>
+      <div class="ctrl"><label for="nclus">clusters for ARI <b id="nclus-val"></b></label><input id="nclus" type="range" min="2" max="50" step="1" value="25" /></div>
+    </div>
+  </details>
+
+  <details class="group">
+    <summary>Quasi-static sweep</summary>
+    <div class="body">
+      <div class="row2">
+        <div class="ctrl"><label for="glo">G<sub>lo</sub></label><input id="glo" type="number" step="0.05" value="6.1" /></div>
+        <div class="ctrl"><label for="ghi">G<sub>hi</sub></label><input id="ghi" type="number" step="0.05" value="7.1" /></div>
+      </div>
+      <div class="ctrl"><label for="ng">glucose levels <b id="ng-val"></b></label><input id="ng" type="range" min="11" max="81" step="2" value="41" /></div>
+      <div class="ctrl"><label for="relax">relaxation sweeps <b id="relax-val"></b></label><input id="relax" type="range" min="10" max="300" step="10" value="60" /></div>
+      <div class="ctrl"><label for="record">recording sweeps <b id="record-val"></b></label><input id="record" type="range" min="40" max="500" step="10" value="200" /></div>
+      <div class="ctrl"><label><input type="checkbox" id="doqs" checked style="accent-color:var(--accent)" /> &nbsp;run the quasi-static sweep (panels c, d)</label></div>
+    </div>
+  </details>
+
+  <details class="group">
+    <summary>Randomness</summary>
+    <div class="body">
+      <div class="ctrl"><label for="seed">seed</label><input id="seed" type="number" step="1" value="0" /><span class="hint">fixes the graph, the midpoints, the labels and the noise</span></div>
+    </div>
+  </details>
+</aside>
+
+<main class="content">
+  <details class="explain" open>
+    <summary>What this simulates</summary>
+    <div class="cols">
+      <div>
+        <p><b>Recruitment layer.</b> N cells carry binary states σ<sub>i</sub> ∈ {0, 1}. Each polls a fixed set of k partners drawn once at random (a quenched k-out graph) and owns a glucose midpoint G<sub>c,i</sub> = G<sub>c</sub> + ξ<sub>i</sub>, ξ<sub>i</sub> ~ 𝒩(0, σ<sub>G</sub>²). On every sweep each cell is redrawn with probability p<sub>u</sub> and takes</p>
+        <div class="eq">σ<sub>i</sub> ← Bernoulli[ α m<sub>i</sub> + (1 − α) f<sub>i</sub>(G) ],&nbsp; f<sub>i</sub>(G) = 1 / (1 + e<sup>−(G − G<sub>c,i</sub>)/dG</sup>)</div>
+        <p>where m<sub>i</sub> = 1 when a strict majority of its partners is recruited. Averaged over a locally tree-like graph this is the mean-field gradient flow φ̇ = α[P(φ; k) − φ] + (1 − α)[f(G) − φ] = −V′(φ), whose cusp at α<sub>c</sub> = 1/P′(½; k) opens a bistable tongue and a first-order, hysteretic switch; the Bernoulli sampling restores the demographic noise D ∝ 1/N, and ξ<sub>i</sub> is the random field that rounds and pins the transition.</p>
+      </div>
+      <div>
+        <p><b>Emission layer.</b> A frozen ON state has no correlations, so each cell is also assigned once to one of m regions and emits the Ca<sup>2+</sup> proxy</p>
+        <div class="eq">y<sub>i</sub>(t) = σ<sub>i</sub>(t) [ w<sub>0</sub> z<sub>0</sub>(t) + w<sub>r</sub> z<sub>r(i)</sub>(t) ] + s η<sub>i</sub>(t)</div>
+        <p>with z<sub>0</sub> a common-drive fluctuation, z<sub>r</sub> a regional one (all unit-variance AR(1) with coefficient ϱ), and η<sub>i</sub> private white noise. Recruited cells of one region correlate at ρ<sub>in</sub>, across regions at ρ<sub>out</sub>, and any pair with a resting cell at 0, so the pairwise-correlation distribution turns bimodal on the upper branch with strong-component weight w ≈ φ² Σ<sub>r</sub> q<sub>r</sub>², and exactly m eigenvalues detach from the Marčenko–Pastur bulk.</p>
+        <p><b>Pipeline.</b> The signals are treated like recordings: Pearson correlation matrices in sliding windows of W sweeps, the two-component Gaussian-mixture order parameter Δ = |2w − 1|, eigenvalues against the Marčenko–Pastur law at Q = W/N, the contribution matrix of the eigenvalues above λ<sub>+</sub> whose strongest edges define the functional cluster S(t), its overlap U(t, τ) with the plateau windows, and the consecutive-window ARI of an average-linkage clustering. A second, quasi-static experiment steps glucose up and down with the configuration carried over, and reads φ and Δ at each level against the deterministic branches.</p>
+      </div>
+    </div>
+  </details>
+
+  <div class="derived" id="derived"></div>
+
+  <section class="block">
+    <h2>Live realization <span class="tag">replay of the protocol run: who is recruited, when</span></h2>
+    <div class="live">
+      <div class="panel" id="p-cells">
+        <h3>Cells <span class="letter">state · region</span></h3>
+        <canvas id="c-cells"></canvas>
+        <div class="live-controls">
+          <button id="btn-play" title="Play / pause">Play</button>
+          <input id="scrub" type="range" min="0" max="0" step="1" value="0" />
+          <span class="readout" id="live-readout">sweep 0</span>
+        </div>
+        <p class="caption">Each dot is a cell, coloured by its quenched region label and filled when recruited (σ<sub>i</sub> = 1). The thin arcs are the k-out polling graph of the selected cell (click a dot). Recruitment nucleates wherever the quenched field first tips the local majority and spreads through the graph; on the down-ramp the same happens in reverse. No cell is special: the "leaders" are whichever cells the disorder seats first.</p>
+      </div>
+      <div class="panel" id="p-raster">
+        <h3>Activity raster <span class="letter">y<sub>i</sub>(t), cells sorted by region</span></h3>
+        <canvas id="c-raster"></canvas>
+        <p class="caption">The emitted signals of all N cells through the protocol (rows are cells grouped by region, columns are sweeps; the cursor marks the sweep shown at left). Resting cells emit only private noise; recruited cells add the shared and the regional fluctuation, which is what makes rows within a region co-vary during the plateau.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="block">
+    <h2>Figure 9 <span class="tag">the eight panels of the manuscript, regenerated</span></h2>
+    <div class="panels" id="fig9">
+      <div class="panel"><h3>Glucose protocol <span class="letter">(a)</span></h3><canvas id="c-a"></canvas>
+        <p class="caption">Five segments of equal length: baseline at G<sub>base</sub>, a linear ramp to G<sub>peak</sub>, a plateau, the ramp back, baseline. The ramps are not quasi-static, so the jumps in (b) lag the deterministic folds.</p></div>
+      <div class="panel"><h3>Emergence of synchronization <span class="letter">(b)</span></h3><canvas id="c-b"></canvas>
+        <div class="legend"><span style="--c:var(--neutral)">φ (recruited fraction)</span><span style="--c:var(--s2)">Δ = |2w − 1| (GMM)</span></div>
+        <p class="caption">The recruited fraction switches from 0 to 1 within a few tens of sweeps on the up-ramp and back on the down-ramp. Δ, read from the emitted signals alone, rises with it to the plateau predicted by the emission closure, Δ ≈ 1 − 2φ² Σ<sub>r</sub> q<sub>r</sub>².</p></div>
+      <div class="panel"><h3>Hysteresis in recruitment <span class="letter">(c)</span></h3><canvas id="c-c"></canvas>
+        <div class="legend"><span style="--c:var(--neutral)">mean-field branches</span><span style="--c:var(--s1)">up (sim)</span><span style="--c:var(--s2)">down (sim)</span></div>
+        <p class="caption">Quasi-static loop: glucose stepped up and then down with the configuration carried over, relaxed and averaged at each level, against the fixed points of the mean-field equation iterated from φ = 0 and from φ = 1. The finite-N loop is narrower than the deterministic one because demographic noise carries the system over the barrier before the fold (Kramers escape).</p></div>
+      <div class="panel"><h3>Hysteresis in the correlation order parameter <span class="letter">(d)</span></h3><canvas id="c-d"></canvas>
+        <div class="legend"><span style="--c:var(--s1)">up (sim)</span><span style="--c:var(--s2)">down (sim)</span></div>
+        <p class="caption">The same loop read entirely from the correlations: Δ switches between ≈ 0 and its plateau value at the glucose levels of (c), so the pipeline recovers the recruitment transition and its hysteresis without access to the states σ<sub>i</sub>.</p></div>
+      <div class="panel"><h3>Correlation distribution <span class="letter">(e)</span></h3><canvas id="c-e"></canvas>
+        <div class="legend"><span style="--c:var(--neutral)">basal window</span><span style="--c:var(--s1)">plateau window</span><span style="--c:var(--s3)">mixture fit</span><span class="dash" style="--c:var(--s3)">components</span></div>
+        <p class="caption">Off-diagonal correlations (log scale). Basal: one mode at zero of width ≈ W<sup>−1/2</sup>, the sampling noise of uncorrelated series. Plateau: bimodal, with resting and cross-region pairs near ρ<sub>out</sub> and within-region pairs near ρ<sub>in</sub>; the fitted two-component mixture and its components are overlaid.</p></div>
+      <div class="panel"><h3>Eigenvalue spectrum <span class="letter">(f)</span></h3><canvas id="c-f"></canvas>
+        <div class="legend"><span style="--c:var(--neutral)">basal windows</span><span style="--c:var(--s1)">plateau windows</span><span style="--c:var(--s3)">Marčenko–Pastur</span><span class="dash" style="--c:var(--s2)">λ<sub>+</sub></span></div>
+        <p class="caption">Pooled eigenvalues of the basal and plateau windows against the Marčenko–Pastur law at Q = W/N. At baseline all lie inside the bulk; on the plateau the bulk of private noise remains and m eigenvalues, one per coherent mode, sit far beyond λ<sub>+</sub> (ticks above the axis mark them).</p></div>
+      <div class="panel"><h3>Functional-cluster overlap with plateau <span class="letter">(g)</span></h3><canvas id="c-g"></canvas>
+        <div class="legend"><span style="--c:var(--s1)">U(t, τ) mean over τ</span><span class="fill" style="--c:var(--s1)">± s.d. over τ</span></div>
+        <p class="caption">S(t) is the set of cells on the strongest edges of the contribution matrix built from the eigenvalues above λ<sub>+</sub>; U is its recall against each plateau window τ. Zero at baseline (no eigenvalue exceeds λ<sub>+</sub>, S is empty), it jumps at the up-transition and holds through the plateau. With m equally coherent regions the strongest edges are drawn from ~10³ nearly equivalent within-region pairs, so U saturates below unity.</p></div>
+      <div class="panel"><h3>Cluster stability <span class="letter">(h)</span></h3><canvas id="c-h"></canvas>
+        <div class="legend"><span style="--c:var(--neutral)">consecutive-window ARI</span><span style="--c:var(--s2)">rolling mean (9 windows)</span></div>
+        <p class="caption">Adjusted Rand index between the average-linkage clusterings (d<sub>ij</sub> = 1 − |ρ<sub>ij</sub>|) of consecutive windows. Low at baseline, near unity on the plateau where the same cells make up the same modes window after window, decreasing on deactivation.</p></div>
+    </div>
+  </section>
+
+  <section class="block">
+    <h2>Beyond the figure <span class="tag">what the pipeline sees, window by window</span></h2>
+    <div class="panels">
+      <div class="panel"><h3>Leading eigenvalue against the bulk edge <span class="letter">λ<sub>max</sub>(t)</span></h3><canvas id="c-lmax"></canvas>
+        <div class="legend"><span style="--c:var(--s1)">λ<sub>max</sub></span><span style="--c:var(--s4)">number of eigenvalues &gt; λ<sub>+</sub> (lower strip)</span><span class="dash" style="--c:var(--s2)">λ<sub>+</sub></span></div>
+        <p class="caption">The largest correlation eigenvalue of each window and how many eigenvalues escape the Marčenko–Pastur bulk. The count is the number of coherent modes the pipeline can resolve, m on the plateau, zero at baseline.</p></div>
+      <div class="panel"><h3>Correlation matrices <span class="letter">basal · plateau · plateau sorted by region</span></h3><canvas id="c-mats"></canvas>
+        <p class="caption">The Pearson correlation matrix of a basal window, of a plateau window in the original cell order, and of the same plateau window with cells sorted by their quenched region label, which exposes the rank-m block structure that the eigenvalues in (f) detect. Blue is negative, white zero, orange positive.</p></div>
+      <div class="panel"><h3>Mean-field potential at the current glucose <span class="letter">V(φ)</span></h3><canvas id="c-pot"></canvas>
+        <div class="legend"><span style="--c:var(--s4)">V(φ) at the scrubbed sweep</span><span style="--c:var(--s1)">simulated φ</span></div>
+        <p class="caption">The effective potential V(φ) = φ²/2 − α∫P − (1 − α) f(G) φ of the mean-field limit at the glucose value of the sweep selected in the live view, with the simulated recruited fraction marked. Move the scrubber to watch the well tilt, the barrier vanish at the fold, and the ball roll over; when α &lt; α<sub>c</sub> there is never a second well.</p></div>
+      <div class="panel"><h3>Bifurcation diagram <span class="letter">φ*(G) with the protocol path</span></h3><canvas id="c-bif"></canvas>
+        <div class="legend"><span style="--c:var(--s4)">stable branches</span><span class="dash" style="--c:var(--s4)">unstable branch</span><span style="--c:var(--s1)">protocol run φ(G)</span></div>
+        <p class="caption">The S-shaped steady-state curve of the mean-field equation and, over it, the path (G(t), φ(t)) of the protocol run. The ramp overshoots the folds because it is faster than the relaxation, which diverges at the saddle-node: this is the relaxational lag that the ramp-rate test of the manuscript is designed to expose.</p></div>
+    </div>
+  </section>
+
+  <section class="block">
+    <h2>Numbers <span class="tag">measured from this run against the closed-form predictions</span></h2>
+    <div class="table-wrap"><table class="results" id="results"><thead><tr><th>Quantity</th><th>Simulation</th><th>Prediction</th><th>Note</th></tr></thead><tbody></tbody></table></div>
+  </section>
+</main>
+</div>
+
+<div class="mobilebar">
+  <div class="progress-wrap"><div class="progress"><i id="progress-m"></i></div></div>
+  <button id="btn-drawer">Parameters</button>
+  <button id="btn-run3" class="primary">Run</button>
+</div>
+
+<footer>
+  Companion to <i>A mean-field cusp catastrophe for the first-order synchronization transition in pancreatic islets</i>. Single self-contained page, no dependencies, no network access; the numerics are a line-by-line port of <code>simulate_majority_islet.py</code>. Runs are reproducible from the seed.
+</footer>
+
+<script>
+/* ==================================================================== */
+/*  NUMERICS – a line-by-line port of simulate_majority_islet.py         */
+/* ==================================================================== */
+const NM = (() => {
+  "use strict";
+
+  // ---------------- seeded RNG (mulberry32 + Marsaglia polar) -----------
+  function makeRNG(seed) {
+    let a = (seed >>> 0) || 0x9e3779b9;
+    let spare = null;
+    function next() {
+      a |= 0; a = (a + 0x6d2b79f5) | 0;
+      let t = Math.imul(a ^ (a >>> 15), 1 | a);
+      t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    }
+    function gauss() {
+      if (spare !== null) { const v = spare; spare = null; return v; }
+      let u, v, s;
+      do { u = 2 * next() - 1; v = 2 * next() - 1; s = u * u + v * v; } while (s >= 1 || s === 0);
+      const m = Math.sqrt(-2 * Math.log(s) / s);
+      spare = v * m; return u * m;
+    }
+    return { random: next, gauss };
+  }
+
+  // ---------------- mean-field primitives ------------------------------
+  function comb(n, k) {
+    if (k < 0 || k > n) return 0;
+    let r = 1;
+    for (let i = 1; i <= k; i++) r = (r * (n - k + i)) / i;
+    return r;
+  }
+  const logistic = (G, Gc, dG) => 1 / (1 + Math.exp(-(G - Gc) / dG));
+  function majorityTail(phi, k) {           // P(phi; k)
+    const h = Math.floor(k / 2) + 1;
+    let s = 0;
+    for (let m = h; m <= k; m++) s += comb(k, m) * Math.pow(phi, m) * Math.pow(1 - phi, k - m);
+    return s;
+  }
+  function majorityTailPrime(phi, k) {      // P'(phi; k), Eq. (Pprime)
+    const n = Math.floor(k / 2);
+    return k * comb(k - 1, n) * Math.pow(phi, n) * Math.pow(1 - phi, k - 1 - n);
+  }
+  const S1 = (k) => majorityTailPrime(0.5, k);
+  const alphaC = (k) => 1 / S1(k);
+  // integral of P from 0 to phi (Simpson), for the potential
+  function intP(phi, k, nSteps) {
+    nSteps = nSteps || 64;
+    const h = phi / nSteps;
+    let s = majorityTail(0, k) + majorityTail(phi, k);
+    for (let i = 1; i < nSteps; i++) s += (i % 2 ? 4 : 2) * majorityTail(i * h, k);
+    return (s * h) / 3;
+  }
+  function potential(phi, G, alpha, k, Gc, dG) {
+    return 0.5 * phi * phi - alpha * intP(phi, k) - (1 - alpha) * logistic(G, Gc, dG) * phi;
+  }
+  function fixedPoint(G, x0, alpha, k, Gc, dG) {
+    let x = x0;
+    const f = logistic(G, Gc, dG);
+    for (let i = 0; i < 4000; i++) {
+      const xn = alpha * majorityTail(x, k) + (1 - alpha) * f;
+      if (Math.abs(xn - x) < 1e-11) return xn;
+      x = xn;
+    }
+    return x;
+  }
+  // all roots of phi = alpha P + (1-alpha) f on [0,1] by sign scanning + bisection
+  function allRoots(G, alpha, k, Gc, dG) {
+    const f = logistic(G, Gc, dG);
+    const F = (x) => alpha * majorityTail(x, k) + (1 - alpha) * f - x;
+    const roots = [];
+    const M = 400;
+    let xa = 0, fa = F(0);
+    for (let i = 1; i <= M; i++) {
+      const xb = i / M, fb = F(xb);
+      if (fa === 0) roots.push(xa);
+      else if (fa * fb < 0) {
+        let lo = xa, hi = xb, flo = fa;
+        for (let it = 0; it < 60; it++) {
+          const mid = 0.5 * (lo + hi), fm = F(mid);
+          if (flo * fm <= 0) hi = mid; else { lo = mid; flo = fm; }
+        }
+        roots.push(0.5 * (lo + hi));
+      }
+      xa = xb; fa = fb;
+    }
+    return roots;
+  }
+  // deterministic folds: G_up = where the lower branch disappears, G_down = where the upper disappears
+  function folds(alpha, k, Gc, dG, gLo, gHi) {
+    if (alpha <= alphaC(k) + 1e-9) return { gUp: NaN, gDown: NaN, width: NaN, bistable: false };
+    const lowerExists = (G) => allRoots(G, alpha, k, Gc, dG).length >= 3 || fixedPoint(G, 0, alpha, k, Gc, dG) < 0.5;
+    const upperExists = (G) => allRoots(G, alpha, k, Gc, dG).length >= 3 || fixedPoint(G, 1, alpha, k, Gc, dG) > 0.5;
+    function bisect(pred, lo, hi) {          // pred true at lo, false at hi
+      if (!pred(lo) || pred(hi)) return NaN;
+      for (let i = 0; i < 60; i++) { const m = 0.5 * (lo + hi); if (pred(m)) lo = m; else hi = m; }
+      return 0.5 * (lo + hi);
+    }
+    const gUp = bisect(lowerExists, gLo, gHi);
+    const gDown = bisect((G) => !upperExists(G), gLo, gHi);
+    const width = gUp - gDown;
+    return { gUp, gDown, width, bistable: isFinite(width) && width > 0 };
+  }
+  function widthLeading(alpha, k, dG) {      // Eq. (hysteresis_width)
+    const ac = alphaC(k), mu = (alpha - ac) / ac, n = (k - 1) / 2;
+    if (mu <= 0) return 0;
+    return (8 * dG) / (3 * (1 - ac) * Math.sqrt(n)) * Math.pow(mu, 1.5);
+  }
+
+  // ---------------- quenched structures -------------------------------
+  function buildNeighbours(N, k, rng) {
+    const neigh = new Int32Array(N * k);
+    const pool = new Int32Array(N - 1);
+    for (let i = 0; i < N; i++) {
+      // partial Fisher–Yates on the other N-1 cells
+      let c = 0;
+      for (let j = 0; j < N; j++) if (j !== i) pool[c++] = j;
+      for (let t = 0; t < k; t++) {
+        const r = t + Math.floor(rng.random() * (N - 1 - t));
+        const tmp = pool[t]; pool[t] = pool[r]; pool[r] = tmp;
+        neigh[i * k + t] = pool[t];
+      }
+    }
+    return neigh;
+  }
+  function makeEmission(region, m, w0, wr, s, rho, rng) {
+    const innov = Math.sqrt(1 - rho * rho);
+    let z0 = 0;
+    const zr = new Float64Array(m);
+    return {
+      step(state, out) {
+        z0 = rho * z0 + innov * rng.gauss();
+        for (let r = 0; r < m; r++) zr[r] = rho * zr[r] + innov * rng.gauss();
+        for (let i = 0; i < state.length; i++)
+          out[i] = state[i] * (w0 * z0 + wr * zr[region[i]]) + s * rng.gauss();
+      },
+    };
+  }
+  function sweep(state, next, neigh, k, fField, alpha, pu, rng) {
+    const N = state.length, half = k / 2;
+    for (let i = 0; i < N; i++) {
+      if (rng.random() >= pu) { next[i] = state[i]; continue; }
+      let c = 0;
+      for (let t = 0; t < k; t++) c += state[neigh[i * k + t]];
+      const p = alpha * (c > half ? 1 : 0) + (1 - alpha) * fField[i];
+      next[i] = rng.random() < p ? 1 : 0;
+    }
+  }
+  function buildProtocol(p) {
+    const T = 5 * p.seg, g = new Float64Array(T);
+    for (let t = 0; t < p.seg; t++) {
+      const u = t / (p.seg - 1);
+      g[t] = p.gBase;
+      g[p.seg + t] = p.gBase + (p.gPeak - p.gBase) * u;
+      g[2 * p.seg + t] = p.gPeak;
+      g[3 * p.seg + t] = p.gPeak + (p.gBase - p.gPeak) * u;
+      g[4 * p.seg + t] = p.gBase;
+    }
+    return g;
+  }
+
+  // ---------------- analysis primitives -------------------------------
+  function correlationMatrix(signals, N, start, W) {
+    const mean = new Float64Array(N);
+    for (let t = 0; t < W; t++) { const o = (start + t) * N; for (let i = 0; i < N; i++) mean[i] += signals[o + i]; }
+    for (let i = 0; i < N; i++) mean[i] /= W;
+    const X = new Float64Array(W * N);           // centred, transposed to cell-major for cache
+    for (let t = 0; t < W; t++) { const o = (start + t) * N; for (let i = 0; i < N; i++) X[i * W + t] = signals[o + i] - mean[i]; }
+    const norm = new Float64Array(N);
+    for (let i = 0; i < N; i++) { let s = 0; for (let t = 0; t < W; t++) { const v = X[i * W + t]; s += v * v; } norm[i] = Math.sqrt(s); }
+    const C = new Float64Array(N * N);
+    for (let i = 0; i < N; i++) {
+      C[i * N + i] = 1;
+      for (let j = i + 1; j < N; j++) {
+        let s = 0;
+        const oi = i * W, oj = j * W;
+        for (let t = 0; t < W; t++) s += X[oi + t] * X[oj + t];
+        let c = norm[i] > 0 && norm[j] > 0 ? s / (norm[i] * norm[j]) : 0;
+        if (!isFinite(c)) c = 0;
+        C[i * N + j] = c; C[j * N + i] = c;
+      }
+    }
+    return C;
+  }
+  function offDiagonal(C, N) {
+    const out = new Float64Array((N * (N - 1)) / 2); let o = 0;
+    for (let i = 0; i < N; i++) for (let j = i + 1; j < N; j++) out[o++] = C[i * N + j];
+    return out;
+  }
+  // cyclic Jacobi eigensolver; values ascending, vectors column-wise
+  function jacobiEig(A, n, wantVectors) {
+    const a = Float64Array.from(A);
+    const v = wantVectors ? new Float64Array(n * n) : null;
+    if (v) for (let i = 0; i < n; i++) v[i * n + i] = 1;
+    for (let sw = 0; sw < 60; sw++) {
+      let off = 0;
+      for (let p = 0; p < n - 1; p++) for (let q = p + 1; q < n; q++) off += a[p * n + q] * a[p * n + q];
+      if (off < 1e-18) break;
+      for (let p = 0; p < n - 1; p++) for (let q = p + 1; q < n; q++) {
+        const apq = a[p * n + q];
+        if (Math.abs(apq) < 1e-14) continue;
+        const theta = (a[q * n + q] - a[p * n + p]) / (2 * apq);
+        const t = (theta >= 0 ? 1 : -1) / (Math.abs(theta) + Math.sqrt(theta * theta + 1));
+        const c = 1 / Math.sqrt(t * t + 1), s = t * c;
+        for (let i = 0; i < n; i++) { const aip = a[i * n + p], aiq = a[i * n + q]; a[i * n + p] = c * aip - s * aiq; a[i * n + q] = s * aip + c * aiq; }
+        for (let i = 0; i < n; i++) { const api = a[p * n + i], aqi = a[q * n + i]; a[p * n + i] = c * api - s * aqi; a[q * n + i] = s * api + c * aqi; }
+        if (v) for (let i = 0; i < n; i++) { const vip = v[i * n + p], viq = v[i * n + q]; v[i * n + p] = c * vip - s * viq; v[i * n + q] = s * vip + c * viq; }
+      }
+    }
+    const vals = new Float64Array(n);
+    for (let i = 0; i < n; i++) vals[i] = a[i * n + i];
+    const order = Array.from({ length: n }, (_, i) => i).sort((x, y) => vals[x] - vals[y]);
+    const values = new Float64Array(n);
+    const vectors = v ? new Float64Array(n * n) : null;
+    for (let c = 0; c < n; c++) {
+      values[c] = vals[order[c]];
+      if (v) for (let i = 0; i < n; i++) vectors[i * n + c] = v[i * n + order[c]];
+    }
+    return { values, vectors };
+  }
+  function mpEdges(q) { const r = Math.sqrt(1 / q); return [(1 - r) * (1 - r), (1 + r) * (1 + r)]; }
+  function mpPdf(lam, q) {
+    const [lm, lp] = mpEdges(q);
+    if (lam <= lm || lam >= lp || lam <= 0) return 0;
+    return (q / (2 * Math.PI * lam)) * Math.sqrt((lp - lam) * (lam - lm));
+  }
+  function quantile(sorted, p) {
+    const idx = p * (sorted.length - 1), lo = Math.floor(idx), hi = Math.ceil(idx);
+    return lo === hi ? sorted[lo] : sorted[lo] + (idx - lo) * (sorted[hi] - sorted[lo]);
+  }
+  // two-component 1-D Gaussian mixture: k-means initialisation + EM, best of 3
+  // initialisations (the analogue of sklearn's GaussianMixture(n_init=3, tol=1e-3))
+  function gmm1d(values, rng) {
+    const n = values.length;
+    if (n < 4) return null;
+    const sorted = Float64Array.from(values).sort();
+    let mG = 0; for (let i = 0; i < n; i++) mG += values[i]; mG /= n;
+    let vG = 0; for (let i = 0; i < n; i++) { const d = values[i] - mG; vG += d * d; } vG /= n;
+    const floor = Math.max(1e-7, vG * 1e-4);
+    const K = 0.3989422804014327;
+    function kmeans(c0, c1) {
+      for (let it = 0; it < 50; it++) {
+        let s0 = 0, n0 = 0, s1 = 0, n1 = 0;
+        for (let i = 0; i < n; i++) { const x = values[i]; if (Math.abs(x - c0) <= Math.abs(x - c1)) { s0 += x; n0++; } else { s1 += x; n1++; } }
+        const m0 = n0 ? s0 / n0 : c0, m1 = n1 ? s1 / n1 : c1;
+        if (Math.abs(m0 - c0) < 1e-9 && Math.abs(m1 - c1) < 1e-9) break;
+        c0 = m0; c1 = m1;
+      }
+      // responsibilities from the hard assignment -> initial weights / variances
+      let s0 = 0, n0 = 0, q0 = 0, s1 = 0, n1 = 0, q1 = 0;
+      for (let i = 0; i < n; i++) { const x = values[i]; if (Math.abs(x - c0) <= Math.abs(x - c1)) { s0 += x; q0 += x * x; n0++; } else { s1 += x; q1 += x * x; n1++; } }
+      const mu0 = n0 ? s0 / n0 : c0, mu1 = n1 ? s1 / n1 : c1;
+      return { mu0, mu1, v0: Math.max(floor, n0 ? q0 / n0 - mu0 * mu0 : vG), v1: Math.max(floor, n1 ? q1 / n1 - mu1 * mu1 : vG), w0: Math.max(1e-3, n0 / n), w1: Math.max(1e-3, n1 / n) };
+    }
+    let best = null;
+    for (let init = 0; init < 3; init++) {
+      let c0, c1;
+      if (init === 0) { c0 = quantile(sorted, 0.25); c1 = quantile(sorted, 0.75); }
+      else { c0 = values[Math.floor(rng.random() * n)]; c1 = values[Math.floor(rng.random() * n)]; }
+      if (Math.abs(c0 - c1) < 1e-6) c1 = c0 + Math.sqrt(vG) + 1e-3;
+      let { mu0, mu1, v0, v1, w0, w1 } = kmeans(c0, c1);
+      let ll = -Infinity;
+      for (let it = 0; it < 100; it++) {
+        const i0 = K / Math.sqrt(v0), i1 = K / Math.sqrt(v1);
+        let s0 = 0, s1 = 0, m0 = 0, m1 = 0, q0 = 0, q1 = 0, lln = 0;
+        for (let i = 0; i < n; i++) {
+          const x = values[i], d0 = x - mu0, d1 = x - mu1;
+          const p0 = w0 * i0 * Math.exp(-0.5 * d0 * d0 / v0), p1 = w1 * i1 * Math.exp(-0.5 * d1 * d1 / v1);
+          const tot = p0 + p1 + 1e-300, r0 = p0 / tot, r1 = 1 - r0;
+          s0 += r0; s1 += r1; m0 += r0 * x; m1 += r1 * x; q0 += r0 * x * x; q1 += r1 * x * x; lln += Math.log(tot);
+        }
+        const nm0 = m0 / (s0 + 1e-300), nm1 = m1 / (s1 + 1e-300);
+        mu0 = nm0; mu1 = nm1;
+        v0 = Math.max(floor, q0 / (s0 + 1e-300) - nm0 * nm0);
+        v1 = Math.max(floor, q1 / (s1 + 1e-300) - nm1 * nm1);
+        w0 = s0 / n; w1 = s1 / n;
+        lln /= n;
+        if (Math.abs(lln - ll) < 1e-3) { ll = lln; break; }
+        ll = lln;
+      }
+      if (best === null || ll > best.ll) best = { ll, mu: [mu0, mu1], v: [v0, v1], w: [w0, w1] };
+    }
+    const hi = best.mu[0] >= best.mu[1] ? 0 : 1;
+    best.high = hi;
+    best.delta = Math.abs(2 * best.w[hi] - 1);
+    best.pdf = (x) => {
+      let s = 0;
+      for (let c = 0; c < 2; c++) { const d = x - best.mu[c]; s += best.w[c] * K / Math.sqrt(best.v[c]) * Math.exp(-0.5 * d * d / best.v[c]); }
+      return s;
+    };
+    best.pdfComp = (x, c) => { const d = x - best.mu[c]; return best.w[c] * K / Math.sqrt(best.v[c]) * Math.exp(-0.5 * d * d / best.v[c]); };
+    return best;
+  }
+  // functional cluster S(t): cells incident to the strongest contribution edges
+  function mainCells(eig, N, lamPlus, topEdges) {
+    const idx = [];
+    for (let c = 0; c < N; c++) if (eig.values[c] > lamPlus) idx.push(c);
+    if (idx.length === 0) return new Set();
+    const vals = [], I = [], J = [];
+    for (let i = 0; i < N; i++) for (let j = i + 1; j < N; j++) {
+      let s = 0;
+      for (const c of idx) s += eig.values[c] * eig.vectors[i * N + c] * eig.vectors[j * N + c];
+      vals.push(s); I.push(i); J.push(j);
+    }
+    const order = Array.from(vals.keys()).sort((a, b) => vals[b] - vals[a]);
+    const take = Math.min(topEdges, order.length), nodes = new Set();
+    for (let t = 0; t < take; t++) { nodes.add(I[order[t]]); nodes.add(J[order[t]]); }
+    return nodes;
+  }
+  function overlap(a, ref) { if (ref.size === 0) return 0; let c = 0; for (const x of a) if (ref.has(x)) c++; return c / ref.size; }
+  // average-linkage clustering on d = 1-|rho|, cut into kClusters (scipy 'average' + maxclust analogue)
+  function averageLinkageLabels(C, N, kClusters) {
+    const D = new Float64Array(N * N);
+    for (let i = 0; i < N; i++) for (let j = i + 1; j < N; j++) { let d = 1 - Math.abs(C[i * N + j]); if (d < 0) d = 0; D[i * N + j] = d; D[j * N + i] = d; }
+    const active = new Uint8Array(N).fill(1), size = new Int32Array(N).fill(1);
+    const members = Array.from({ length: N }, (_, i) => [i]);
+    let nActive = N;
+    while (nActive > kClusters) {
+      let bi = -1, bj = -1, bd = Infinity;
+      for (let i = 0; i < N; i++) { if (!active[i]) continue; for (let j = i + 1; j < N; j++) { if (!active[j]) continue; const d = D[i * N + j]; if (d < bd) { bd = d; bi = i; bj = j; } } }
+      if (bi < 0) break;
+      const si = size[bi], sj = size[bj];
+      for (let m = 0; m < N; m++) { if (!active[m] || m === bi || m === bj) continue; const nd = (si * D[bi * N + m] + sj * D[bj * N + m]) / (si + sj); D[bi * N + m] = nd; D[m * N + bi] = nd; }
+      for (const x of members[bj]) members[bi].push(x);
+      size[bi] = si + sj; active[bj] = 0; nActive--;
+    }
+    const labels = new Int32Array(N); let lab = 0;
+    for (let i = 0; i < N; i++) if (active[i]) { for (const x of members[i]) labels[x] = lab; lab++; }
+    return labels;
+  }
+  function ari(a, b) {
+    const n = a.length, la = new Map(), lb = new Map();
+    for (let i = 0; i < n; i++) { if (!la.has(a[i])) la.set(a[i], la.size); if (!lb.has(b[i])) lb.set(b[i], lb.size); }
+    const ra = la.size, rb = lb.size, cont = new Float64Array(ra * rb), sa = new Float64Array(ra), sb = new Float64Array(rb);
+    for (let i = 0; i < n; i++) { const x = la.get(a[i]), y = lb.get(b[i]); cont[x * rb + y]++; sa[x]++; sb[y]++; }
+    const ch2 = (x) => (x * (x - 1)) / 2;
+    let sc = 0, sA = 0, sB = 0;
+    for (let i = 0; i < ra * rb; i++) sc += ch2(cont[i]);
+    for (let i = 0; i < ra; i++) sA += ch2(sa[i]);
+    for (let j = 0; j < rb; j++) sB += ch2(sb[j]);
+    const exp = (sA * sB) / ch2(n), mx = 0.5 * (sA + sB);
+    return mx - exp === 0 ? 1 : (sc - exp) / (mx - exp);
+  }
+  function rollingMean(x, w) {
+    const n = x.length, out = new Float64Array(n), h = Math.floor(w / 2);
+    for (let i = 0; i < n; i++) { let s = 0, c = 0; for (let j = Math.max(0, i - h); j <= Math.min(n - 1, i + h); j++) { s += x[j]; c++; } out[i] = s / c; }
+    return out;
+  }
+  function crossLevel(g, y, level, fromTop) {
+    // first index (scanning in increasing g) where y crosses `level`
+    for (let i = 1; i < y.length; i++) {
+      const y0 = y[i - 1], y1 = y[i];
+      if ((y0 - level) * (y1 - level) <= 0 && y0 !== y1) return g[i - 1] + ((level - y0) * (g[i] - g[i - 1])) / (y1 - y0);
+    }
+    return NaN;
+  }
+
+  // ---------------- the two experiments, as generators (chunked) --------
+  // yields {phase, frac} progress objects; the final `return` carries the results
+  function* simulate(p) {
+    const N = p.N, k = p.k, m = p.m;
+    const rng = makeRNG(p.seed);
+    // quenched structures (same order as the Python: neighbours, midpoints, regions)
+    const neigh = buildNeighbours(N, k, rng);
+    const gcI = new Float64Array(N);
+    for (let i = 0; i < N; i++) gcI[i] = p.gc + p.sigmaG * rng.gauss();
+    const region = new Int32Array(N);
+    for (let i = 0; i < N; i++) region[i] = Math.floor(rng.random() * m);
+    const emission = makeEmission(region, m, p.w0, p.wr, p.s, p.rho, rng);
+    const fField = new Float64Array(N);
+    const setField = (G) => { for (let i = 0; i < N; i++) fField[i] = logistic(G, gcI[i], p.dg); };
+
+    // ---- experiment 1: the protocol run ----
+    const glucose = buildProtocol(p), T = glucose.length;
+    const signals = new Float64Array(T * N);
+    const states = new Uint8Array(T * N);
+    const phi = new Float64Array(T);
+    let state = new Uint8Array(N), next = new Uint8Array(N);
+    for (let i = 0; i < N; i++) state[i] = rng.random() < p.phi0 ? 1 : 0;
+    const buf = new Float64Array(N);
+    for (let t = 0; t < T; t++) {
+      setField(glucose[t]);
+      sweep(state, next, neigh, k, fField, p.alpha, p.pu, rng);
+      const tmp = state; state = next; next = tmp;
+      emission.step(state, buf);
+      signals.set(buf, t * N); states.set(state, t * N);
+      let s = 0; for (let i = 0; i < N; i++) s += state[i]; phi[t] = s / N;
+      if (t % 50 === 0) yield { phase: "protocol run", frac: t / T };
+    }
+
+    // ---- windowed analysis ----
+    const W = p.win, stride = p.stride, q = W / N, lamPlus = mpEdges(q)[1];
+    const starts = []; for (let s = 0; s + W <= T; s += stride) starts.push(s);
+    const nW = starts.length;
+    const centres = starts.map((s) => s + Math.floor(W / 2));
+    const delta = new Float64Array(nW), lamMax = new Float64Array(nW), nOut = new Int32Array(nW);
+    const sets = [], labels = [], eigBase = [], eigPlat = [], corrs = [];
+    const baseEnd = p.seg, platLo = 2 * p.seg, platHi = 3 * p.seg;
+    for (let w = 0; w < nW; w++) {
+      const s = starts[w];
+      const C = correlationMatrix(signals, N, s, W);
+      corrs.push(C);
+      const g = gmm1d(offDiagonal(C, N), rng);
+      delta[w] = g ? g.delta : 0;
+      const eig = jacobiEig(C, N, true);
+      lamMax[w] = eig.values[N - 1];
+      let c = 0; for (let i = 0; i < N; i++) if (eig.values[i] > lamPlus) c++; nOut[w] = c;
+      sets.push(mainCells(eig, N, lamPlus, p.edges));
+      labels.push(averageLinkageLabels(C, N, p.nclus));
+      if (s + W <= baseEnd) for (const v of eig.values) eigBase.push(v);
+      else if (s >= platLo && s + W <= platHi) for (const v of eig.values) eigPlat.push(v);
+      yield { phase: "window analysis", frac: (w + 1) / nW };
+    }
+    const refIdx = []; centres.forEach((c, w) => { if (c >= platLo && c < platHi) refIdx.push(w); });
+    const Umean = new Float64Array(nW), Ustd = new Float64Array(nW);
+    if (refIdx.length) {
+      for (let w = 0; w < nW; w++) {
+        let s = 0, s2 = 0;
+        for (const r of refIdx) { const u = overlap(sets[w], sets[r]); s += u; s2 += u * u; }
+        const mean = s / refIdx.length;
+        Umean[w] = mean; Ustd[w] = Math.sqrt(Math.max(0, s2 / refIdx.length - mean * mean));
+      }
+    }
+    const ariSeries = new Float64Array(Math.max(0, nW - 1));
+    for (let w = 0; w + 1 < nW; w++) ariSeries[w] = ari(labels[w], labels[w + 1]);
+    const argNearest = (target) => { let b = 0, bd = Infinity; centres.forEach((c, w) => { const d = Math.abs(c - target); if (d < bd) { bd = d; b = w; } }); return b; };
+    const baseW = argNearest(Math.floor(baseEnd / 2)), platW = argNearest(Math.floor((platLo + platHi) / 2));
+    const offBase = offDiagonal(corrs[baseW], N), offPlat = offDiagonal(corrs[platW], N);
+    const gmmPlat = gmm1d(offPlat, rng), gmmBase = gmm1d(offBase, rng);
+
+    // ---- experiment 2: quasi-static sweep ----
+    let qs = null;
+    if (p.doqs) {
+      const nG = p.ng, gGrid = new Float64Array(nG);
+      for (let i = 0; i < nG; i++) gGrid[i] = p.glo + (p.ghi - p.glo) * (i / (nG - 1));
+      const phiUp = new Float64Array(nG), phiDown = new Float64Array(nG), dUp = new Float64Array(nG), dDown = new Float64Array(nG);
+      const rec = new Float64Array(p.record * N);
+      let st = new Uint8Array(N), nx = new Uint8Array(N);
+      for (let i = 0; i < N; i++) st[i] = rng.random() < 0.02 ? 1 : 0;
+      const level = (G) => {
+        setField(G);
+        for (let r = 0; r < p.relax; r++) { sweep(st, nx, neigh, k, fField, p.alpha, p.pu, rng); const t = st; st = nx; nx = t; emission.step(st, buf); }
+        let acc = 0;
+        for (let j = 0; j < p.record; j++) {
+          sweep(st, nx, neigh, k, fField, p.alpha, p.pu, rng); const t = st; st = nx; nx = t;
+          emission.step(st, buf); rec.set(buf, j * N);
+          let s = 0; for (let i = 0; i < N; i++) s += st[i]; acc += s / N;
+        }
+        const g = gmm1d(offDiagonal(correlationMatrix(rec, N, 0, p.record), N), rng);
+        return [acc / p.record, g ? g.delta : 0];
+      };
+      for (let i = 0; i < nG; i++) { [phiUp[i], dUp[i]] = level(gGrid[i]); yield { phase: "quasi-static sweep ↑", frac: (i + 1) / (2 * nG) }; }
+      for (let i = nG - 1; i >= 0; i--) { [phiDown[i], dDown[i]] = level(gGrid[i]); yield { phase: "quasi-static sweep ↓", frac: (2 * nG - i) / (2 * nG) }; }
+      // mean-field branches on the same grid
+      const mfUp = new Float64Array(nG), mfDown = new Float64Array(nG);
+      for (let i = 0; i < nG; i++) { mfUp[i] = fixedPoint(gGrid[i], 0, p.alpha, k, p.gc, p.dg); mfDown[i] = fixedPoint(gGrid[i], 1, p.alpha, k, p.gc, p.dg); }
+      const simUp = crossLevel(gGrid, phiUp, 0.5), simDown = crossLevel(gGrid, phiDown, 0.5);
+      qs = { gGrid, phiUp, phiDown, dUp, dDown, mfUp, mfDown, gJumpUp: simUp, gJumpDown: simDown, width: simUp - simDown };
+    }
+
+    return {
+      p, neigh, gcI, region, glucose, phi, signals, states, T, N,
+      windows: { starts, centres, delta, lamMax, nOut, Umean, Ustd, ari: ariSeries, ariSmooth: rollingMean(ariSeries, 9), refIdx },
+      eigBase: Float64Array.from(eigBase), eigPlat: Float64Array.from(eigPlat), q, lamPlus,
+      snap: { baseW, platW, corrBase: corrs[baseW], corrPlat: corrs[platW], offBase, offPlat, gmmPlat, gmmBase },
+      qs,
+    };
+  }
+
+  return { makeRNG, comb, logistic, majorityTail, majorityTailPrime, S1, alphaC, potential, fixedPoint, allRoots, folds, widthLeading,
+           mpEdges, mpPdf, gmm1d, jacobiEig, correlationMatrix, offDiagonal, rollingMean, crossLevel, simulate, buildProtocol };
+})();
+</script>
+
+<script>
+/* ==================================================================== */
+/*  PLOT – a tiny canvas plotting layer with hover read-outs             */
+/* ==================================================================== */
+const PL = (() => {
+  "use strict";
+  const cssVar = (name) => getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+  const tooltip = document.getElementById("tooltip");
+
+  function niceTicks(lo, hi, n) {
+    if (!(hi > lo)) return [lo];
+    const span = hi - lo, raw = span / Math.max(1, n);
+    const mag = Math.pow(10, Math.floor(Math.log10(raw)));
+    const norm = raw / mag;
+    const step = (norm < 1.5 ? 1 : norm < 3.5 ? 2 : norm < 7.5 ? 5 : 10) * mag;
+    const ticks = [];
+    for (let v = Math.ceil(lo / step - 1e-9) * step; v <= hi + 1e-9; v += step) ticks.push(+v.toFixed(10));
+    return ticks;
+  }
+  function fmt(v) {
+    if (!isFinite(v)) return "–";
+    const a = Math.abs(v);
+    if (a === 0) return "0";
+    if (a >= 1000) return v.toFixed(0);
+    if (a >= 100) return v.toFixed(1);
+    if (a >= 1) return v.toFixed(2);
+    if (a >= 0.01) return v.toFixed(3);
+    return v.toExponential(1);
+  }
+  function tickLabel(v) {
+    if (Math.abs(v) >= 1000 || v === 0) return String(Math.round(v));
+    const s = v.toFixed(3).replace(/0+$/, "").replace(/\.$/, "");
+    return s;
+  }
+
+  // Prepare the canvas at device-pixel resolution; returns ctx and CSS size
+  function setup(canvas) {
+    const dpr = window.devicePixelRatio || 1;
+    const rect = canvas.getBoundingClientRect();
+    const w = Math.max(50, Math.round(rect.width)), h = Math.max(50, Math.round(rect.height));
+    if (canvas.width !== Math.round(w * dpr) || canvas.height !== Math.round(h * dpr)) { canvas.width = Math.round(w * dpr); canvas.height = Math.round(h * dpr); }
+    const ctx = canvas.getContext("2d");
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctx.clearRect(0, 0, w, h);
+    return { ctx, w, h };
+  }
+
+  // An axes object inside a canvas region
+  function axes(ctx, region, opts) {
+    const o = Object.assign({ xlabel: "", ylabel: "", xlim: null, ylim: null, ylog: false, padL: 46, padR: 10, padT: 8, padB: 30, xticks: 6, yticks: 5, title: "" }, opts);
+    const x0 = region.x + o.padL, y0 = region.y + o.padT, W = region.w - o.padL - o.padR, H = region.h - o.padT - o.padB;
+    let [xa, xb] = o.xlim, [ya, yb] = o.ylim;
+    if (o.ylog) { ya = Math.log10(ya); yb = Math.log10(yb); }
+    const sx = (x) => x0 + ((x - xa) / (xb - xa)) * W;
+    const sy = (y) => { const v = o.ylog ? Math.log10(Math.max(y, 1e-300)) : y; return y0 + H - ((v - ya) / (yb - ya)) * H; };
+    const ax = { ctx, x0, y0, W, H, sx, sy, xlim: [xa, xb], ylim: o.ylim, ylog: o.ylog };
+    ax.clip = (fn) => { ctx.save(); ctx.beginPath(); ctx.rect(x0, y0, W, H); ctx.clip(); fn(); ctx.restore(); };
+
+    // frame + grid + ticks
+    ctx.font = "11px " + cssVar("--font");
+    ctx.fillStyle = cssVar("--ink-2");
+    ctx.strokeStyle = cssVar("--grid"); ctx.lineWidth = 1;
+    const xt = niceTicks(xa, xb, o.xticks);
+    ctx.textAlign = "center"; ctx.textBaseline = "top";
+    for (const t of xt) { const X = Math.round(sx(t)) + 0.5; ctx.beginPath(); ctx.moveTo(X, y0); ctx.lineTo(X, y0 + H); ctx.stroke(); ctx.fillText(tickLabel(t), X, y0 + H + 5); }
+    ctx.textAlign = "right"; ctx.textBaseline = "middle";
+    let yt;
+    if (o.ylog) {
+      yt = [];
+      for (let e = Math.ceil(ya); e <= Math.floor(yb); e++) yt.push(Math.pow(10, e));
+      for (const t of yt) { const Y = Math.round(sy(t)) + 0.5; ctx.beginPath(); ctx.moveTo(x0, Y); ctx.lineTo(x0 + W, Y); ctx.stroke(); const e = Math.round(Math.log10(t)); ctx.fillText(e === 0 ? "1" : "10" + toSup(e), x0 - 6, Y); }
+    } else {
+      yt = niceTicks(ya, yb, o.yticks);
+      for (const t of yt) { const Y = Math.round(sy(t)) + 0.5; ctx.beginPath(); ctx.moveTo(x0, Y); ctx.lineTo(x0 + W, Y); ctx.stroke(); ctx.fillText(tickLabel(t), x0 - 6, Y); }
+    }
+    ctx.strokeStyle = cssVar("--axis"); ctx.lineWidth = 1;
+    ctx.strokeRect(x0 + 0.5, y0 + 0.5, W - 1, H - 1);
+    // labels
+    ctx.fillStyle = cssVar("--ink-2"); ctx.font = "11.5px " + cssVar("--font");
+    if (o.xlabel) { ctx.textAlign = "center"; ctx.textBaseline = "bottom"; ctx.fillText(o.xlabel, x0 + W / 2, region.y + region.h - 2); }
+    if (o.ylabel) { ctx.save(); ctx.translate(region.x + 12, y0 + H / 2); ctx.rotate(-Math.PI / 2); ctx.textAlign = "center"; ctx.textBaseline = "middle"; ctx.fillText(o.ylabel, 0, 0); ctx.restore(); }
+    if (o.title) { ctx.textAlign = "left"; ctx.textBaseline = "bottom"; ctx.fillStyle = cssVar("--ink"); ctx.font = "600 11.5px " + cssVar("--font"); ctx.fillText(o.title, x0 + 4, y0 - 1); }
+    return ax;
+  }
+  function toSup(n) { const map = { "-": "⁻", 0: "⁰", 1: "¹", 2: "²", 3: "³", 4: "⁴", 5: "⁵", 6: "⁶", 7: "⁷", 8: "⁸", 9: "⁹" }; return String(n).split("").map((c) => map[c]).join(""); }
+
+  function line(ax, xs, ys, color, opts) {
+    const o = Object.assign({ width: 1.6, dash: null, alpha: 1 }, opts);
+    const c = ax.ctx;
+    ax.clip(() => {
+      c.save(); c.globalAlpha = o.alpha; c.strokeStyle = color; c.lineWidth = o.width; c.lineJoin = "round"; c.lineCap = "round";
+      if (o.dash) c.setLineDash(o.dash);
+      c.beginPath(); let pen = false;
+      for (let i = 0; i < xs.length; i++) {
+        const y = ys[i];
+        if (!isFinite(y) || (ax.ylog && y <= 0)) { pen = false; continue; }
+        const X = ax.sx(xs[i]), Y = ax.sy(y);
+        if (!pen) { c.moveTo(X, Y); pen = true; } else c.lineTo(X, Y);
+      }
+      c.stroke(); c.restore();
+    });
+  }
+  function markers(ax, xs, ys, color, opts) {
+    const o = Object.assign({ r: 2.6, shape: "circle", fill: true }, opts);
+    const c = ax.ctx;
+    ax.clip(() => {
+      c.save(); c.fillStyle = color; c.strokeStyle = color; c.lineWidth = 1.2;
+      for (let i = 0; i < xs.length; i++) {
+        if (!isFinite(ys[i])) continue;
+        const X = ax.sx(xs[i]), Y = ax.sy(ys[i]);
+        c.beginPath();
+        if (o.shape === "up") { c.moveTo(X, Y - o.r * 1.2); c.lineTo(X + o.r * 1.1, Y + o.r * 0.8); c.lineTo(X - o.r * 1.1, Y + o.r * 0.8); c.closePath(); }
+        else if (o.shape === "down") { c.moveTo(X, Y + o.r * 1.2); c.lineTo(X + o.r * 1.1, Y - o.r * 0.8); c.lineTo(X - o.r * 1.1, Y - o.r * 0.8); c.closePath(); }
+        else if (o.shape === "square") { c.rect(X - o.r, Y - o.r, 2 * o.r, 2 * o.r); }
+        else c.arc(X, Y, o.r, 0, 2 * Math.PI);
+        if (o.fill) c.fill(); else c.stroke();
+      }
+      c.restore();
+    });
+  }
+  function band(ax, xs, lo, hi, color, alpha) {
+    const c = ax.ctx;
+    ax.clip(() => {
+      c.save(); c.globalAlpha = alpha == null ? 0.2 : alpha; c.fillStyle = color; c.beginPath();
+      for (let i = 0; i < xs.length; i++) { const X = ax.sx(xs[i]), Y = ax.sy(hi[i]); if (i === 0) c.moveTo(X, Y); else c.lineTo(X, Y); }
+      for (let i = xs.length - 1; i >= 0; i--) c.lineTo(ax.sx(xs[i]), ax.sy(lo[i]));
+      c.closePath(); c.fill(); c.restore();
+    });
+  }
+  function vline(ax, x, color, dash, label) {
+    const c = ax.ctx;
+    ax.clip(() => {
+      c.save(); c.strokeStyle = color; c.lineWidth = 1.2; if (dash) c.setLineDash(dash);
+      const X = Math.round(ax.sx(x)) + 0.5; c.beginPath(); c.moveTo(X, ax.y0); c.lineTo(X, ax.y0 + ax.H); c.stroke();
+      if (label) { c.setLineDash([]); c.fillStyle = color; c.font = "10.5px " + cssVar("--font"); c.textAlign = "left"; c.textBaseline = "top"; c.fillText(label, X + 3, ax.y0 + 3); }
+      c.restore();
+    });
+  }
+  function hline(ax, y, color, dash) {
+    const c = ax.ctx;
+    ax.clip(() => { c.save(); c.strokeStyle = color; c.lineWidth = 1.2; if (dash) c.setLineDash(dash); const Y = Math.round(ax.sy(y)) + 0.5; c.beginPath(); c.moveTo(ax.x0, Y); c.lineTo(ax.x0 + ax.W, Y); c.stroke(); c.restore(); });
+  }
+  // step histogram (density normalised) – returns {edges, density}
+  function histogram(values, lo, hi, nBins) {
+    const counts = new Float64Array(nBins), w = (hi - lo) / nBins;
+    let n = 0;
+    for (const v of values) { if (v < lo || v >= hi) continue; counts[Math.min(nBins - 1, Math.floor((v - lo) / w))]++; n++; }
+    const density = new Float64Array(nBins);
+    for (let i = 0; i < nBins; i++) density[i] = n ? counts[i] / (n * w) : 0;
+    return { lo, w, nBins, density, n };
+  }
+  function stepHist(ax, h, color, opts) {
+    const xs = [], ys = [];
+    for (let i = 0; i < h.nBins; i++) { xs.push(h.lo + i * h.w, h.lo + (i + 1) * h.w); ys.push(h.density[i], h.density[i]); }
+    line(ax, xs, ys, color, opts);
+  }
+  function text(ax, x, y, s, color, align, maxWidth) {
+    const c = ax.ctx; c.save(); c.fillStyle = color || cssVar("--ink-2"); c.font = "11px " + cssVar("--font"); c.textAlign = align || "left"; c.textBaseline = "top";
+    const mw = maxWidth == null ? ax.W - 12 : maxWidth;
+    if (c.measureText(s).width > mw) { while (s.length > 3 && c.measureText(s + "…").width > mw) s = s.slice(0, -1); s += "…"; }
+    c.fillText(s, x, y); c.restore();
+  }
+
+  // diverging blue–white–orange colour map for correlations in [-1,1]
+  function divergingColor(v) {
+    v = Math.max(-1, Math.min(1, v));
+    const dark = document.documentElement.getAttribute("data-theme") === "dark";
+    const mid = dark ? [30, 33, 38] : [250, 250, 248];
+    const pos = dark ? [217, 89, 38] : [235, 104, 52];
+    const neg = dark ? [57, 135, 229] : [42, 120, 214];
+    const t = Math.abs(v), c = v >= 0 ? pos : neg;
+    const r = Math.round(mid[0] + (c[0] - mid[0]) * t), g = Math.round(mid[1] + (c[1] - mid[1]) * t), b = Math.round(mid[2] + (c[2] - mid[2]) * t);
+    return `rgb(${r},${g},${b})`;
+  }
+  // draw a matrix as an image into a region
+  function heatmap(ctx, region, M, n, order, colorFn) {
+    const off = document.createElement("canvas"); off.width = n; off.height = n;
+    const oc = off.getContext("2d"), img = oc.createImageData(n, n);
+    for (let a = 0; a < n; a++) for (let b = 0; b < n; b++) {
+      const i = order ? order[a] : a, j = order ? order[b] : b;
+      const col = colorFn(M[i * n + j]).match(/\d+/g).map(Number);
+      const o = (a * n + b) * 4; img.data[o] = col[0]; img.data[o + 1] = col[1]; img.data[o + 2] = col[2]; img.data[o + 3] = 255;
+    }
+    oc.putImageData(img, 0, 0);
+    ctx.save(); ctx.imageSmoothingEnabled = false;
+    ctx.drawImage(off, region.x, region.y, region.w, region.h);
+    ctx.strokeStyle = cssVar("--axis"); ctx.lineWidth = 1; ctx.strokeRect(region.x + 0.5, region.y + 0.5, region.w - 1, region.h - 1);
+    ctx.restore();
+  }
+
+  // hover read-out: attach a probe function returning text lines for a CSS (x,y) position
+  function hover(canvas, probe) {
+    const show = (ev) => {
+      const r = canvas.getBoundingClientRect();
+      const lines = probe(ev.clientX - r.left, ev.clientY - r.top);
+      if (!lines) { tooltip.style.display = "none"; return; }
+      tooltip.textContent = lines.filter(Boolean).join("\n");
+      tooltip.style.display = "block";
+      const tw = tooltip.offsetWidth, th = tooltip.offsetHeight, touch = ev.pointerType === "touch";
+      let X = ev.clientX + 14, Y = touch ? ev.clientY - th - 28 : ev.clientY + 14;
+      if (X + tw > window.innerWidth - 8) X = Math.max(4, ev.clientX - tw - 10);
+      if (Y + th > window.innerHeight - 8) Y = ev.clientY - th - 10;
+      if (Y < 4) Y = ev.clientY + 24;
+      tooltip.style.left = X + "px"; tooltip.style.top = Y + "px";
+    };
+    canvas.onpointermove = (ev) => { if (ev.pointerType === "touch" && !canvas.__touching) return; show(ev); };
+    canvas.onpointerdown = (ev) => { if (ev.pointerType === "touch") { canvas.__touching = true; show(ev); } };
+    const hide = () => { canvas.__touching = false; tooltip.style.display = "none"; };
+    canvas.onpointerup = hide; canvas.onpointercancel = hide; canvas.onpointerleave = hide;
+  }
+  // nearest index in a sorted x array to the x-data value
+  function nearestIndex(xs, x) {
+    let lo = 0, hi = xs.length - 1;
+    if (x <= xs[0]) return 0; if (x >= xs[hi]) return hi;
+    while (hi - lo > 1) { const m = (lo + hi) >> 1; if (xs[m] <= x) lo = m; else hi = m; }
+    return x - xs[lo] < xs[hi] - x ? lo : hi;
+  }
+  // build a standard probe for series sharing an x array
+  function seriesProbe(ax, xs, series, xname) {
+    return (px, py) => {
+      if (px < ax.x0 || px > ax.x0 + ax.W || py < ax.y0 || py > ax.y0 + ax.H) return null;
+      const x = ax.xlim[0] + ((px - ax.x0) / ax.W) * (ax.xlim[1] - ax.xlim[0]);
+      const i = nearestIndex(xs, x);
+      const out = [`${xname} = ${fmt(xs[i])}`];
+      for (const s of series) out.push(`${s.name} = ${fmt(s.y[i])}`);
+      return out;
+    };
+  }
+
+  return { cssVar, setup, axes, line, markers, band, vline, hline, histogram, stepHist, text, heatmap, divergingColor, hover, seriesProbe, nearestIndex, fmt };
+})();
+</script>
+
+<script>
+/* ==================================================================== */
+/*  APP – controls, pipeline driver, rendering                           */
+/* ==================================================================== */
+(() => {
+  "use strict";
+  const $ = (id) => document.getElementById(id);
+  const C = (name) => PL.cssVar(name);
+
+  // ---------------- parameters ------------------------------------------
+  const PAPER = { N: 100, k: 7, alpha: 0.71, gc: 6.76, dg: 0.075, sigmaG: 0.03, pu: 0.4, m: 5, w0: 0.4, wr: 1.0, s: 0.7, rho: 0.8,
+                  seg: 250, gbase: 6.0, gpeak: 7.5, phi0: 0.1, win: 120, stride: 15, edges: 81, nclus: 25,
+                  glo: 6.1, ghi: 7.1, ng: 41, relax: 60, record: 200, doqs: true, seed: 0 };
+  const PRESETS = {
+    paper: {},
+    quick: { N: 60, seg: 200, win: 80, stride: 15, ng: 25, relax: 40, record: 120, edges: 50, nclus: 15 },
+    nearcusp: { alpha: 0.5 },
+    uncoupled: { alpha: 0.4 },
+    disorder: { sigmaG: 0.2 },
+    oneregion: { m: 1 },
+  };
+  const SLIDERS = ["N", "k", "alpha", "gc", "dg", "sigmaG", "pu", "m", "w0", "wr", "s", "rho", "seg", "phi0", "win", "stride", "edges", "nclus", "ng", "relax", "record"];
+  const NUMBERS = ["gbase", "gpeak", "glo", "ghi", "seed"];
+  const DECIMALS = { alpha: 3, gc: 2, dg: 3, sigmaG: 3, pu: 2, w0: 2, wr: 2, s: 2, rho: 2, phi0: 2 };
+
+  function readParams() {
+    const p = {};
+    for (const id of SLIDERS) p[id] = parseFloat($(id).value);
+    for (const id of NUMBERS) p[id] = parseFloat($(id).value);
+    p.doqs = $("doqs").checked;
+    for (const id of ["N", "k", "m", "seg", "win", "stride", "edges", "nclus", "ng", "relax", "record", "seed"]) p[id] = Math.round(p[id]);
+    p.gPeak = p.gpeak; p.gBase = p.gbase;
+    return p;
+  }
+  function writeParams(p) {
+    for (const id of SLIDERS.concat(NUMBERS)) if (p[id] !== undefined) $(id).value = p[id];
+    if (p.doqs !== undefined) $("doqs").checked = p.doqs;
+    refreshLabels();
+  }
+  function refreshLabels() {
+    for (const id of SLIDERS) { const el = $(id + "-val"); if (el) el.textContent = DECIMALS[id] ? parseFloat($(id).value).toFixed(DECIMALS[id]) : $(id).value; }
+  }
+  function applyPreset(name) {
+    writeParams(Object.assign({}, PAPER, PRESETS[name] || {}));
+    document.querySelectorAll("#presets button").forEach((b) => b.classList.toggle("active", b.dataset.preset === name));
+    markStale(); renderDerived();
+  }
+
+  // ---------------- state ------------------------------------------------
+  let result = null;          // last completed run
+  let running = false, abort = false;
+  let cursor = 0;             // sweep shown in the live view
+  let selectedCell = 0;
+  let playing = false;
+  let layout = null;          // cell positions for the live view
+
+  function markStale() {
+    if (result) { document.body.classList.add("stale"); document.querySelectorAll("#fig9 .panel, .live .panel").forEach((el) => el.classList.add("stale")); }
+  }
+  function clearStale() { document.body.classList.remove("stale"); document.querySelectorAll(".panel").forEach((el) => el.classList.remove("stale")); }
+
+  // ---------------- derived quantities (instant, no run needed) ----------
+  function renderDerived() {
+    const p = readParams();
+    const ac = NM.alphaC(p.k), mu = (p.alpha - ac) / ac;
+    const f = NM.folds(p.alpha, p.k, p.gc, p.dg, p.gbase - 0.5, p.gpeak + 0.5);
+    const wl = NM.widthLeading(p.alpha, p.k, p.dg);
+    const q = p.win / p.N, lamPlus = NM.mpEdges(q)[1];
+    const den = p.w0 * p.w0 + p.wr * p.wr + p.s * p.s;
+    const rhoIn = (p.w0 * p.w0 + p.wr * p.wr) / den, rhoOut = (p.w0 * p.w0) / den;
+    const qsum = result && result.p.m === p.m && result.p.N === p.N ? regionQ2(result) : 1 / p.m;
+    const dPred = Math.abs(1 - 2 * qsum);
+    const tiles = [
+      ["α_c = 1/S₁", ac.toFixed(4), `S₁ = ${NM.S1(p.k).toFixed(4)} · Penrose ≈ ${Math.sqrt(Math.PI / (2 * p.k)).toFixed(3)}`],
+      ["μ = (α − α_c)/α_c", mu.toFixed(3), mu > 0 ? "bistable: first-order switch" : "below the cusp: smooth crossover"],
+      ["deterministic folds", f.bistable ? `${f.gDown.toFixed(3)} · ${f.gUp.toFixed(3)}` : "none", f.bistable ? `G_down · G_up (mM); loop ${f.width.toFixed(3)} mM` : "single-valued response"],
+      ["leading-order width", (wl > 0 ? wl.toFixed(3) : "0") + " mM", "8 dG μ^{3/2} / [3(1−α_c)√n]"],
+      ["λ₊ at Q = W/N", lamPlus.toFixed(3), `Q = ${q.toFixed(2)}${q <= 1 ? " – W ≤ N, matrices rank deficient" : ""}`],
+      ["ρ_in · ρ_out", `${rhoIn.toFixed(3)} · ${rhoOut.toFixed(3)}`, "within / across regions on the plateau"],
+      ["predicted Δ plateau", dPred.toFixed(3), "1 − 2 φ² Σ q_r², φ = 1"],
+      ["time scales", `${(1 / p.pu).toFixed(1)} · ${(-1 / Math.log(p.rho)).toFixed(1)}`, "sweeps: mean-field unit · AR(1) memory"],
+    ];
+    $("derived").innerHTML = tiles.map(([k, v, s]) => `<div class="tile"><div class="k">${k}</div><div class="v">${v}</div><div class="s">${s}</div></div>`).join("");
+  }
+  function regionQ2(r) {
+    const cnt = new Float64Array(r.p.m);
+    for (let i = 0; i < r.N; i++) cnt[r.region[i]]++;
+    let s = 0; for (let a = 0; a < r.p.m; a++) s += (cnt[a] / r.N) ** 2;
+    return s;
+  }
+
+  // ---------------- pipeline driver -------------------------------------
+  async function run() {
+    if (running) return;
+    const p = readParams();
+    if (p.win <= p.N) setStatus(`Note: W = ${p.win} ≤ N = ${p.N}; correlation matrices are rank deficient (the paper keeps W > N).`);
+    running = true; abort = false; playing = false; $("btn-play").textContent = "Play";
+    $("btn-run").disabled = true; $("btn-run2").disabled = true; $("btn-run3").disabled = true;
+    const gen = NM.simulate(p);
+    const t0 = performance.now();
+    let last = null;
+    try {
+      while (true) {
+        const tick = performance.now();
+        let out;
+        do { out = gen.next(); if (out.done) break; last = out.value; } while (performance.now() - tick < 40);
+        if (out.done) { result = out.value; break; }
+        if (abort) { setStatus("Stopped."); break; }
+        const pct = (100 * stageFrac(last, p)).toFixed(1) + "%"; $("progress").style.width = pct; $("progress-m").style.width = pct;
+        setStatus(`${last.phase} … ${(100 * last.frac).toFixed(0)}%`);
+        await new Promise((r) => setTimeout(r, 0));
+      }
+    } catch (err) {
+      console.error(err); setStatus("Error: " + err.message);
+    }
+    running = false; $("btn-run").disabled = false; $("btn-run2").disabled = false; $("btn-run3").disabled = false;
+    if (result && !abort) {
+      $("progress").style.width = "100%"; $("progress-m").style.width = "100%";
+      setStatus(`Done in ${((performance.now() - t0) / 1000).toFixed(1)} s: ${result.windows.starts.length} windows, ${result.T} sweeps, N = ${result.N}.`);
+      clearStale(); cursor = 0; selectedCell = 0; layout = null;
+      $("scrub").max = result.T - 1; $("scrub").value = 0;
+      renderAll(); renderDerived();
+    }
+  }
+  function stageFrac(s, p) {
+    const wQs = p.doqs ? 0.45 : 0, wRun = 0.1, wWin = 1 - wQs - wRun;
+    if (s.phase === "protocol run") return wRun * s.frac;
+    if (s.phase === "window analysis") return wRun + wWin * s.frac;
+    return wRun + wWin + wQs * s.frac;
+  }
+  const setStatus = (s) => { $("status").textContent = s; };
+
+  // ---------------- rendering ---------------------------------------------
+  function renderAll() {
+    if (!result) return;
+    drawA(); drawB(); drawC(); drawD(); drawE(); drawF(); drawG(); drawH();
+    drawLmax(); drawMats(); drawBif();
+    drawLive();
+    renderTable();
+  }
+  const s1 = () => C("--s1"), s2 = () => C("--s2"), s3 = () => C("--s3"), s4 = () => C("--s4"), neutral = () => C("--neutral");
+  const sweepsX = (T) => { const x = new Float64Array(T); for (let i = 0; i < T; i++) x[i] = i; return x; };
+
+  function drawA() {
+    const r = result, cv = $("c-a"), { ctx, w, h } = PL.setup(cv);
+    const ax = PL.axes(ctx, { x: 0, y: 0, w, h }, { xlabel: "sweep", ylabel: "glucose G (mM)", xlim: [0, r.T], ylim: padLim(r.p.gbase, r.p.gpeak, 0.05) });
+    const xs = sweepsX(r.T);
+    // shade the plateau reference window
+    ax.clip(() => { ctx.fillStyle = C("--fill-soft"); ctx.fillRect(ax.sx(2 * r.p.seg), ax.y0, ax.sx(3 * r.p.seg) - ax.sx(2 * r.p.seg), ax.H); });
+    PL.text(ax, ax.sx(2.5 * r.p.seg), ax.y0 + ax.H - 16, "plateau (reference windows)", C("--ink-3"), "center");
+    PL.line(ax, xs, r.glucose, C("--ink"), { width: 1.8 });
+    if (isFinite(cursor)) PL.vline(ax, cursor, s1(), [3, 3]);
+    PL.hover(cv, PL.seriesProbe(ax, xs, [{ name: "G", y: r.glucose }, { name: "φ", y: r.phi }], "sweep"));
+  }
+  function drawB() {
+    const r = result, cv = $("c-b"), { ctx, w, h } = PL.setup(cv);
+    const ax = PL.axes(ctx, { x: 0, y: 0, w, h }, { xlabel: "sweep", ylabel: "order parameter", xlim: [0, r.T], ylim: [-0.04, 1.04] });
+    PL.line(ax, sweepsX(r.T), r.phi, neutral(), { width: 1.2 });
+    const cx = r.windows.centres;
+    PL.line(ax, cx, r.windows.delta, s2(), { width: 1.6 });
+    PL.markers(ax, cx, r.windows.delta, s2(), { r: 2.4 });
+    const pred = Math.abs(1 - 2 * regionQ2(r));
+    PL.hline(ax, pred, s3(), [2, 4]);
+    PL.text(ax, ax.x0 + ax.W - 6, ax.sy(pred) - 13, `predicted Δ plateau ${pred.toFixed(2)}`, s3(), "right");
+    if (isFinite(cursor)) PL.vline(ax, cursor, s1(), [3, 3]);
+    PL.hover(cv, (px, py) => {
+      const base = PL.seriesProbe(ax, sweepsX(r.T), [{ name: "φ", y: r.phi }, { name: "G", y: r.glucose }], "sweep")(px, py);
+      if (!base) return null;
+      const x = ax.xlim[0] + ((px - ax.x0) / ax.W) * (ax.xlim[1] - ax.xlim[0]);
+      const i = PL.nearestIndex(cx, x);
+      base.push(`Δ (window at ${cx[i]}) = ${PL.fmt(r.windows.delta[i])}`);
+      return base;
+    });
+  }
+  function drawC() {
+    const r = result, cv = $("c-c"), { ctx, w, h } = PL.setup(cv);
+    if (!r.qs) { noData(ctx, w, h, "quasi-static sweep disabled"); return; }
+    const q = r.qs;
+    const ax = PL.axes(ctx, { x: 0, y: 0, w, h }, { xlabel: "glucose G (mM)", ylabel: "φ", xlim: [q.gGrid[0], q.gGrid[q.gGrid.length - 1]], ylim: [-0.04, 1.04] });
+    PL.line(ax, q.gGrid, q.mfUp, neutral(), { width: 1.4 });
+    PL.line(ax, q.gGrid, q.mfDown, neutral(), { width: 1.4 });
+    PL.line(ax, q.gGrid, q.phiUp, s1(), { width: 1.2 }); PL.markers(ax, q.gGrid, q.phiUp, s1(), { r: 3, shape: "up" });
+    PL.line(ax, q.gGrid, q.phiDown, s2(), { width: 1.2 }); PL.markers(ax, q.gGrid, q.phiDown, s2(), { r: 3, shape: "down" });
+    if (isFinite(q.width)) PL.text(ax, ax.x0 + 8, ax.y0 + 6, `loop width: sim ${q.width.toFixed(3)} mM`, C("--ink-2"));
+    PL.hover(cv, PL.seriesProbe(ax, q.gGrid, [{ name: "φ up", y: q.phiUp }, { name: "φ down", y: q.phiDown }, { name: "mean-field ↑", y: q.mfUp }, { name: "mean-field ↓", y: q.mfDown }], "G"));
+  }
+  function drawD() {
+    const r = result, cv = $("c-d"), { ctx, w, h } = PL.setup(cv);
+    if (!r.qs) { noData(ctx, w, h, "quasi-static sweep disabled"); return; }
+    const q = r.qs, top = Math.max(0.7, maxOf(q.dUp), maxOf(q.dDown)) + 0.05;
+    const ax = PL.axes(ctx, { x: 0, y: 0, w, h }, { xlabel: "glucose G (mM)", ylabel: "Δ = |2w − 1|", xlim: [q.gGrid[0], q.gGrid[q.gGrid.length - 1]], ylim: [-0.03, top] });
+    PL.line(ax, q.gGrid, q.dUp, s1(), { width: 1.2 }); PL.markers(ax, q.gGrid, q.dUp, s1(), { r: 3, shape: "up" });
+    PL.line(ax, q.gGrid, q.dDown, s2(), { width: 1.2 }); PL.markers(ax, q.gGrid, q.dDown, s2(), { r: 3, shape: "down" });
+    PL.hover(cv, PL.seriesProbe(ax, q.gGrid, [{ name: "Δ up", y: q.dUp }, { name: "Δ down", y: q.dDown }], "G"));
+  }
+  function drawE() {
+    const r = result, cv = $("c-e"), { ctx, w, h } = PL.setup(cv);
+    const lo = -0.4, hi = 1.0, nb = 60;
+    const hb = PL.histogram(r.snap.offBase, lo, hi, nb), hp = PL.histogram(r.snap.offPlat, lo, hi, nb);
+    const top = Math.max(maxOf(hb.density), maxOf(hp.density), 10) * 3;
+    const ax = PL.axes(ctx, { x: 0, y: 0, w, h }, { xlabel: "correlation ρ", ylabel: "pdf(ρ)", xlim: [lo, hi], ylim: [1e-2, top], ylog: true });
+    PL.stepHist(ax, hb, neutral(), { width: 1.4 });
+    PL.stepHist(ax, hp, s1(), { width: 1.6 });
+    const g = r.snap.gmmPlat;
+    if (g) {
+      const xs = [], yt = [], y0 = [], y1 = [];
+      for (let i = 0; i <= 400; i++) { const x = lo + (hi - lo) * i / 400; xs.push(x); yt.push(g.pdf(x)); y0.push(g.pdfComp(x, 0)); y1.push(g.pdfComp(x, 1)); }
+      PL.line(ax, xs, y0, s3(), { width: 1.2, dash: [4, 3] }); PL.line(ax, xs, y1, s3(), { width: 1.2, dash: [4, 3] });
+      PL.line(ax, xs, yt, s3(), { width: 1.8 });
+      PL.text(ax, ax.x0 + ax.W - 6, ax.y0 + 4, w > 520 ? `plateau fit: w_high = ${g.w[g.high].toFixed(2)}, μ_high = ${g.mu[g.high].toFixed(2)}, Δ = ${g.delta.toFixed(2)}` : `fit: w = ${g.w[g.high].toFixed(2)}, μ = ${g.mu[g.high].toFixed(2)}, Δ = ${g.delta.toFixed(2)}`, C("--ink-2"), "right");
+    }
+    PL.hover(cv, (px, py) => {
+      if (px < ax.x0 || px > ax.x0 + ax.W || py < ax.y0 || py > ax.y0 + ax.H) return null;
+      const x = lo + ((px - ax.x0) / ax.W) * (hi - lo), b = Math.min(nb - 1, Math.max(0, Math.floor((x - lo) / hb.w)));
+      return [`ρ ≈ ${x.toFixed(2)}`, `basal pdf = ${PL.fmt(hb.density[b])}`, `plateau pdf = ${PL.fmt(hp.density[b])}`, g ? `mixture = ${PL.fmt(g.pdf(x))}` : ""];
+    });
+  }
+  function drawF() {
+    const r = result, cv = $("c-f"), { ctx, w, h } = PL.setup(cv);
+    const lamHi = Math.max(5, maxOf(r.eigPlat) * 1.05, maxOf(r.eigBase) * 1.05, r.lamPlus * 1.3);
+    const nb = 80, hb = PL.histogram(r.eigBase, 0, lamHi, nb), hp = PL.histogram(r.eigPlat, 0, lamHi, nb);
+    const top = Math.max(maxOf(hb.density), maxOf(hp.density), 1.2) * 1.12;
+    const ax = PL.axes(ctx, { x: 0, y: 0, w, h }, { xlabel: "λ", ylabel: "pdf(λ)", xlim: [-0.3, lamHi], ylim: [0, top] });
+    PL.stepHist(ax, hb, neutral(), { width: 1.4 });
+    PL.stepHist(ax, hp, s1(), { width: 1.6 });
+    const xs = [], ys = [];
+    for (let i = 1; i <= 800; i++) { const x = (lamHi * i) / 800; xs.push(x); ys.push(NM.mpPdf(x, r.q)); }
+    PL.line(ax, xs, ys, s3(), { width: 1.6 });
+    PL.vline(ax, r.lamPlus, s2(), [3, 3], `λ₊ = ${r.lamPlus.toFixed(2)}`);
+    // rug of outlying plateau eigenvalues
+    const outl = Array.from(r.eigPlat).filter((v) => v > r.lamPlus);
+    ax.clip(() => { ctx.strokeStyle = s1(); ctx.lineWidth = 1; for (const v of outl) { const X = ax.sx(v); ctx.beginPath(); ctx.moveTo(X, ax.y0 + ax.H - 14); ctx.lineTo(X, ax.y0 + ax.H - 2); ctx.stroke(); } });
+    const nPlatW = r.eigPlat.length / r.N;
+    PL.text(ax, ax.x0 + ax.W - 6, ax.y0 + 18, nPlatW > 0 ? (w > 520 ? `plateau: ${(outl.length / nPlatW).toFixed(1)} eigenvalues > λ₊ per window (m = ${r.p.m})` : `${(outl.length / nPlatW).toFixed(1)} > λ₊ per window (m = ${r.p.m})`) : "no full plateau window", C("--ink-2"), "right");
+    PL.hover(cv, (px, py) => {
+      if (px < ax.x0 || px > ax.x0 + ax.W || py < ax.y0 || py > ax.y0 + ax.H) return null;
+      const x = ax.xlim[0] + ((px - ax.x0) / ax.W) * (ax.xlim[1] - ax.xlim[0]);
+      const b = Math.min(nb - 1, Math.max(0, Math.floor(x / hb.w)));
+      return [`λ ≈ ${x.toFixed(2)}`, `basal pdf = ${PL.fmt(hb.density[b])}`, `plateau pdf = ${PL.fmt(hp.density[b])}`, `MP = ${PL.fmt(NM.mpPdf(x, r.q))}`];
+    });
+  }
+  function drawG() {
+    const r = result, cv = $("c-g"), { ctx, w, h } = PL.setup(cv), W = r.windows;
+    const ax = PL.axes(ctx, { x: 0, y: 0, w, h }, { xlabel: "sweep (window centre)", ylabel: "U(t, τ)", xlim: [0, r.T], ylim: [-0.04, 1.04] });
+    const lo = W.Umean.map((v, i) => Math.max(0, v - W.Ustd[i])), hi = W.Umean.map((v, i) => Math.min(1, v + W.Ustd[i]));
+    PL.band(ax, W.centres, lo, hi, s1(), 0.18);
+    PL.line(ax, W.centres, W.Umean, s1(), { width: 1.5 }); PL.markers(ax, W.centres, W.Umean, s1(), { r: 2.2, shape: "square" });
+    if (isFinite(cursor)) PL.vline(ax, cursor, s1(), [3, 3]);
+    PL.hover(cv, PL.seriesProbe(ax, W.centres, [{ name: "U mean", y: W.Umean }, { name: "U s.d.", y: W.Ustd }], "sweep"));
+  }
+  function drawH() {
+    const r = result, cv = $("c-h"), { ctx, w, h } = PL.setup(cv), W = r.windows;
+    const ax = PL.axes(ctx, { x: 0, y: 0, w, h }, { xlabel: "sweep (window centre)", ylabel: "ARI", xlim: [0, r.T], ylim: [-0.04, 1.04] });
+    const cx = []; for (let i = 0; i + 1 < W.centres.length; i++) cx.push(0.5 * (W.centres[i] + W.centres[i + 1]));
+    PL.line(ax, cx, W.ari, neutral(), { width: 1.2 });
+    PL.line(ax, cx, W.ariSmooth, s2(), { width: 2 });
+    if (isFinite(cursor)) PL.vline(ax, cursor, s1(), [3, 3]);
+    PL.hover(cv, PL.seriesProbe(ax, cx, [{ name: "ARI", y: W.ari }, { name: "rolling mean", y: W.ariSmooth }], "sweep"));
+  }
+  function drawLmax() {
+    const r = result, cv = $("c-lmax"), { ctx, w, h } = PL.setup(cv), W = r.windows;
+    const hTop = Math.round(h * 0.66);
+    const top = Math.max(maxOf(W.lamMax), r.lamPlus) * 1.1;
+    const ax = PL.axes(ctx, { x: 0, y: 0, w, h: hTop }, { xlabel: "", ylabel: "λ_max", xlim: [0, r.T], ylim: [0, top], padB: 6 });
+    PL.line(ax, W.centres, W.lamMax, s1(), { width: 1.6 }); PL.markers(ax, W.centres, W.lamMax, s1(), { r: 2 });
+    PL.hline(ax, r.lamPlus, s2(), [3, 3]);
+    PL.text(ax, ax.x0 + ax.W - 6, ax.sy(r.lamPlus) - 13, `λ₊ = ${r.lamPlus.toFixed(2)}`, s2(), "right");
+    const ax2 = PL.axes(ctx, { x: 0, y: hTop, w, h: h - hTop }, { xlabel: "sweep (window centre)", ylabel: "# > λ₊", xlim: [0, r.T], ylim: [0, Math.max(2, maxOf(W.nOut)) + 1], padT: 6, yticks: 3 });
+    // step bars
+    ax2.clip(() => { ctx.fillStyle = s4(); ctx.globalAlpha = 0.75; for (let i = 0; i < W.centres.length; i++) { const X0 = ax2.sx(W.centres[i] - r.p.stride / 2), X1 = ax2.sx(W.centres[i] + r.p.stride / 2); const Y = ax2.sy(W.nOut[i]); ctx.fillRect(X0 + 0.5, Y, Math.max(1, X1 - X0 - 1), ax2.y0 + ax2.H - Y); } ctx.globalAlpha = 1; });
+    if (isFinite(cursor)) { PL.vline(ax, cursor, s1(), [3, 3]); PL.vline(ax2, cursor, s1(), [3, 3]); }
+    PL.hover(cv, (px, py) => {
+      if (px < ax.x0 || px > ax.x0 + ax.W) return null;
+      const x = ((px - ax.x0) / ax.W) * r.T, i = PL.nearestIndex(W.centres, x);
+      return [`window centre ${W.centres[i]}`, `λ_max = ${PL.fmt(W.lamMax[i])}`, `# eigenvalues > λ₊ = ${W.nOut[i]}`, `Δ = ${PL.fmt(W.delta[i])}`];
+    });
+  }
+  function drawMats() {
+    const r = result, cv = $("c-mats"), { ctx, w, h } = PL.setup(cv), N = r.N;
+    const gap = 14, labelH = 16, size = Math.min((w - 2 * gap - 8) / 3, h - labelH - 6);
+    const order = Array.from({ length: N }, (_, i) => i).sort((a, b) => r.region[a] - r.region[b] || a - b);
+    const items = [["basal (sweep " + r.windows.centres[r.snap.baseW] + ")", r.snap.corrBase, null], ["plateau (sweep " + r.windows.centres[r.snap.platW] + ")", r.snap.corrPlat, null], ["plateau, sorted by region", r.snap.corrPlat, order]];
+    const x0 = (w - (3 * size + 2 * gap)) / 2;
+    const regions = [];
+    items.forEach(([title, M, ord], idx) => {
+      const reg = { x: x0 + idx * (size + gap), y: labelH + 2, w: size, h: size };
+      regions.push({ reg, M, ord, title });
+      PL.heatmap(ctx, reg, M, N, ord, PL.divergingColor);
+      ctx.fillStyle = C("--ink-2"); ctx.font = "11.5px " + C("--font"); ctx.textAlign = "center"; ctx.textBaseline = "top"; ctx.fillText(title, reg.x + size / 2, 0);
+      if (ord) { // region boundaries
+        ctx.strokeStyle = C("--ink"); ctx.lineWidth = 1; let start = 0;
+        for (let a = 1; a <= N; a++) if (a === N || r.region[order[a]] !== r.region[order[start]]) { const p0 = reg.x + (start / N) * size, p1 = reg.x + (a / N) * size; ctx.strokeRect(p0 + 0.5, reg.y + p0 - reg.x + 0.5, p1 - p0 - 1, p1 - p0 - 1); start = a; }
+      }
+    });
+    PL.hover(cv, (px, py) => {
+      for (const { reg, M, ord, title } of regions) {
+        if (px >= reg.x && px < reg.x + reg.w && py >= reg.y && py < reg.y + reg.h) {
+          const a = Math.floor(((px - reg.x) / reg.w) * N), b = Math.floor(((py - reg.y) / reg.h) * N);
+          const i = ord ? ord[b] : b, j = ord ? ord[a] : a;
+          return [title, `cells ${i}, ${j} (regions ${r.region[i]}, ${r.region[j]})`, `ρ = ${M[i * N + j].toFixed(3)}`];
+        }
+      }
+      return null;
+    });
+  }
+  function drawPot() {
+    const r = result, cv = $("c-pot"), { ctx, w, h } = PL.setup(cv), p = r.p;
+    const G = r.glucose[cursor], phiNow = r.phi[cursor];
+    const n = 200, xs = [], vs = [];
+    for (let i = 0; i <= n; i++) { const x = i / n; xs.push(x); vs.push(NM.potential(x, G, p.alpha, p.k, p.gc, p.dg)); }
+    const vmin = Math.min(...vs), vmax = Math.max(...vs), span = Math.max(1e-4, vmax - vmin);
+    const ax = PL.axes(ctx, { x: 0, y: 0, w, h }, { xlabel: "φ", ylabel: "V(φ) − min V", xlim: [0, 1], ylim: [-0.05 * span, span * 1.15] });
+    PL.line(ax, xs, vs.map((v) => v - vmin), s4(), { width: 2 });
+    const roots = NM.allRoots(G, p.alpha, p.k, p.gc, p.dg);
+    for (const ph of roots) { const stable = 1 - p.alpha * NM.majorityTailPrime(ph, p.k) > 0; PL.markers(ax, [ph], [NM.potential(ph, G, p.alpha, p.k, p.gc, p.dg) - vmin], s4(), { r: 3.5, fill: stable }); }
+    PL.markers(ax, [phiNow], [NM.potential(phiNow, G, p.alpha, p.k, p.gc, p.dg) - vmin], s1(), { r: 5 });
+    PL.text(ax, ax.x0 + 8, ax.y0 + 6, `sweep ${cursor}: G = ${G.toFixed(3)} mM, φ = ${phiNow.toFixed(2)}, ${roots.length === 3 ? "double well" : "single well"}`, C("--ink-2"));
+    PL.hover(cv, PL.seriesProbe(ax, xs, [{ name: "V − min", y: vs.map((v) => v - vmin) }], "φ"));
+  }
+  function drawBif() {
+    const r = result, cv = $("c-bif"), { ctx, w, h } = PL.setup(cv), p = r.p;
+    const gLo = p.gbase, gHi = p.gpeak, nG = 300;
+    const stab = { x: [], y: [] }, unst = { x: [], y: [] };
+    for (let i = 0; i <= nG; i++) {
+      const G = gLo + (gHi - gLo) * i / nG;
+      for (const ph of NM.allRoots(G, p.alpha, p.k, p.gc, p.dg)) { const st = 1 - p.alpha * NM.majorityTailPrime(ph, p.k) > 0; (st ? stab : unst).x.push(G); (st ? stab : unst).y.push(ph); }
+    }
+    const ax = PL.axes(ctx, { x: 0, y: 0, w, h }, { xlabel: "glucose G (mM)", ylabel: "φ", xlim: [gLo, gHi], ylim: [-0.04, 1.04] });
+    PL.markers(ax, stab.x, stab.y, s4(), { r: 1.3 });
+    PL.markers(ax, unst.x, unst.y, s4(), { r: 1.6, fill: false });
+    PL.line(ax, r.glucose, r.phi, s1(), { width: 1.2, alpha: 0.85 });
+    PL.markers(ax, [r.glucose[cursor]], [r.phi[cursor]], s1(), { r: 5 });
+    PL.hover(cv, (px, py) => {
+      if (px < ax.x0 || px > ax.x0 + ax.W || py < ax.y0 || py > ax.y0 + ax.H) return null;
+      const G = gLo + ((px - ax.x0) / ax.W) * (gHi - gLo);
+      const roots = NM.allRoots(G, p.alpha, p.k, p.gc, p.dg);
+      return [`G = ${G.toFixed(3)} mM`, `fixed points: ${roots.map((v) => v.toFixed(3)).join(", ")}`];
+    });
+  }
+
+  // ---------------- live view -------------------------------------------
+  function makeLayout(r) {
+    const rng = NM.makeRNG(r.p.seed + 12345), N = r.N, m = r.p.m;
+    const pts = new Float64Array(2 * N);
+    const cnt = new Int32Array(m); for (let i = 0; i < N; i++) cnt[r.region[i]]++;
+    const R = m === 1 ? 0 : 0.6;
+    for (let i = 0; i < N; i++) {
+      const a = (2 * Math.PI * r.region[i]) / m;
+      const cx = R * Math.cos(a), cy = R * Math.sin(a);
+      const blob = Math.sqrt(cnt[r.region[i]] / N) * (m === 1 ? 1.0 : 0.7);
+      const rr = blob * Math.sqrt(rng.random()), th = 2 * Math.PI * rng.random();
+      pts[2 * i] = cx + rr * Math.cos(th); pts[2 * i + 1] = cy + rr * Math.sin(th);
+    }
+    return pts;
+  }
+  const REGION_COLORS = ["#2a78d6", "#eb6834", "#1baf7a", "#eda100", "#e87ba4", "#008300", "#4a3aa7", "#e34948", "#6aa9e9", "#f09a6a", "#5dd0a3", "#b9a1f5"];
+  function drawLive() {
+    const r = result; if (!r) return;
+    if (!layout) layout = makeLayout(r);
+    // --- cells ---
+    const cv = $("c-cells"), { ctx, w, h } = PL.setup(cv), N = r.N;
+    const cx = w / 2, cy = h / 2 - (w > 520 ? 6 : 12), S = Math.min(w, h) * 0.42, rad = Math.max(2.5, Math.min(7, S / Math.sqrt(N) * 0.55));
+    const X = (i) => cx + layout[2 * i] * S, Y = (i) => cy + layout[2 * i + 1] * S;
+    const off = cursor * N;
+    // links of the selected cell
+    ctx.save(); ctx.strokeStyle = C("--ink-3"); ctx.globalAlpha = 0.6; ctx.lineWidth = 1;
+    for (let t = 0; t < r.p.k; t++) { const j = r.neigh[selectedCell * r.p.k + t]; const mx = (X(selectedCell) + X(j)) / 2 + (Y(j) - Y(selectedCell)) * 0.12, my = (Y(selectedCell) + Y(j)) / 2 - (X(j) - X(selectedCell)) * 0.12; ctx.beginPath(); ctx.moveTo(X(selectedCell), Y(selectedCell)); ctx.quadraticCurveTo(mx, my, X(j), Y(j)); ctx.stroke(); }
+    ctx.restore();
+    for (let i = 0; i < N; i++) {
+      const col = REGION_COLORS[r.region[i] % REGION_COLORS.length], on = r.states[off + i] === 1;
+      ctx.beginPath(); ctx.arc(X(i), Y(i), rad, 0, 2 * Math.PI);
+      ctx.fillStyle = on ? col : C("--surface"); ctx.fill();
+      ctx.lineWidth = i === selectedCell ? 2.2 : 1.2; ctx.strokeStyle = i === selectedCell ? C("--ink") : col; ctx.stroke();
+    }
+    ctx.fillStyle = C("--ink-2"); ctx.font = "11.5px " + C("--font"); ctx.textAlign = "left"; ctx.textBaseline = "bottom";
+    const l1 = `sweep ${cursor} · G = ${r.glucose[cursor].toFixed(2)} mM · φ = ${r.phi[cursor].toFixed(2)}`;
+    const l2 = `cell ${selectedCell}: G_c,i = ${r.gcI[selectedCell].toFixed(3)}, region ${r.region[selectedCell]}, ${r.states[off + selectedCell] ? "recruited" : "resting"}`;
+    if (w > 520) ctx.fillText(l1 + " · " + l2, 6, h - 4); else { ctx.fillText(l1, 6, h - 18); ctx.fillText(l2, 6, h - 4); }
+    $("live-readout").textContent = `sweep ${cursor}`;
+    cv.onclick = (ev) => { const rc = cv.getBoundingClientRect(), px = ev.clientX - rc.left, py = ev.clientY - rc.top; let b = 0, bd = Infinity; for (let i = 0; i < N; i++) { const d = (X(i) - px) ** 2 + (Y(i) - py) ** 2; if (d < bd) { bd = d; b = i; } } selectedCell = b; drawLive(); };
+    PL.hover(cv, (px, py) => { let b = -1, bd = 100; for (let i = 0; i < N; i++) { const d = (X(i) - px) ** 2 + (Y(i) - py) ** 2; if (d < bd) { bd = d; b = i; } } if (b < 0) return null; let c = 0; for (let t = 0; t < r.p.k; t++) c += r.states[off + r.neigh[b * r.p.k + t]]; return [`cell ${b} · region ${r.region[b]}`, `G_c,i = ${r.gcI[b].toFixed(3)} mM`, `${r.states[off + b] ? "recruited" : "resting"}; ${c}/${r.p.k} partners recruited`, `y_i = ${r.signals[off + b].toFixed(2)}`]; });
+    // --- raster ---
+    drawRaster();
+    drawPot();
+    // cursor lines in the time panels
+    drawA(); drawB(); drawG(); drawH(); drawLmax(); drawBif();
+  }
+  let rasterCache = null;
+  function drawRaster() {
+    const r = result, cv = $("c-raster"), { ctx, w, h } = PL.setup(cv), N = r.N, T = r.T;
+    const padL = 34, padB = 22, padT = 4, W = w - padL - 6, H = h - padT - padB;
+    if (!rasterCache || rasterCache.r !== r) {
+      const order = Array.from({ length: N }, (_, i) => i).sort((a, b) => r.region[a] - r.region[b] || a - b);
+      const off = document.createElement("canvas"); off.width = T; off.height = N;
+      const oc = off.getContext("2d"), img = oc.createImageData(T, N);
+      const dark = document.documentElement.getAttribute("data-theme") === "dark";
+      for (let row = 0; row < N; row++) { const i = order[row]; for (let t = 0; t < T; t++) {
+        let v = r.signals[t * N + i] / 2.5; v = Math.max(-1, Math.min(1, v));
+        const g = dark ? Math.round(30 + (v + 1) * 0.5 * 215) : Math.round(245 - (v + 1) * 0.5 * 215);
+        const o = (row * T + t) * 4; img.data[o] = g; img.data[o + 1] = g; img.data[o + 2] = g; img.data[o + 3] = 255; } }
+      oc.putImageData(img, 0, 0);
+      rasterCache = { r, off, order, dark };
+    } else if (rasterCache.dark !== (document.documentElement.getAttribute("data-theme") === "dark")) { rasterCache = null; return drawRaster(); }
+    ctx.save(); ctx.imageSmoothingEnabled = false; ctx.drawImage(rasterCache.off, padL, padT, W, H); ctx.restore();
+    // region colour bar at left
+    for (let row = 0; row < N; row++) { ctx.fillStyle = REGION_COLORS[r.region[rasterCache.order[row]] % REGION_COLORS.length]; ctx.fillRect(padL - 8, padT + (row / N) * H, 6, H / N + 0.5); }
+    ctx.strokeStyle = C("--axis"); ctx.strokeRect(padL + 0.5, padT + 0.5, W - 1, H - 1);
+    ctx.fillStyle = C("--ink-2"); ctx.font = "11px " + C("--font"); ctx.textAlign = "center"; ctx.textBaseline = "top";
+    for (let t = 0; t <= T; t += r.p.seg) { ctx.textAlign = t === 0 ? "left" : t === T ? "right" : "center"; ctx.fillText(String(t), padL + (t / T) * W, padT + H + 4); }
+    ctx.save(); ctx.translate(10, padT + H / 2); ctx.rotate(-Math.PI / 2); ctx.fillText("cells (by region)", 0, 0); ctx.restore();
+    ctx.strokeStyle = s2(); ctx.lineWidth = 1.5; const cxp = padL + (cursor / T) * W; ctx.beginPath(); ctx.moveTo(cxp, padT); ctx.lineTo(cxp, padT + H); ctx.stroke();
+    cv.onclick = (ev) => { const rc = cv.getBoundingClientRect(); const px = ev.clientX - rc.left; setCursor(Math.round(((px - padL) / W) * (T - 1))); };
+    PL.hover(cv, (px, py) => { if (px < padL || px > padL + W || py < padT || py > padT + H) return null; const t = Math.round(((px - padL) / W) * (T - 1)), row = Math.min(N - 1, Math.floor(((py - padT) / H) * N)), i = rasterCache.order[row]; return [`sweep ${t}, cell ${i} (region ${r.region[i]})`, `y = ${r.signals[t * N + i].toFixed(2)}, ${r.states[t * N + i] ? "recruited" : "resting"}`, `G = ${r.glucose[t].toFixed(2)} mM, φ = ${r.phi[t].toFixed(2)}`]; });
+  }
+  function setCursor(t) { if (!result) return; cursor = Math.max(0, Math.min(result.T - 1, t)); $("scrub").value = cursor; drawLive(); }
+  function tickPlay() { if (!playing || !result) return; if (cursor >= result.T - 1) { playing = false; $("btn-play").textContent = "Play"; return; } setCursor(cursor + Math.max(1, Math.round(result.T / 400))); requestAnimationFrame(tickPlay); }
+
+  // ---------------- results table ---------------------------------------
+  function renderTable() {
+    const r = result, p = r.p, W = r.windows, rows = [];
+    const ac = NM.alphaC(p.k), f = NM.folds(p.alpha, p.k, p.gc, p.dg, p.gbase - 0.5, p.gpeak + 0.5);
+    const platIdx = W.refIdx, baseIdx = W.centres.map((c, i) => (W.starts[i] + p.win <= p.seg ? i : -1)).filter((i) => i >= 0);
+    const mean = (arr, idx) => (idx.length ? idx.reduce((s, i) => s + arr[i], 0) / idx.length : NaN);
+    const num = (v, d) => (isFinite(v) ? v.toFixed(d == null ? 3 : d) : "–");
+    // protocol-run jump points (φ crossing 1/2 on the ramps)
+    const seg = p.seg;
+    const gUpRun = NM.crossLevel(r.glucose.slice(seg, 2 * seg), r.phi.slice(seg, 2 * seg), 0.5);
+    const gDnRun = (() => { const g = Array.from(r.glucose.slice(3 * seg, 4 * seg)).reverse(), y = Array.from(r.phi.slice(3 * seg, 4 * seg)).reverse(); return NM.crossLevel(g, y, 0.5); })();
+    rows.push(["critical coupling α_c, reduced distance μ", "–", `${ac.toFixed(4)}, μ = ${((p.alpha - ac) / ac).toFixed(3)}`, "Eq. (alpha_c); μ > 0 is required for a loop"]);
+    if (r.qs) {
+      rows.push(["quasi-static jump up / down (mM)", `${num(r.qs.gJumpUp)} / ${num(r.qs.gJumpDown)}`, f.bistable ? `${num(f.gUp)} / ${num(f.gDown)}` : "no folds", "φ crossing ½ against the deterministic folds"]);
+      rows.push(["hysteresis width (mM)", num(r.qs.width), f.bistable ? `${num(f.width)} exact · ${num(NM.widthLeading(p.alpha, p.k, p.dg))} leading order` : "0", "finite-N loop is narrower: Kramers escape before the fold"]);
+    }
+    rows.push(["protocol-run jump up / down (mM)", `${num(gUpRun)} / ${num(gDnRun)}`, f.bistable ? `${num(f.gUp)} / ${num(f.gDown)}` : "no folds", "the ramp overshoots the folds: relaxational lag"]);
+    rows.push(["Δ on the plateau (mean over windows)", num(mean(W.delta, platIdx)), num(Math.abs(1 - 2 * regionQ2(r))), "1 − 2 φ² Σ q_r² with the realized region sizes"]);
+    rows.push(["Δ at baseline", num(mean(W.delta, baseIdx)), "≈ 0", "single mode: the mixture splits the noise"]);
+    const g = r.snap.gmmPlat, den = p.w0 ** 2 + p.wr ** 2 + p.s ** 2;
+    rows.push(["strong-component mean ρ (plateau window)", g ? num(g.mu[g.high]) : "–", num((p.w0 ** 2 + p.wr ** 2) / den), "ρ_in = (w₀² + w_r²)/(w₀² + w_r² + s²)"]);
+    rows.push(["eigenvalues > λ₊ per plateau window", num(mean(W.nOut, platIdx), 2), String(p.m), `λ₊ = ${r.lamPlus.toFixed(3)} at Q = ${r.q.toFixed(2)}`]);
+    rows.push(["eigenvalues > λ₊ per basal window", num(mean(W.nOut, baseIdx), 2), "0", "all inside the Marčenko–Pastur bulk"]);
+    rows.push(["U on the plateau (mean)", num(mean(W.Umean, platIdx)), "0.4–0.7 (paper)", "saturates below unity: many equivalent within-region edges"]);
+    const ariPlat = platIdx.filter((i) => i < W.ari.length), ariBase = baseIdx.filter((i) => i < W.ari.length);
+    rows.push(["ARI plateau / baseline", `${num(mean(W.ari, ariPlat), 2)} / ${num(mean(W.ari, ariBase), 2)}`, "≈ 0.85 / ≈ 0.2 (paper)", "consecutive-window average-linkage clusterings"]);
+    $("results").querySelector("tbody").innerHTML = rows.map(([a, b, c, d]) => `<tr><td>${a}</td><td class="num">${b}</td><td class="num">${c}</td><td class="muted">${d}</td></tr>`).join("");
+  }
+
+  // ---------------- export ------------------------------------------------
+  function exportPNG() {
+    if (!result) { setStatus("Run the simulation first."); return; }
+    const ids = ["c-a", "c-b", "c-c", "c-d", "c-e", "c-f", "c-g", "c-h"], titles = ["(a) glucose protocol", "(b) emergence of synchronization", "(c) hysteresis in recruitment", "(d) hysteresis in correlation order parameter", "(e) correlation distribution", "(f) eigenvalue spectrum", "(g) functional-cluster overlap with plateau", "(h) cluster stability (consecutive windows)"];
+    const first = $(ids[0]), cw = first.width, ch = first.height, dpr = window.devicePixelRatio || 1, th = 26 * dpr, pad = 12 * dpr;
+    const out = document.createElement("canvas"); out.width = 2 * cw + 3 * pad; out.height = 4 * (ch + th) + 5 * pad;
+    const c = out.getContext("2d"); c.fillStyle = C("--surface"); c.fillRect(0, 0, out.width, out.height);
+    ids.forEach((id, i) => { const col = i % 2, row = Math.floor(i / 2), x = pad + col * (cw + pad), y = pad + row * (ch + th + pad); c.fillStyle = C("--ink"); c.font = `600 ${13 * dpr}px ${C("--font")}`; c.textBaseline = "top"; c.fillText(titles[i], x + 4 * dpr, y + 4 * dpr); c.drawImage($(id), x, y + th); });
+    download(out.toDataURL("image/png"), `islet_simulation_seed${result.p.seed}.png`);
+  }
+  function exportJSON() {
+    if (!result) { setStatus("Run the simulation first."); return; }
+    const r = result, A = (x) => Array.from(x);
+    const data = { parameters: r.p, protocol: { glucose: A(r.glucose), phi: A(r.phi) }, windows: { centres: r.windows.centres, delta: A(r.windows.delta), lamMax: A(r.windows.lamMax), nAboveLamPlus: A(r.windows.nOut), U_mean: A(r.windows.Umean), U_std: A(r.windows.Ustd), ari: A(r.windows.ari) }, spectra: { q: r.q, lamPlus: r.lamPlus, eigBase: A(r.eigBase), eigPlateau: A(r.eigPlat) }, quasiStatic: r.qs ? { g: A(r.qs.gGrid), phiUp: A(r.qs.phiUp), phiDown: A(r.qs.phiDown), deltaUp: A(r.qs.dUp), deltaDown: A(r.qs.dDown), meanFieldUp: A(r.qs.mfUp), meanFieldDown: A(r.qs.mfDown) } : null, quenched: { region: A(r.region), midpoints: A(r.gcI) } };
+    download("data:application/json;charset=utf-8," + encodeURIComponent(JSON.stringify(data)), `islet_simulation_seed${r.p.seed}.json`);
+  }
+  function download(href, name) { const a = document.createElement("a"); a.href = href; a.download = name; document.body.appendChild(a); a.click(); a.remove(); }
+
+  // ---------------- wiring --------------------------------------------------
+  function maxOf(arr) { let m = -Infinity; for (const v of arr) if (v > m) m = v; return isFinite(m) ? m : 0; }
+  function padLim(a, b, f) { const s = (b - a) * f; return [a - s, b + s]; }
+  function noData(ctx, w, h, msg) { ctx.fillStyle = C("--ink-3"); ctx.font = "12px " + C("--font"); ctx.textAlign = "center"; ctx.textBaseline = "middle"; ctx.fillText(msg, w / 2, h / 2); }
+
+  for (const id of SLIDERS.concat(NUMBERS)) $(id).addEventListener("input", () => { refreshLabels(); renderDerived(); markStale(); document.querySelectorAll("#presets button").forEach((b) => b.classList.remove("active")); });
+  $("doqs").addEventListener("change", markStale);
+  document.querySelectorAll("#presets button").forEach((b) => b.addEventListener("click", () => applyPreset(b.dataset.preset)));
+  $("btn-run").onclick = run; $("btn-run2").onclick = run;
+  const closeDrawer = () => document.body.classList.remove("drawer-open");
+  $("btn-run3").onclick = () => { closeDrawer(); run(); };
+  $("btn-drawer").onclick = () => document.body.classList.toggle("drawer-open");
+  $("btn-drawer-close").onclick = closeDrawer; $("drawer-backdrop").onclick = closeDrawer;
+  window.addEventListener("keydown", (e) => { if (e.key === "Escape") closeDrawer(); });
+  $("btn-stop").onclick = () => { abort = true; };
+  $("btn-reset").onclick = () => applyPreset("paper");
+  $("btn-png").onclick = exportPNG; $("btn-json").onclick = exportJSON;
+  $("scrub").addEventListener("input", (e) => setCursor(parseInt(e.target.value, 10)));
+  $("btn-play").onclick = () => { if (!result) return; playing = !playing; $("btn-play").textContent = playing ? "Pause" : "Play"; if (playing) { if (cursor >= result.T - 1) cursor = 0; tickPlay(); } };
+  $("btn-theme").onclick = () => {
+    const root = document.documentElement, dark = root.getAttribute("data-theme") !== "dark";
+    root.setAttribute("data-theme", dark ? "dark" : "light"); $("btn-theme").textContent = dark ? "Light theme" : "Dark theme";
+    try { localStorage.setItem("islet-theme", dark ? "dark" : "light"); } catch (e) {}
+    rasterCache = null; renderAll();
+  };
+  try { const t = localStorage.getItem("islet-theme"); if (t === "dark" || (!t && window.matchMedia("(prefers-color-scheme: dark)").matches)) { document.documentElement.setAttribute("data-theme", "dark"); $("btn-theme").textContent = "Light theme"; } } catch (e) {}
+  let resizeTimer = null;
+  window.addEventListener("resize", () => { clearTimeout(resizeTimer); resizeTimer = setTimeout(renderAll, 120); });
+  window.addEventListener("keydown", (e) => { if (!result || e.target.tagName === "INPUT") return; if (e.key === "ArrowRight") setCursor(cursor + (e.shiftKey ? 25 : 1)); if (e.key === "ArrowLeft") setCursor(cursor - (e.shiftKey ? 25 : 1)); if (e.key === " ") { e.preventDefault(); $("btn-play").click(); } });
+
+  applyPreset("paper");
+  if (window.innerWidth <= 980) document.querySelector(".explain").removeAttribute("open");
+  // draw empty axes so the page has structure before the first run
+  for (const id of ["c-a", "c-b", "c-c", "c-d", "c-e", "c-f", "c-g", "c-h", "c-lmax", "c-mats", "c-pot", "c-bif", "c-cells", "c-raster"]) { const { ctx, w, h } = PL.setup($(id)); noData(ctx, w, h, "press Run"); }
+  // expose for testing
+  window.__islet = { run, readParams, get result() { return result; } };
+  // auto-run once on load
+  run();
+})();
+</script>
+</body>
+</html>
