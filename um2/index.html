@@ -5,15 +5,17 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
 <meta name="robots" content="noindex, nofollow, noarchive, nosnippet, noimageindex" />
 <meta name="googlebot" content="noindex, nofollow, noarchive, nosnippet, noimageindex" />
-<title>Univerza v Mariboru — partnerstvo z gospodarstvom · v01 · Seja UO ŠGZ</title>
+<title>Univerza v Mariboru — partnerstvo z gospodarstvom · v02 · Seja UO ŠGZ · 29. 9. 2026</title>
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;700&family=Newsreader:ital,opsz,wght@0,16,400;0,16,600;1,16,400&family=Crimson+Pro:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet" />
 <style>
   /* =====================================================================
-     UM in gospodarstvo — predstavitev na seji UO Štajerske gospodarske zbornice
-     (um2, v01). Drsnice 0–IX iz predstavitve za MIZM in MLSKRR (v06, 11. 9. 2026),
-     drsnice X–XV nove: partnerstvo UM–gospodarstvo, RFUM, UCUI, Vzhodna Slovenija.
+     UM in gospodarstvo — predstavitev na seji UO Štajerske gospodarske zbornice,
+     torek, 29. 9. 2026 (um2, v02). Drsnice 0–IX iz predstavitve za MIZM in MLSKRR
+     (v06, 11. 9. 2026); drsnice X–XVI: ravni in oblike strateškega sodelovanja
+     UM–gospodarstvo, RFUM, UCUI, regija in država, predlog partnerstva UM–ŠGZ.
+     v02: več poudarka na strateškem, v razvoj usmerjenem sodelovanju.
      Ogrodje in slog: enako kot #UM2030 (um2030/index.html).
 
      OZNAČBE PODATKOV (glej tudi drsnico 0):
@@ -1259,7 +1261,7 @@
     margin-top:2px;
   }
 
-  /* ===== um2 · dodatki za drsnice X–XV ===== */
+  /* ===== um2 · dodatki za drsnice X–XVI ===== */
   .bars .bar.lbl b{visibility:visible}
   .bars .bar i{flex-shrink:0}
   .bars.tall{height:clamp(170px,32vh,340px)}
@@ -1286,16 +1288,100 @@
   .merge-box.light .mb-body{color:var(--ink-80)}
   .achievements.places .lead{min-width:6.2em}
   .spread.inverse .essay .ph{border-color:var(--accent);color:var(--accent);background:rgba(133,183,235,0.16)}
+
+  /* Lestvica sodelovanja (drsnica X): štiri stopnice, najvišja poudarjena */
+  .ladder{
+    display:grid;
+    grid-template-columns:repeat(4, minmax(0,1fr));
+    gap:clamp(10px,1.2vw,18px);
+    align-items:end;
+    width:100%;
+  }
+  .ladder .step{
+    display:flex;
+    flex-direction:column;
+    gap:clamp(6px,1vh,12px);
+    padding:clamp(16px,2.2vh,28px) clamp(16px,1.5vw,26px);
+    border:0.5px solid var(--ink-15);
+    border-radius:6px;
+    background:rgba(10,10,10,0.015);
+    min-width:0;
+  }
+  .ladder .s1{min-height:clamp(170px,23vh,250px)}
+  .ladder .s2{min-height:clamp(200px,28vh,300px)}
+  .ladder .s3{min-height:clamp(230px,33vh,350px)}
+  .ladder .s4{min-height:clamp(260px,38vh,400px);background:var(--accent);border-color:var(--accent)}
+  .ladder .step-n{
+    font-family:var(--sans);
+    font-weight:700;
+    font-size:clamp(24px,2.4vw,40px);
+    line-height:1;
+    color:var(--accent);
+    opacity:0.32;
+    font-variant-numeric:tabular-nums;
+  }
+  .ladder .tile-kicker{margin-bottom:-0.2em}
+  .ladder .tile-figure{
+    font-family:var(--sans);
+    font-weight:700;
+    font-size:clamp(18px,1.75vw,30px);
+    line-height:1.1;
+    letter-spacing:-0.015em;
+    color:var(--accent);
+  }
+  .ladder .tile-body{
+    font-family:var(--sans);
+    font-weight:400;
+    font-size:clamp(13px,1.05vw,17px);
+    line-height:1.34;
+    color:var(--ink);
+  }
+  .ladder .tile-meta{margin-top:auto}
+  .ladder .s4 .step-n{color:var(--inv-fg);opacity:0.5}
+  .ladder .s4 .tile-kicker{color:var(--inv-fg-70)}
+  .ladder .s4 .tile-figure,
+  .ladder .s4 .tile-body{color:var(--inv-fg)}
+  .ladder .s4 .tile-meta{color:var(--accent-light)}
+  .stack-lg > .ladder-axis{margin-top:clamp(12px,1.6vh,20px)}
+  .ladder-axis{
+    position:relative;
+    display:flex;
+    justify-content:space-between;
+    gap:1em;
+    padding-top:10px;
+    border-top:1px solid var(--ink-40);
+    font-family:var(--sans);
+    font-weight:500;
+    font-size:11px;
+    letter-spacing:0.18em;
+    text-transform:uppercase;
+    color:var(--ink-60);
+  }
+  .ladder-axis::after{
+    content:"";
+    position:absolute;
+    right:0;
+    top:-5px;
+    width:9px;
+    height:9px;
+    border-top:1px solid var(--ink-40);
+    border-right:1px solid var(--ink-40);
+    transform:rotate(45deg);
+  }
   @media (max-width: 900px), (max-height: 600px){
     .three-col{grid-template-columns:1fr;gap:20px}
     .col-list.small{font-size:clamp(14px,3.6vw,18px)}
+    .ladder{grid-template-columns:1fr;gap:8px}
+    .ladder .step{min-height:auto !important}
+    .ladder .tile-body{font-size:clamp(12px,3.2vw,15px)}
+    .ladder-axis{font-size:9px}
   }
 </style>
 </head>
 <body>
 
 <div class="um-mark" id="umMark">UNIVERZA V MARIBORU</div>
-<div class="spread-counter" id="counter">drsnica 0 / 16</div>
+<div class="spread-counter" id="counter">drsnica 0 / 17</div>
 <div class="help-rail" id="helpRail">
   <span><span class="glyph">↕</span>besedilo</span>
   <span><span class="glyph">←→</span>drsnice</span>
@@ -1310,12 +1396,12 @@
   <!-- ============== DRSNICA 0 — uvodna vinjeta ============== -->
   <section class="spread" data-index="0" data-act="1" data-title="Uvod" aria-label="Uvodna vinjeta">
     <div class="slide-layer center-x">
-      <div class="slide-eyebrow"><span class="num">0/16</span>Kolofon</div>
+      <div class="slide-eyebrow"><span class="num">0/17</span>Kolofon</div>
       <div class="max-col stack-xl" style="display:flex;flex-direction:column;align-items:center">
         <div class="vignette-um">UM</div>
         <div class="stack-sm" style="text-align:center">
           <div class="vignette-title">Univerza v Mariboru — partnerstvo z gospodarstvom</div>
-          <div class="vignette-sub">Seja Upravnega odbora Štajerske gospodarske zbornice · <span class="ph">datum</span></div>
+          <div class="vignette-sub">Seja Upravnega odbora Štajerske gospodarske zbornice · torek, 29. 9. 2026</div>
         </div>
       </div>
       <div class="slide-progress" style="width:0%"></div>
@@ -1323,19 +1409,19 @@
     <div class="essay-layer">
       <div class="essay-panel">
         <button class="essay-close" aria-label="Zapri besedilo"><span class="x">×</span>zapri</button>
-        <div class="essay-eyebrow"><span class="num">0/16</span><span class="title">Kolofon</span><span class="time">skupaj ≈ 15 min</span></div>
+        <div class="essay-eyebrow"><span class="num">0/17</span><span class="title">Kolofon</span><span class="time">skupaj ≈ 15 min</span></div>
         <div class="essay">
-          <p>Univerza v Mariboru — partnerstvo z gospodarstvom. Predstavitev rektorja na seji Upravnega odbora Štajerske gospodarske zbornice, <span class="ph">datum</span>.</p>
+          <p>Univerza v Mariboru — partnerstvo z gospodarstvom. Predstavitev rektorja na seji Upravnega odbora Štajerske gospodarske zbornice, torek, 29. 9. 2026.</p>
           <p>Dean Korošak, rektor.</p>
-          <p class="italic small">Ključni sporočili: UM je partner gospodarstva pri razvojnem preboju kohezijske regije Vzhodna Slovenija; UM je kritična družbena infrastruktura regije.</p>
-          <p class="italic small">Zgradba: prvi del (I–IX) je predstavitev univerze iz obiska ministrice in ministra, skrajšana na približno šest minut; drugi del (X–XV) je partnerstvo univerze in gospodarstva, približno devet minut.</p>
+          <p class="italic small">Ključni sporočili: UM je strateški partner gospodarstva pri razvojnem preboju kohezijske regije Vzhodna Slovenija; UM je kritična družbena infrastruktura regije.</p>
+          <p class="italic small">Zgradba: prvi del (I–IX) je predstavitev univerze iz obiska ministrice in ministra, skrajšana na približno šest minut; drugi del (X–XVI) so ravni in oblike strateškega, v razvoj usmerjenega sodelovanja univerze z gospodarstvom v regiji in v državi, približno devet minut.</p>
         </div>
         <div class="needs">
           <div class="needs-title">Viri številk</div>
           <ul>
             <li class="done">Drsnice II–V: um_stevilke.xlsx (_vsebine), enako kot v predstavitvi za MIZM in MLSKRR.</li>
-            <li class="done">Drsnica XI: samoevalvacijsko poročilo UM za ZZrID 2022–2025 (poglavje o sodelovanju, prenosu znanja in virih financiranja) in objava UM o rezultatih projektov NOO.</li>
-            <li class="done">Drsnice XII–XIV: koncept in akt Razvojnega foruma UM, Univerzitetni center za umetno inteligenco_v1, Stanje predvidenih investicij UM (avgust 2026), Predstavitev investicij MIZM in MLSKRR (september 2026), Izjava o partnerstvu RIVR 2.0, SDL-RIVR.</li>
+            <li class="done">Drsnici X in XII: samoevalvacijsko poročilo UM za ZZrID 2022–2025 (poglavje o sodelovanju, prenosu znanja in virih financiranja) in objava UM o rezultatih projektov NOO.</li>
+            <li class="done">Drsnice XI in XIII–XV: koncept in akt Razvojnega foruma UM, Univerzitetni center za umetno inteligenco_v1, Stanje predvidenih investicij UM (avgust 2026), Predstavitev investicij MIZM in MLSKRR (september 2026), Izjava o partnerstvu RIVR 2.0, SDL-RIVR.</li>
             <li>Številke, ki niso iz um_stevilke.xlsx, so pikčasto podčrtane (preveri); črtkani okvirji so mesta za vpis. Tipka P skrije obe vrsti oznak.</li>
           </ul>
         </div>
@@ -1351,14 +1437,14 @@
         <div class="hashtag">Univerza v Mariboru</div>
         <div class="stack-sm">
           <div class="slide-light slide-light-60">Kohezijska regija Vzhodna Slovenija potrebuje razvojni preboj.</div>
-          <div class="slide-bold">Univerza v Mariboru je <span class="accent">partner gospodarstva</span> pri tem preboju.</div>
+          <div class="slide-bold">Univerza v Mariboru je <span class="accent">strateški partner gospodarstva</span> pri&nbsp;tem&nbsp;preboju.</div>
         </div>
         <div class="stack-sm">
           <div class="slide-light slide-light-60">Znanje, kadri in raziskovalna infrastruktura za celotno regijo.</div>
           <div class="slide-bold">Univerza je <span class="accent">kritična družbena infrastruktura</span>.</div>
         </div>
       </div>
-      <div class="slide-progress" style="width:6.25%"></div>
+      <div class="slide-progress" style="width:5.88%"></div>
     </div>
     <div class="essay-layer">
       <div class="essay-panel">
@@ -1366,8 +1452,8 @@
         <div class="essay-eyebrow"><span class="num">I</span><span class="title">Ključni sporočili</span><span class="time">≈ 1 min</span></div>
         <div class="essay">
           <p>Spoštovani gospod predsednik, spoštovana gospa direktorica, spoštovane članice in člani Upravnega odbora. Hvala za povabilo in za priložnost, da univerzo predstavim vam, ki v regiji ustvarjate vrednost in delovna mesta.</p>
-          <p>Prinašam dve sporočili in en predlog. Kohezijska regija Vzhodna Slovenija potrebuje razvojni preboj, in Univerza v Mariboru je pri tem preboju partner gospodarstva. Univerza je kritična družbena infrastruktura regije: znanje, kadri in raziskovalna oprema, ki so na voljo vsem, ki tu razvijajo, proizvajajo in zaposlujejo.</p>
-          <p>V prvem delu bom na kratko pokazal, kdo smo in kaj gradimo. V drugem se bom posvetil priložnostim za vaša podjetja, razvojnemu forumu univerze in novemu univerzitetnemu centru za umetno inteligenco, na koncu pa vam bom predlagal prvi skupni korak.</p>
+          <p>Prinašam dve sporočili in en predlog. Kohezijska regija Vzhodna Slovenija potrebuje razvojni preboj, in Univerza v Mariboru je pri tem preboju strateški partner gospodarstva. Univerza je kritična družbena infrastruktura regije: znanje, kadri in raziskovalna oprema, ki so na voljo vsem, ki tu razvijajo, proizvajajo in zaposlujejo.</p>
+          <p>V prvem delu bom na kratko pokazal, kdo smo in kaj gradimo. V drugem se bom posvetil ravnem in oblikam sodelovanja, ki jih univerza ponuja gospodarstvu v regiji in v državi, razvojnemu forumu univerze in novemu univerzitetnemu centru za umetno inteligenco, na koncu pa vam bom predlagal prve korake strateškega partnerstva.</p>
         </div>
         <div class="needs">
           <div class="needs-title">Podatki za dopolnitev</div>
@@ -1420,7 +1506,7 @@
           Lokacije: <strong>Maribor · Celje · Brežice · Krško · Velenje · Kranj · Ljubljana</strong>
         </div>
       </div>
-      <div class="slide-progress" style="width:12.5%"></div>
+      <div class="slide-progress" style="width:11.76%"></div>
     </div>
     <div class="essay-layer">
       <div class="essay-panel">
@@ -1453,7 +1539,7 @@
             <div><span class="lead"><span class="num">164</span></span><span class="body">študijskih programov · 40 UN · 29 VS · 54 MAG · 5 EMAG · 36 DOK</span></div>
           </div>
       </div>
-      <div class="slide-progress" style="width:18.75%"></div>
+      <div class="slide-progress" style="width:17.65%"></div>
     </div>
     <div class="essay-layer">
       <div class="essay-panel">
@@ -1497,7 +1583,7 @@
           </div>
         </div>
       </div>
-      <div class="slide-progress" style="width:25%"></div>
+      <div class="slide-progress" style="width:23.53%"></div>
     </div>
     <div class="essay-layer">
       <div class="essay-panel">
@@ -1540,7 +1626,7 @@
           Investicije so <strong>temelji za delo</strong> študentov, raziskovalcev in podjetij regije.
         </div>
       </div>
-      <div class="slide-progress" style="width:31.25%"></div>
+      <div class="slide-progress" style="width:29.41%"></div>
     </div>
     <div class="essay-layer">
       <div class="essay-panel">
@@ -1594,7 +1680,7 @@
           </div>
         </div>
       </div>
-      <div class="slide-progress" style="width:37.5%"></div>
+      <div class="slide-progress" style="width:35.29%"></div>
     </div>
     <div class="essay-layer">
       <div class="essay-panel">
@@ -1632,7 +1718,7 @@
           </div>
         </div>
       </div>
-      <div class="slide-progress" style="width:43.75%"></div>
+      <div class="slide-progress" style="width:41.18%"></div>
     </div>
     <div class="essay-layer">
       <div class="essay-panel">
@@ -1672,7 +1758,7 @@
           </div>
         </div>
       </div>
-      <div class="slide-progress" style="width:50%"></div>
+      <div class="slide-progress" style="width:47.06%"></div>
     </div>
     <div class="essay-layer">
       <div class="essay-panel">
@@ -1704,7 +1790,7 @@
             <div class="tile-body">program satelitov TRISAT: iz raziskav univerze do vesoljskega podjetja; skupni sateliti in nov razvojni center vesoljskih tehnologij v Mariboru</div>
           </div>
           <div class="tile">
-            <div class="tile-kicker">UM + Talum, Impol, IJS, IMT, UL NTF</div>
+            <div class="tile-kicker">UM + Talum, Impol, IMT, UL NTF</div>
             <div class="tile-figure short">SiPCAST</div>
             <div class="tile-body">pilotni center za lahke kovine z industrijo aluminija in raziskovalnimi inštituti; postavljen tja, kjer je industrija</div>
           </div>
@@ -1718,7 +1804,7 @@
           Prenos znanja je način, kako univerza <strong>vrača regiji</strong>.
         </div>
       </div>
-      <div class="slide-progress" style="width:56.25%"></div>
+      <div class="slide-progress" style="width:52.94%"></div>
     </div>
     <div class="essay-layer">
       <div class="essay-panel">
@@ -1737,62 +1823,60 @@
     </button>
   </section>
 
-  <!-- ============== DRSNICA 10 — Priložnosti za gospodarstvo ============== -->
-  <section class="spread" data-index="10" data-act="1" data-title="Priložnosti za gospodarstvo" aria-label="Drsnica 10: Priložnosti za gospodarstvo">
+  <!-- ============== DRSNICA 10 — Od naročila do partnerstva ============== -->
+  <section class="spread" data-index="10" data-act="1" data-title="Ravni sodelovanja" aria-label="Drsnica 10: Od naročila do partnerstva — ravni sodelovanja">
     <div class="slide-layer center">
-      <div class="slide-eyebrow"><span class="num">X</span>Partnerstvo UM – gospodarstvo · priložnosti</div>
+      <div class="slide-eyebrow"><span class="num">X</span>Partnerstvo UM – gospodarstvo · ravni sodelovanja</div>
       <div class="max-col stack-lg">
-        <div class="slide-title-md">Priložnosti za gospodarstvo.<br/><strong>Univerza, odprta podjetjem.</strong></div>
-        <div class="achievement-tiles">
-          <div class="tile">
-            <div class="tile-kicker">kadri</div>
-            <div class="tile-figure short">Talenti za podjetja</div>
-            <div class="tile-body">praksa in študentski projekti v podjetjih · štipendije · Karierni center UM · <strong>3.271 diplomantov</strong> na leto</div>
+        <div class="slide-title-md">Sodelovanje z univerzo.<br/><strong>Od naročila do partnerstva.</strong></div>
+        <div class="ladder">
+          <div class="step s1">
+            <div class="step-n">1</div>
+            <div class="tile-kicker">naročilo</div>
+            <div class="tile-figure short">Storitev</div>
+            <div class="tile-body">meritve, analize, testiranja in svetovanje na vrhunski opremi univerze</div>
+            <div class="tile-meta">odprt dostop · BRiUM</div>
           </div>
-          <div class="tile">
-            <div class="tile-kicker">vseživljenjsko učenje</div>
-            <div class="tile-figure short">Znanje za zaposlene</div>
-            <div class="tile-body">mikrodokazila · krajša usposabljanja · programi izpopolnjevanja po meri podjetij</div>
+          <div class="step s2">
+            <div class="step-n">2</div>
+            <div class="tile-kicker">projekt</div>
+            <div class="tile-figure short">Skupni projekt</div>
+            <div class="tile-body">razvojni, aplikativni ali evropski projekt z jasnim ciljem in rokom</div>
+            <div class="tile-meta"><span class="chk" title="Samoevalvacijsko poročilo UM 2022–2025">405</span> projektov v letu 2025</div>
           </div>
-          <div class="tile">
-            <div class="tile-kicker">raziskave in razvoj</div>
-            <div class="tile-figure short">Skupni projekti</div>
-            <div class="tile-body">razvojni in aplikativni projekti · industrijski doktorati · mladi raziskovalci iz gospodarstva · skupne evropske prijave</div>
+          <div class="step s3">
+            <div class="step-n">3</div>
+            <div class="tile-kicker">program</div>
+            <div class="tile-figure short">Večletni razvojni program</div>
+            <div class="tile-body">skupne ekipe · industrijski doktorati · skupni kadrovski in raziskovalni načrt</div>
+            <div class="tile-meta">SkyLabs + UM · TRISAT</div>
           </div>
-          <div class="tile">
-            <div class="tile-kicker">raziskovalna infrastruktura</div>
-            <div class="tile-figure short">Odprti laboratoriji</div>
-            <div class="tile-body">vrhunska oprema z odprtim dostopom (BRiUM): meritve, testiranja, analize · RIUM · INNOVUM · STEP · sinhrotron</div>
-          </div>
-          <div class="tile">
-            <div class="tile-kicker">prenos tehnologij</div>
-            <div class="tile-figure short">Od izuma do trga</div>
-            <div class="tile-body">pisarna za prenos znanja in tehnologij · licence · odcepljena podjetja · inkubator Tovarna podjemov</div>
-          </div>
-          <div class="tile">
-            <div class="tile-kicker">umetna inteligenca</div>
-            <div class="tile-figure short">UI za podjetja</div>
-            <div class="tile-body">Univerzitetni center za UI z nacionalnim ekosistemom SLAIF · KCUI · EDIH: od svetovanja do prototipa</div>
+          <div class="step s4">
+            <div class="step-n">4</div>
+            <div class="tile-kicker">strateško partnerstvo</div>
+            <div class="tile-figure short">Skupna vlaganja v&nbsp;razvoj</div>
+            <div class="tile-body">skupna infrastruktura in pilotni centri · skupni razvojni portfelj za nacionalne in evropske vire</div>
+            <div class="tile-meta">SiPCAST s Talumom in Impolom · Lendava z&nbsp;Lekom</div>
           </div>
         </div>
+        <div class="ladder-axis"><span>krajši horizont · naročilo</span><span>daljši horizont · soustvarjanje razvoja</span></div>
       </div>
-      <div class="slide-progress" style="width:62.5%"></div>
+      <div class="slide-progress" style="width:58.82%"></div>
     </div>
     <div class="essay-layer">
       <div class="essay-panel">
         <button class="essay-close" aria-label="Zapri besedilo"><span class="x">×</span>zapri</button>
-        <div class="essay-eyebrow"><span class="num">X</span><span class="title">Priložnosti za gospodarstvo</span><span class="time">≈ 1,5 min</span></div>
+        <div class="essay-eyebrow"><span class="num">X</span><span class="title">Od naročila do partnerstva</span><span class="time">≈ 1,5 min</span></div>
         <div class="essay">
-          <p>Prehajam na drugi del: kaj partnerstvo z univerzo pomeni za vaša podjetja. Priložnosti vidim na šestih področjih.</p>
-          <p>Prvo so kadri: praksa in študentski projekti v podjetjih, štipendije in Karierni center, prek katerega podjetja spoznajo študente še pred diplomo. Drugo je znanje za zaposlene, od mikrodokazil in krajših usposabljanj do programov izpopolnjevanja, ki jih pripravimo po meri podjetja. Tretje so skupni raziskovalni in razvojni projekti ter industrijski doktorati; pri državi se zavzemamo tudi za ponovno uvedbo mladih raziskovalcev iz gospodarstva.</p>
-          <p>Četrto so laboratoriji z odprtim dostopom, kjer podjetje opravi meritve, testiranja in analize na vrhunski opremi. Peto je pot od izuma do trga, prek pisarne za prenos znanja in tehnologij, licenc, odcepljenih podjetij in univerzitetnega inkubatorja Tovarna podjemov. Šesto je umetna inteligenca, za katero vzpostavljamo en univerzitetni vhod.</p>
-          <p>Vsa ta vrata so odprta že danes. Naša naloga je, da jih podjetja hitreje najdejo.</p>
+          <p>Prehajam na drugi del, na sodelovanje univerze in gospodarstva. To sodelovanje ima štiri ravni. Najpogosteje se začne z naročilom: meritvijo, analizo, testiranjem ali nasvetom, za katerega podjetje potrebuje vrhunsko opremo in znanje. Naslednja raven je skupni projekt, razvojni, aplikativni ali evropski; takih projektov univerza vsako leto izvaja več kot štiristo.</p>
+          <p>Tretja raven je večletni razvojni program, v katerem podjetje in univerza skupaj načrtujeta kadre, industrijske doktorate in raziskave ter oblikujeta skupne ekipe; tako je iz raziskav univerze zrasel program satelitov TRISAT in z njim podjetje SkyLabs. Najvišja raven je strateško partnerstvo, v katerem partnerji skupaj vlagajo v infrastrukturo in razvoj, kot pri pilotnem centru za lahke kovine s Talumom in Impolom ali pri trening centru z Lekom v Lendavi.</p>
+          <p>Univerza ponuja vse štiri ravni. Razvojni preboj regije se zgodi na zgornjih dveh, zato vas vabim, da skupaj stopimo višje.</p>
         </div>
         <div class="needs">
           <div class="needs-title">Podatki za dopolnitev</div>
           <ul>
-            <li>Viri: samoevalvacijsko poročilo UM 2022–2025 (pisarna za prenos znanja kot enotna vstopna točka, BRiUM, Tovarna podjemov oz. univerzitetni inkubator); UM2030 (mladi raziskovalci iz gospodarstva); objava UM o rezultatih NOO (Center za vseživljenjsko učenje, Karierni:UM).</li>
-            <li>Po presoji: en kontakt za podjetja (spletni naslov ali e-naslov) v noge drsnice ali na zaključno vinjeto.</li>
+            <li>Ravni so okvir za pogovor, ne uradna klasifikacija; primeri so iz drsnic VII–IX.</li>
+            <li>Po presoji: dodaj primer strateškega partnerstva, ki ga člani UO poznajo iz lastne prakse.</li>
           </ul>
         </div>
       </div>
@@ -1804,10 +1888,78 @@
     </button>
   </section>
 
-  <!-- ============== DRSNICA 11 — Sodelovanje v številkah ============== -->
-  <section class="spread" data-index="11" data-act="1" data-title="Sodelovanje v številkah" aria-label="Drsnica 11: Sodelovanje z gospodarstvom v številkah">
+  <!-- ============== DRSNICA 11 — Priložnosti za gospodarstvo ============== -->
+  <section class="spread" data-index="11" data-act="1" data-title="Priložnosti za gospodarstvo" aria-label="Drsnica 11: Priložnosti za gospodarstvo">
     <div class="slide-layer center">
-      <div class="slide-eyebrow"><span class="num">XI</span>Partnerstvo UM – gospodarstvo · v številkah</div>
+      <div class="slide-eyebrow"><span class="num">XI</span>Partnerstvo UM – gospodarstvo · priložnosti</div>
+      <div class="max-col stack-lg">
+        <div class="slide-title-md">Priložnosti za gospodarstvo.<br/><strong>Šest poti v razvojno partnerstvo.</strong></div>
+        <div class="achievement-tiles">
+          <div class="tile">
+            <div class="tile-kicker">kadri</div>
+            <div class="tile-figure short">Kadri po meri</div>
+            <div class="tile-body">skupno načrtovanje študijskih programov · praksa in projekti v podjetjih · štipendije · <strong>3.271 diplomantov</strong> na leto</div>
+          </div>
+          <div class="tile">
+            <div class="tile-kicker">preobrazba kompetenc</div>
+            <div class="tile-figure short">Znanje za zaposlene</div>
+            <div class="tile-body">mikrodokazila in programi po meri podjetij za zeleni in digitalni prehod ter UI · strokovnjaki iz prakse v predavalnicah</div>
+          </div>
+          <div class="tile">
+            <div class="tile-kicker">razvojni programi</div>
+            <div class="tile-figure short">Skupne ekipe</div>
+            <div class="tile-body">večletni razvojni programi · industrijski doktorati · mladi raziskovalci iz gospodarstva · mobilnost med univerzo in podjetji</div>
+          </div>
+          <div class="tile">
+            <div class="tile-kicker">infrastruktura</div>
+            <div class="tile-figure short">Laboratoriji ob industriji</div>
+            <div class="tile-body">odprt dostop do opreme (BRiUM) · pilotni centri s podjetji · skupna vlaganja v raziskovalno infrastrukturo</div>
+          </div>
+          <div class="tile">
+            <div class="tile-kicker">inovacije</div>
+            <div class="tile-figure short">Od izuma do trga</div>
+            <div class="tile-body">licence · odcepljena podjetja · sklad za spodbujanje inovacijske dejavnosti · inkubator Tovarna podjemov · podjetja kot prvi uporabniki</div>
+          </div>
+          <div class="tile">
+            <div class="tile-kicker">umetna inteligenca in podatki</div>
+            <div class="tile-figure short">UI za podjetja</div>
+            <div class="tile-body">Univerzitetni center za UI · SLAIF · KCUI · EDIH · digitalni dvojčki in virtualni laboratoriji (SDL-RIVR)</div>
+          </div>
+        </div>
+      </div>
+      <div class="slide-progress" style="width:64.71%"></div>
+    </div>
+    <div class="essay-layer">
+      <div class="essay-panel">
+        <button class="essay-close" aria-label="Zapri besedilo"><span class="x">×</span>zapri</button>
+        <div class="essay-eyebrow"><span class="num">XI</span><span class="title">Priložnosti za gospodarstvo</span><span class="time">≈ 1,5 min</span></div>
+        <div class="essay">
+          <p>Kaj konkretno ponujamo za ti višji ravni? Prvo so kadri po meri: študijske programe lahko načrtujemo skupaj s podjetji, s prakso, projekti v podjetjih in štipendijami, tako da diplomant pride v podjetje pripravljen. Drugo je preobrazba kompetenc zaposlenih, z mikrodokazili in programi po meri podjetja za zeleni in digitalni prehod ter umetno inteligenco, v katerih predavajo tudi strokovnjaki iz vaše prakse.</p>
+          <p>Tretje so skupne ekipe: večletni razvojni programi, industrijski doktorati in mobilnost raziskovalcev med univerzo in podjetji; pri državi se zavzemamo tudi za ponovno uvedbo mladih raziskovalcev iz gospodarstva. Četrto so laboratoriji ob industriji, od odprtega dostopa do opreme do pilotnih centrov s podjetji in skupnih vlaganj v infrastrukturo.</p>
+          <p>Peto je pot od izuma do trga, z licencami, odcepljenimi podjetji, skladom za spodbujanje inovacijske dejavnosti in inkubatorjem Tovarna podjemov; vaša podjetja so lahko prvi uporabniki novih rešitev. Šesto sta umetna inteligenca in podatki, od pilotnih projektov do digitalnih dvojčkov in virtualnih laboratorijev, ki jih pripravljamo v regijskem podatkovnem laboratoriju. Vsa ta vrata so odprta že danes. Naša naloga je, da jih podjetja hitreje najdejo.</p>
+        </div>
+        <div class="needs">
+          <div class="needs-title">Podatki za dopolnitev</div>
+          <ul>
+            <li class="done">Viri: samoevalvacijsko poročilo UM 2022–2025 (enotna vstopna točka za prenos znanja, BRiUM, sklad za spodbujanje inovacijske dejavnosti, univerzitetni inkubator); UM2030 (mladi raziskovalci iz gospodarstva); UCUI_v1; SDL-RIVR; osnutek Dogovora 2026–2030 (mobilnost med akademskim in gospodarskim okoljem, podjetja kot prvi kupci).</li>
+            <li>SDL-RIVR je v pripravi (financiranje se preverja v EKP 2021–2027).</li>
+            <li>Po presoji: en kontakt za podjetja (spletni naslov ali e-naslov) na drsnico ali na zaključno vinjeto.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <button class="mobile-act-toggle" data-toggle-act type="button" aria-label="Preklopi med drsnico in besedilom">
+      <span class="toggle-text-1">besedilo</span>
+      <span class="toggle-text-2">zapri besedilo</span>
+      <span class="arrow-icon"></span>
+    </button>
+  </section>
+
+
+  <!-- ============== DRSNICA 12 — Sodelovanje v številkah ============== -->
+  <section class="spread" data-index="12" data-act="1" data-title="Sodelovanje v številkah" aria-label="Drsnica 12: Sodelovanje z gospodarstvom v številkah">
+    <div class="slide-layer center">
+      <div class="slide-eyebrow"><span class="num">XII</span>Partnerstvo UM – gospodarstvo · v številkah</div>
       <div class="max-col stack-lg">
         <div class="slide-title-md">Sodelovanje z gospodarstvom.<br/><strong>Več kot štiristo projektov na leto.</strong></div>
         <div class="split">
@@ -1832,12 +1984,12 @@
           </div>
         </div>
       </div>
-      <div class="slide-progress" style="width:68.75%"></div>
+      <div class="slide-progress" style="width:70.59%"></div>
     </div>
     <div class="essay-layer">
       <div class="essay-panel">
         <button class="essay-close" aria-label="Zapri besedilo"><span class="x">×</span>zapri</button>
-        <div class="essay-eyebrow"><span class="num">XI</span><span class="title">Sodelovanje v številkah</span><span class="time">≈ 1,5 min</span></div>
+        <div class="essay-eyebrow"><span class="num">XII</span><span class="title">Sodelovanje v številkah</span><span class="time">≈ 1,5 min</span></div>
         <div class="essay">
           <p>Koliko tega sodelovanja že poteka? Univerza je v letu 2025 izvajala štiristo pet projektov z gospodarstvom in drugimi uporabniki znanja; leta 2022 jih je bilo tristo enaindvajset. Tržni viri, pretežno podjetja, so v zadnjih štirih letih prispevali med dvanajst in sedemnajst odstotkov sredstev za raziskovalno dejavnost univerze.</p>
           <p>Po letu 2024 so nastala tri odcepljena podjetja, dve sta v ustanavljanju. Sto trideset kosov raziskovalne opreme v infrastrukturnem programu, v nabavni vrednosti več kot osemindvajset milijonov evrov, uporabljajo tudi podjetja. Z nacionalnim modelom digitalne zrelosti, ki je nastal na univerzi, je bilo ocenjenih več kot tisoč dvesto malih in srednjih podjetij, na karierni platformi univerze pa se je v enem letu srečalo več kot petinsedemdeset podjetij in štiristo petinštirideset študentov.</p>
@@ -1861,10 +2013,10 @@
     </button>
   </section>
 
-  <!-- ============== DRSNICA 12 — Razvojni forum UM ============== -->
-  <section class="spread" data-index="12" data-act="1" data-title="Razvojni forum UM" aria-label="Drsnica 12: Razvojni forum Univerze v Mariboru">
+  <!-- ============== DRSNICA 13 — Razvojni forum UM ============== -->
+  <section class="spread" data-index="13" data-act="1" data-title="Razvojni forum UM" aria-label="Drsnica 13: Razvojni forum Univerze v Mariboru">
     <div class="slide-layer center">
-      <div class="slide-eyebrow"><span class="num">XII</span>Razvojni forum Univerze v Mariboru · v nastajanju</div>
+      <div class="slide-eyebrow"><span class="num">XIII</span>Razvojni forum Univerze v Mariboru · v nastajanju</div>
       <div class="max-col stack-lg">
         <div class="slide-title-md">Razvojni forum UM.<br/><strong>Glas gospodarstva na univerzi.</strong></div>
         <div class="two-col">
@@ -1874,7 +2026,6 @@
               <div>predsedniki uprav in direktorji vodilnih družb regije in države</div>
               <div>uveljavljeni podjetniki in ustanovitelji hitrorastočih podjetij</div>
               <div>gospodarska in obrtno-podjetniška združenja, regionalne razvojne institucije, lokalne skupnosti</div>
-              <div>javni zavodi zdravstva in kulture · ugledni alumni, tudi iz tujine</div>
             </div>
           </div>
           <div>
@@ -1891,14 +2042,14 @@
           Merila uspeha: <strong>skupni projekti · industrijski doktorati · štipendije in donacije · privlačnost univerze za študente in raziskovalce</strong>
         </div>
       </div>
-      <div class="slide-progress" style="width:75%"></div>
+      <div class="slide-progress" style="width:76.47%"></div>
     </div>
     <div class="essay-layer">
       <div class="essay-panel">
         <button class="essay-close" aria-label="Zapri besedilo"><span class="x">×</span>zapri</button>
-        <div class="essay-eyebrow"><span class="num">XII</span><span class="title">Razvojni forum UM</span><span class="time">≈ 1,5 min</span></div>
+        <div class="essay-eyebrow"><span class="num">XIII</span><span class="title">Razvojni forum UM</span><span class="time">≈ 1,5 min</span></div>
         <div class="essay">
-          <p>Razvojni forum Univerze v Mariboru je v nastajanju. Zasnovali smo ga kot posvetovalno telo rektorja, v katerem vodilni gospodarstveniki, podjetniki, predstavniki gospodarskih združenj, regionalnih razvojnih institucij, lokalnih skupnosti, zdravstva in kulture ter ugledni alumni skupaj z univerzo razmišljajo o njenem razvoju. Forum bo imel do enaindvajset članic in članov, izmed njih tudi sopredsedujočega iz gospodarstva; s tem soodgovornost za dialog prenesemo na stran okolja.</p>
+          <p>Razvojni forum Univerze v Mariboru je v nastajanju. Zasnovali smo ga kot posvetovalno telo rektorja, v katerem vodilni gospodarstveniki, podjetniki, predstavniki gospodarskih in obrtno-podjetniških združenj, regionalnih razvojnih institucij in lokalnih skupnosti skupaj z univerzo razmišljajo o njenem razvoju. Forum bo imel do enaindvajset članic in članov, izmed njih tudi sopredsedujočega iz gospodarstva; s tem soodgovornost za dialog prenesemo na stran okolja.</p>
           <p>Teme so tiste, pri katerih se univerza in gospodarstvo srečujeta vsak dan: kako študijske programe uskladiti s kompetencami prihodnosti, kje je prenos znanja najbolj smiseln, kako do več industrijskih doktoratov, kako talente privabiti in zadržati v regiji, kako preobraziti kompetence zaposlenih ter kako skupaj vlagati v infrastrukturo in štipendijske sklade.</p>
           <p>Forum svetuje, njegova teža pa izhaja iz ugleda in izkušenj ljudi, ki ga sestavljajo. Enkrat letno bo pripravil kratko poročilo s priporočili, ki ga bom predstavil organom univerze in javnosti; tako bo njegovo delo sledljivo in preverljivo. Merila uspeha so preprosta: skupni projekti, industrijski doktorati, štipendije in donacije ter večja privlačnost univerze za študente in raziskovalce.</p>
         </div>
@@ -1908,6 +2059,7 @@
             <li>Stanje ustanovitve: datum akta o ustanovitvi, prva seja, sopredsedujoči — ko bo znano.</li>
             <li>Pogostost sej: akt (različica DK) navaja štiri seje letno, koncept dve do tri; na drsnici je zato brez števila.</li>
             <li class="done">Imen kandidatov in članov na drsnici ni.</li>
+            <li class="done">Akt forum odpira tudi javnim zavodom zdravstva in kulture ter uglednim alumnom; na drsnici je poudarek na gospodarstvu.</li>
           </ul>
         </div>
       </div>
@@ -1919,10 +2071,10 @@
     </button>
   </section>
 
-  <!-- ============== DRSNICA 13 — Univerzitetni center za UI ============== -->
-  <section class="spread" data-index="13" data-act="1" data-title="Center za UI" aria-label="Drsnica 13: Univerzitetni center za umetno inteligenco">
+  <!-- ============== DRSNICA 14 — Univerzitetni center za UI ============== -->
+  <section class="spread" data-index="14" data-act="1" data-title="Center za UI" aria-label="Drsnica 14: Univerzitetni center za umetno inteligenco">
     <div class="slide-layer center">
-      <div class="slide-eyebrow"><span class="num">XIII</span>Univerzitetni center za umetno inteligenco · UCUI</div>
+      <div class="slide-eyebrow"><span class="num">XIV</span>Univerzitetni center za umetno inteligenco · UCUI</div>
       <div class="max-col stack-md merge">
         <div class="slide-title-md" style="align-self:flex-start">Umetna inteligenca.<br/><strong>En vhod za podjetja in fakultete.</strong></div>
         <div class="three-col">
@@ -1947,7 +2099,7 @@
             <div class="col-list small">
               <div>skupni projekti, prototipi, PoC</div>
               <div>specializirani modeli · zakup računskih zmogljivosti</div>
-              <div>usposabljanja za zaposlene</div>
+              <div>usposabljanja · sovlaganje v infrastrukturo UI</div>
             </div>
           </div>
         </div>
@@ -1961,23 +2113,23 @@
           <div class="mb-body">skupna infrastruktura · platforma · storitve · odgovorna raba UI (Akt EU o UI, varstvo podatkov, intelektualna lastnina)</div>
         </div>
       </div>
-      <div class="slide-progress" style="width:81.25%"></div>
+      <div class="slide-progress" style="width:82.35%"></div>
     </div>
     <div class="essay-layer">
       <div class="essay-panel">
         <button class="essay-close" aria-label="Zapri besedilo"><span class="x">×</span>zapri</button>
-        <div class="essay-eyebrow"><span class="num">XIII</span><span class="title">Univerzitetni center za UI</span><span class="time">≈ 1,5 min</span></div>
+        <div class="essay-eyebrow"><span class="num">XIV</span><span class="title">Univerzitetni center za UI</span><span class="time">≈ 1,5 min</span></div>
         <div class="essay">
           <p>Umetna inteligenca bo v naslednjih letih spremenila delo v vsakem vašem podjetju. Na univerzi jo razvijamo, uporabljamo in poučujemo na mnogih fakultetah in v mnogih raziskovalnih skupinah. To znanje zdaj povezujemo v Univerzitetni center za umetno inteligenco, ki bo deloval neposredno pod rektoratom. Načelo je preprosto: raziskovalci ostanejo na fakultetah, center pa zagotavlja skupno infrastrukturo, platformo, storitve in povezovanje.</p>
           <p>Za podjetja to pomeni en naslov za skupne projekte, prototipe in preizkuse koncepta, specializirane modele, zakup računskih zmogljivosti in usposabljanja zaposlenih, skupaj z znanjem o odgovorni rabi, varstvu podatkov in skladnosti z evropskim aktom o umetni inteligenci.</p>
-          <p>Center se opira na nacionalni ekosistem, v katerem je univerza že partnerica: Slovensko tovarno umetne inteligence z novim superračunalnikom v podatkovnem centru Arnes v Mariboru, Kompetenčni center za umetno inteligenco in evropska digitalna inovacijska stičišča za mala in srednja podjetja. Storitve za industrijo načrtujemo v letu in pol, povezano tržnico storitev umetne inteligence v dveh letih.</p>
+          <p>Center se opira na nacionalni ekosistem, v katerem je univerza že partnerica: Slovensko tovarno umetne inteligence z novim superračunalnikom v podatkovnem centru Arnes v Mariboru, Kompetenčni center za umetno inteligenco in evropska digitalna inovacijska stičišča za mala in srednja podjetja. Tudi infrastrukturo centra gradimo kot partnerstvo: univerza prinaša uporabnike, raziskave in talente, tehnološki, infrastrukturni in energetski partnerji tehnologijo, okolje in energijo, podjetja pa zmogljivosti zakupijo ali rezervirajo. Storitve za industrijo načrtujemo v letu in pol, povezano tržnico storitev umetne inteligence v dveh letih.</p>
         </div>
         <div class="needs">
           <div class="needs-title">Podatki za dopolnitev</div>
           <ul>
             <li class="done">Vir: Univerzitetni center za umetno inteligenco_v1 (A. Kamišalić Latifić). Časovnica: mandat 0–3 mes. · jedro 3–6 · enotna vstopna točka 6–12 · storitveni stebri, tudi industrija, 6–18 · infrastruktura 9–18 · tržnica UI storitev 12–24 · komercializacija 18–36.</li>
             <li>Datum sklepa o ustanovitvi in vodja centra, ko bosta znana.</li>
-            <li>Po presoji: model partnerstva za infrastrukturo (tehnološki, infrastrukturni in energetski partner; podjetja kot zakupniki zmogljivosti) je lahko tema pogovora s člani UO.</li>
+            <li class="done">Model partnerstva za infrastrukturo (tehnološki, infrastrukturni in energetski partner; podjetja kot zakupniki zmogljivosti) je iz poglavja 5 dokumenta UCUI_v1.</li>
           </ul>
         </div>
       </div>
@@ -1989,55 +2141,54 @@
     </button>
   </section>
 
-  <!-- ============== DRSNICA 14 — Vzhodna Slovenija ============== -->
-  <section class="spread" data-index="14" data-act="1" data-title="Vzhodna Slovenija" aria-label="Drsnica 14: Razvojni preboj Vzhodne Slovenije">
+  <!-- ============== DRSNICA 15 — Regija in država ============== -->
+  <section class="spread" data-index="15" data-act="1" data-title="Regija in država" aria-label="Drsnica 15: Razvojni preboj v regiji in v državi">
     <div class="slide-layer center">
-      <div class="slide-eyebrow"><span class="num">XIV</span>Razvojni preboj kohezijske regije Vzhodna Slovenija</div>
+      <div class="slide-eyebrow"><span class="num">XV</span>Razvojni preboj · regija in država</div>
       <div class="max-col stack-lg">
-        <div class="slide-title-md">Vzhodna Slovenija.<br/><strong>Gradimo ob industriji.</strong></div>
-        <div class="split top">
-          <div class="achievements compact places">
-            <div><span class="lead">Maribor</span><span class="body">tehniški kampus INNOVUM · Center odličnosti za fotonske, mikro- in nanoelektronske tehnologije</span></div>
-            <div><span class="lead">Celje</span><span class="body">Fakulteta za logistiko z raziskovalnim centrom za logistiko</span></div>
-            <div><span class="lead">Krško</span><span class="body">Fakulteta za energetiko z Inštitutom za energetiko · jedrski programi z I2EN</span></div>
-            <div><span class="lead">Lendava</span><span class="body">Trening center Biofarmacevtika z Lekom</span></div>
-            <div><span class="lead">Novo mesto</span><span class="body">RIVR 2.0 z Univerzo v Novem mestu in Rudolfovim</span></div>
+        <div class="slide-title-md">Razvojni preboj.<br/><strong>V regiji in v državi.</strong></div>
+        <div class="two-col">
+          <div>
+            <div class="col-head">V regiji<small>kohezijska regija Vzhodna Slovenija</small></div>
+            <div class="col-list small">
+              <div><strong>INNOVUM</strong> · tehniški kampus v Mariboru · logistika v Celju · energetika v Krškem</div>
+              <div><strong>ob industriji</strong> · SiPCAST za lahke kovine · trening center v Lendavi</div>
+              <div><strong>RIVR 2.0</strong> z UNM in Rudolfovim · podatkovni laboratorij SDL-RIVR, delež UM <strong class="chk" title="Predstavitev investicij MIZM in MLSKRR, september 2026">16&nbsp;M&nbsp;€</strong></div>
+              <div><strong>Razvojni forum UM</strong> · gospodarstvo sooblikuje razvoj univerze</div>
+            </div>
           </div>
           <div>
-            <div class="col-head">RIVR 2.0<small>UM + UNM + Rudolfovo · raziskovalna infrastruktura vzhodne regije</small></div>
+            <div class="col-head">V državi<small>nacionalni in evropski mehanizmi</small></div>
             <div class="col-list small">
-              <div><strong>SDL-RIVR</strong> · znanstveni podatkovni laboratorij: superračunalništvo, kvantno računanje in UI; delež UM <strong class="chk" title="Predstavitev investicij MIZM in MLSKRR, september 2026">16&nbsp;M&nbsp;€</strong></div>
-            </div>
-            <div class="col-head">Portfelj 2028–2034<small>projekte pripravljamo danes</small></div>
-            <div class="col-list small">
-              <div><strong>INNOVUM 2</strong> · nacionalno inovacijsko stičišče</div>
-              <div><strong>RIUM 3</strong> · nova generacija raziskovalne opreme</div>
-              <div><strong>SiPCAST</strong> · pilotni center za lahke kovine</div>
+              <div><strong>SLAIF · KCUI · EDIH</strong> · nacionalni ekosistem umetne inteligence</div>
+              <div><strong>STEP</strong> · GIGA NMR s Kemijskim inštitutom · VISO ČIP za polprevodniške tehnologije</div>
+              <div><strong>UNIK@TT</strong> · nacionalna platforma za prenos znanja in tehnologij</div>
+              <div><strong>EU</strong> · skupni konzorciji s podjetji za Obzorje Evropa in prihodnji Evropski sklad za konkurenčnost</div>
             </div>
           </div>
         </div>
         <div class="statement small">
-          Cilj: tehnološki preboj regije in <strong>nova delovna mesta z visoko dodano vrednostjo</strong>.
+          Portfelj 2028–2034: <strong>INNOVUM 2 · nacionalno inovacijsko stičišče · RIUM 3 · SiPCAST</strong>
         </div>
       </div>
-      <div class="slide-progress" style="width:87.5%"></div>
+      <div class="slide-progress" style="width:88.24%"></div>
     </div>
     <div class="essay-layer">
       <div class="essay-panel">
         <button class="essay-close" aria-label="Zapri besedilo"><span class="x">×</span>zapri</button>
-        <div class="essay-eyebrow"><span class="num">XIV</span><span class="title">Vzhodna Slovenija</span><span class="time">≈ 1,5 min</span></div>
+        <div class="essay-eyebrow"><span class="num">XV</span><span class="title">Regija in država</span><span class="time">≈ 1,5 min</span></div>
         <div class="essay">
-          <p>Razvojni preboj Vzhodne Slovenije bomo naredili v regiji, s podjetji in ljudmi, ki tu živijo in delajo. Zato univerza gradi tam, kjer je industrija. V Mariboru nastaja tehniški kampus platforme INNOVUM s Centrom odličnosti za fotonske, mikro- in nanoelektronske tehnologije, v Celju raziskovalni center za logistiko, v Krškem inštitut za energetiko, v Lendavi usposabljamo kadre za biofarmacijo.</p>
-          <p>Z Univerzo v Novem mestu in Rudolfovim smo raziskovalno infrastrukturo vzhodne regije povezali v skupno operacijo RIVR 2.0; njen cilj sta hiter tehnološki preboj regije in nova delovna mesta z visoko dodano vrednostjo. Prvi skupni projekt je znanstveni podatkovni laboratorij, ki raziskovalcem in podjetjem odpira superračunalništvo, kvantno računanje in napredne metode umetne inteligence.</p>
-          <p>Za obdobje 2028–2034 pripravljamo razvojni portfelj: nacionalno inovacijsko stičišče INNOVUM 2, novo generacijo raziskovalne opreme RIUM 3 in pilotni center za lahke kovine SiPCAST. Projekte pripravljamo danes, da bodo pripravljeni, ko bodo objavljeni pozivi. Želimo jih pripravljati z vami, z razvojnimi potrebami vaših podjetij kot izhodiščem.</p>
+          <p>Partnerstvo z univerzo deluje v dveh razvojnih krogih. V regiji univerza gradi tam, kjer je industrija: tehniški kampus platforme INNOVUM v Mariboru, raziskovalni center za logistiko v Celju in inštitut za energetiko v Krškem, pilotni center ob industriji aluminija in trening center v Lendavi. Z Univerzo v Novem mestu in Rudolfovim smo raziskovalno infrastrukturo vzhodne regije povezali v operacijo RIVR 2.0, katere prvi projekt je znanstveni podatkovni laboratorij.</p>
+          <p>V državi je univerza partnerica nacionalnega ekosistema umetne inteligence, dveh projektov evropske platforme strateških tehnologij, za jedrsko magnetno resonanco s Kemijskim inštitutom in za polprevodniške tehnologije, ter nacionalne platforme za prenos znanja UNIK@TT. Za vaša podjetja je univerza tako most od regionalnega do nacionalnega in evropskega kroga, vse do prihodnjega Evropskega sklada za konkurenčnost.</p>
+          <p>Za obdobje 2028–2034 pripravljamo razvojni portfelj: nacionalno inovacijsko stičišče INNOVUM 2, novo generacijo raziskovalne opreme RIUM 3 in pilotni center SiPCAST. Projekte pripravljamo danes, da bodo pripravljeni, ko bodo objavljeni pozivi. Želimo jih pripravljati z vami, z razvojnimi potrebami vaših podjetij kot izhodiščem.</p>
         </div>
         <div class="needs">
           <div class="needs-title">Podatki za dopolnitev</div>
           <ul>
-            <li class="done">Viri: Stanje predvidenih investicij UM (avgust 2026); Predstavitev investicij MIZM in MLSKRR (september 2026); Izjava o partnerstvu RIVR 2.0 (7. 8. 2026); SDL-RIVR.</li>
-            <li>SDL-RIVR: dokument navaja skupno vrednost 28 M €, deleži (UM 16 · UNM 10 · Rudolfovo 3) pa dajo 29 M €; na drsnici je zato samo delež UM. Preveri.</li>
-            <li>Financiranje SDL-RIVR se preverja še v EKP 2021–2027; portfelj 2028–2034 po govornih točkah za sestanek z ministrstvoma.</li>
-            <li>Po presoji: kazalnik razvojnega zaostanka regije (npr. BDP na prebivalca KRVS v primerjavi s KRZS in povprečjem EU, SURS/Eurostat).</li>
+            <li class="done">Viri: Stanje predvidenih investicij UM (avgust 2026); Predstavitev investicij MIZM in MLSKRR (september 2026); Izjava o partnerstvu RIVR 2.0; SDL-RIVR; samoevalvacijsko poročilo (UNIK@TT); UCUI_v1 (SLAIF, KCUI, EDIH).</li>
+            <li>STEP: GIGA NMR je v izvajanju (27,5 M €, delež UM FKKT 11,3 M €); za VISO ČIP (22,5 M €, delež UM FERI 11,3 M €) se pričakuje poziv MIZM.</li>
+            <li>SDL-RIVR: dokument navaja 28 M €, deleži (16 + 10 + 3) dajo 29 M €; na drsnici je samo delež UM.</li>
+            <li>Evropski sklad za konkurenčnost je predlog za večletni finančni okvir 2028–2034.</li>
           </ul>
         </div>
       </div>
@@ -2049,29 +2200,29 @@
     </button>
   </section>
 
-  <!-- ============== DRSNICA 15 — Predlog partnerstva UM – ŠGZ (inverse) ============== -->
-  <section class="spread inverse" data-index="15" data-act="1" data-title="Partnerstvo UM – ŠGZ" aria-label="Drsnica 15: Predlog partnerstva UM – ŠGZ">
+  <!-- ============== DRSNICA 16 — Predlog partnerstva UM – ŠGZ (inverse) ============== -->
+  <section class="spread inverse" data-index="16" data-act="1" data-title="Partnerstvo UM – ŠGZ" aria-label="Drsnica 16: Predlog strateškega partnerstva UM – ŠGZ">
     <div class="slide-layer center">
-      <div class="slide-eyebrow"><span class="num">XV</span>Predlog partnerstva</div>
+      <div class="slide-eyebrow"><span class="num">XVI</span>Predlog partnerstva</div>
       <div class="max-col stack-md merge">
         <div class="slide-title-md" style="align-self:flex-start"><strong>Partnerstvo UM – ŠGZ.</strong></div>
         <div class="two-col">
           <div>
             <div class="col-head" style="color:var(--accent-light);border-bottom-color:rgba(248,247,244,0.2)">Univerza v Mariboru<small style="color:var(--inv-fg-70)">ponuja</small></div>
             <div class="col-list small" style="color:var(--inv-fg)">
-              <div>študijske programe in <strong>kadrovske analize</strong>, usklajene s potrebami članic</div>
-              <div><strong>mikrodokazila</strong> in usposabljanja za zaposlene</div>
-              <div>odprt dostop do <strong>laboratorijev</strong> in raziskovalne opreme</div>
-              <div>pilotne projekte <strong>umetne inteligence</strong> prek UCUI</div>
+              <div><strong>strateška partnerstva</strong> s podjetji: večletni skupni načrt za kadre, razvoj in infrastrukturo</div>
+              <div><strong>skupne ekipe</strong> in industrijske doktorate</div>
+              <div>programe <strong>preobrazbe kompetenc</strong> za zaposlene</div>
+              <div><strong>laboratorije</strong>, pilotne centre in projekte <strong>UI</strong></div>
             </div>
           </div>
           <div>
             <div class="col-head" style="color:var(--accent-light);border-bottom-color:rgba(248,247,244,0.2)">Članice in člani ŠGZ<small style="color:var(--inv-fg-70)">prinašajo</small></div>
             <div class="col-list small" style="color:var(--inv-fg)">
-              <div><strong>razvojne izzive</strong> podjetij kot teme skupnih projektov</div>
-              <div>prakso, <strong>štipendije</strong> in <strong>industrijske doktorate</strong></div>
-              <div>strokovnjake iz prakse kot <strong>mentorje in gostujoče predavatelje</strong></div>
-              <div>skupne projekte za <strong>2028–2034</strong> in evropske razpise</div>
+              <div><strong>razvojne izzive</strong> in tehnološke načrte kot izhodišče skupnih programov</div>
+              <div><strong>štipendije</strong>, prakso in mentorje iz prakse</div>
+              <div><strong>sovlaganja</strong> v infrastrukturo in pilotne centre</div>
+              <div>skupne projekte za <strong>2028–2034</strong> in evropske sklade</div>
             </div>
           </div>
         </div>
@@ -2080,27 +2231,27 @@
           <path d="M50 20 V40" />
         </svg>
         <div class="merge-box" style="margin-top:0">
-          <div class="tile-kicker">prvi korak</div>
+          <div class="tile-kicker">prvi koraki</div>
           <div class="mb-title">Skupna delovna skupina UM <span>·</span> ŠGZ</div>
-          <div class="mb-body">program sodelovanja s kazalniki do <span class="ph">rok</span>: kadri · znanje za zaposlene · laboratoriji · umetna inteligenca · projekti 2028–2034</div>
+          <div class="mb-body">pilotna strateška partnerstva z izbranimi člani ŠGZ in program sodelovanja s kazalniki do <span class="ph">rok</span></div>
         </div>
       </div>
-      <div class="slide-progress" style="width:93.75%"></div>
+      <div class="slide-progress" style="width:94.12%"></div>
     </div>
     <div class="essay-layer">
       <div class="essay-panel">
         <button class="essay-close" aria-label="Zapri besedilo"><span class="x">×</span>zapri</button>
-        <div class="essay-eyebrow"><span class="num">XV</span><span class="title">Predlog partnerstva UM – ŠGZ</span><span class="time">≈ 1,5 min</span></div>
+        <div class="essay-eyebrow"><span class="num">XVI</span><span class="title">Predlog partnerstva UM – ŠGZ</span><span class="time">≈ 1,5 min</span></div>
         <div class="essay">
-          <p>Zato vam predlagam partnerstvo z jasnimi koraki. Univerza ponuja študijske programe in kadrovske analize, usklajene s potrebami vaših podjetij, mikrodokazila in usposabljanja za zaposlene, odprt dostop do laboratorijev in raziskovalne opreme ter pilotne projekte umetne inteligence prek novega univerzitetnega centra.</p>
-          <p>Članice in člani zbornice prinašate razvojne izzive podjetij, ki postanejo teme skupnih projektov, prakso, štipendije in industrijske doktorate, strokovnjake iz prakse kot mentorje in gostujoče predavatelje ter skupno pripravo projektov za evropske razpise in za obdobje 2028–2034.</p>
-          <p>Kot prvi korak predlagam skupno delovno skupino univerze in zbornice, ki do <span class="ph">rok</span> pripravi program sodelovanja s kazalniki, po katerih bomo čez leto dni skupaj preverili, kaj smo naredili. Univerza ustvarja znanje in razvija ljudi, gospodarstvo ustvarja vrednost. Razvojni preboj Vzhodne Slovenije je naš skupni projekt. Hvala.</p>
+          <p>Zato vam predlagam partnerstvo, ki sega dlje od posameznih projektov. Univerza ponuja strateška partnerstva s podjetji: večletni skupni načrt za kadre, razvoj in infrastrukturo, s skupnimi ekipami in industrijskimi doktorati, s programi preobrazbe kompetenc za zaposlene ter z dostopom do laboratorijev, pilotnih centrov in umetne inteligence.</p>
+          <p>Članice in člani zbornice prinašate razvojne izzive in tehnološke načrte svojih podjetij kot izhodišče skupnih programov, štipendije, prakso in mentorje iz prakse, sovlaganja v infrastrukturo ter skupne projekte za evropske sklade in za obdobje 2028–2034.</p>
+          <p>Kot prvi korak predlagam skupno delovno skupino univerze in zbornice, ki do <span class="ph">rok</span> izbere prva pilotna strateška partnerstva s podjetji in pripravi program sodelovanja s kazalniki, po katerih bomo čez leto dni skupaj preverili, kaj smo naredili. Univerza ustvarja znanje in razvija ljudi, gospodarstvo ustvarja vrednost. Razvojni preboj Vzhodne Slovenije je naš skupni projekt. Hvala.</p>
         </div>
         <div class="needs">
           <div class="needs-title">Podatki za dopolnitev</div>
           <ul>
-            <li>Predlogi so osnutek, sestavljen iz UM2030, koncepta Razvojnega foruma, UCUI in samoevalvacije; potrdi ali prilagodi pred sejo.</li>
-            <li>Rok za program sodelovanja in kontaktni osebi UM in ŠGZ.</li>
+            <li>Predlogi so osnutek, sestavljen iz UM2030, koncepta Razvojnega foruma, UCUI, samoevalvacije in osnutka Dogovora 2026–2030; potrdi ali prilagodi pred sejo.</li>
+            <li>Rok za izbor pilotnih partnerstev in program sodelovanja; kontaktni osebi UM in ŠGZ.</li>
             <li>Po presoji: kot širši okvir omeni nastajajoči Dogovor gospodarstva, univerz, raziskovalnih organizacij in Vlade RS za inovacijski preboj Slovenije 2026–2030 (osnutek za razpravo, 3. 9. 2026; med podpisniki Rektorska konferenca RS in GZS).</li>
           </ul>
         </div>
@@ -2113,29 +2264,29 @@
     </button>
   </section>
 
-  <!-- ============== DRSNICA 16 — zaključna vinjeta ============== -->
-  <section class="spread" data-index="16" data-act="1" data-title="Konec" aria-label="Zaključna vinjeta">
+  <!-- ============== DRSNICA 17 — zaključna vinjeta ============== -->
+  <section class="spread" data-index="17" data-act="1" data-title="Konec" aria-label="Zaključna vinjeta">
     <div class="slide-layer center-x">
-      <div class="slide-eyebrow"><span class="num">16/16</span>Kolofon</div>
+      <div class="slide-eyebrow"><span class="num">17/17</span>Kolofon</div>
       <div class="max-col stack-xl" style="display:flex;flex-direction:column;align-items:center;text-align:center">
         <div class="vignette-um">UM</div>
-        <div class="vignette-title">Partner gospodarstva<br/>pri razvojnem preboju vzhodne Slovenije.</div>
+        <div class="vignette-title">Strateški partner gospodarstva<br/>pri razvojnem preboju vzhodne Slovenije.</div>
       </div>
       <div class="slide-progress" style="width:100%"></div>
     </div>
     <div class="essay-layer">
       <div class="essay-panel">
         <button class="essay-close" aria-label="Zapri besedilo"><span class="x">×</span>zapri</button>
-        <div class="essay-eyebrow"><span class="num">16/16</span><span class="title">Kolofon</span></div>
+        <div class="essay-eyebrow"><span class="num">17/17</span><span class="title">Kolofon</span></div>
         <div class="essay">
           <p>Dean Korošak, rektor Univerze v Mariboru.</p>
-          <p>Seja Upravnega odbora Štajerske gospodarske zbornice, <span class="ph">datum</span>.</p>
+          <p>Seja Upravnega odbora Štajerske gospodarske zbornice, torek, 29. 9. 2026.</p>
         </div>
         <div class="needs">
           <div class="needs-title">Za konec</div>
           <ul>
             <li>Ko so podatki vpisani: pritisni P (skrije oznake) in G (celoten zaslon); pdf različico natisni iz brskalnika (ležeče, brez robov).</li>
-            <li>Objava: datoteko index.html kopiraj v mapo um2 repozitorija deankorosak.github.io (naslov …/um2).</li>
+            <li>Objava: datoteko index_v02.html kopiraj v mapo um2 repozitorija deankorosak.github.io kot index.html (naslov …/um2).</li>
           </ul>
         </div>
       </div>
