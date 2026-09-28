@@ -1,0 +1,2374 @@
+<!doctype html>
+<html lang="sl">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="robots" content="noindex, nofollow, noarchive, nosnippet, noimageindex" />
+<meta name="googlebot" content="noindex, nofollow, noarchive, nosnippet, noimageindex" />
+<title>Univerza v Mariboru — partnerstvo z gospodarstvom · v01 · Seja UO ŠGZ</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;700&family=Newsreader:ital,opsz,wght@0,16,400;0,16,600;1,16,400&family=Crimson+Pro:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet" />
+<style>
+  /* =====================================================================
+     UM in gospodarstvo — predstavitev na seji UO Štajerske gospodarske zbornice
+     (um2, v01). Drsnice 0–IX iz predstavitve za MIZM in MLSKRR (v06, 11. 9. 2026),
+     drsnice X–XV nove: partnerstvo UM–gospodarstvo, RFUM, UCUI, Vzhodna Slovenija.
+     Ogrodje in slog: enako kot #UM2030 (um2030/index.html).
+
+     OZNAČBE PODATKOV (glej tudi drsnico 0):
+       <span class="ph">…</span>   podatek manjka — vpiši (črtkan okvir)
+       <span class="chk">…</span>  podatek je predizpolnjen iz javnega vira —
+                                   preveri pred nastopom (pikčasto podčrtano)
+     Tipka P skrije/pokaže vse označbe (za čist predogled).
+     Vsaka drsnica ima v drugem dejanju (↓) osnutek govornega besedila
+     in seznam "Podatki za dopolnitev" z navedbo vira.
+     ===================================================================== */
+
+  /* ===== Tokens ===== */
+  :root{
+    --bg:#F8F7F4;
+    --ink:#0A0A0A;
+    --ink-80:rgba(10,10,10,0.8);
+    --ink-60:rgba(10,10,10,0.6);
+    --ink-40:rgba(10,10,10,0.4);
+    --ink-15:rgba(10,10,10,0.15);
+    --ink-08:rgba(10,10,10,0.08);
+    --accent:#0B2545;
+    --accent-light:#85B7EB;
+    --inv-bg:#0A0A0A;
+    --inv-fg:#F8F7F4;
+    --inv-fg-70:rgba(248,247,244,0.7);
+    --sans:'Inter', system-ui, -apple-system, sans-serif;
+    --serif:'Newsreader', 'Crimson Pro', Georgia, serif;
+  }
+
+  /* On the inverse spread the accent is desaturated to a light warm gray,
+     so the slide reads as a monochromatic composition. */
+  .spread.inverse,
+  body.on-inverse-act1{
+    --accent-light:#C8C7C2;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{
+    height:100%;
+    background:var(--bg);
+    color:var(--ink);
+    font-family:var(--sans);
+    -webkit-font-smoothing:antialiased;
+    text-rendering:optimizeLegibility;
+    font-feature-settings:"kern","liga","calt";
+    overscroll-behavior:none;
+  }
+  body{
+    overflow:hidden;
+  }
+  @media (max-width: 900px), (max-height: 600px){
+    body{
+      overflow:auto;
+      -webkit-overflow-scrolling:touch;
+    }
+  }
+  button{font:inherit;color:inherit;background:none;border:0;cursor:pointer;padding:0}
+
+  /* ===== Stage ===== */
+  .stage{
+    position:fixed;
+    inset:0;
+    overflow:hidden;
+  }
+  @media (max-width: 900px), (max-height: 600px){
+    .stage{
+      position:relative;
+      inset:auto;
+      width:100%;
+      min-height:100vh;
+      min-height:100dvh;
+      overflow:visible;
+    }
+  }
+
+  .spread{
+    position:absolute;
+    inset:0;
+    opacity:0;
+    pointer-events:none;
+    transition:opacity 360ms ease;
+    z-index:1;
+  }
+  .spread.is-current{
+    opacity:1;
+    pointer-events:auto;
+    z-index:2;
+  }
+  @media (max-width: 900px), (max-height: 600px){
+    .spread{
+      position:relative;
+      inset:auto;
+      display:none;
+      transition:none;
+    }
+    .spread.is-current{
+      display:block;
+    }
+  }
+
+  /* ===== Slide layer (act 1: foreground; act 2: blurred backdrop) ===== */
+  .slide-layer{
+    position:absolute;
+    inset:0;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    padding:10vh max(40px,7vw);
+    background:var(--bg);
+    transition:filter 460ms cubic-bezier(0.4,0,0.2,1),
+               opacity 460ms cubic-bezier(0.4,0,0.2,1),
+               transform 460ms cubic-bezier(0.4,0,0.2,1);
+    will-change:filter,transform;
+  }
+  @media (max-width: 900px), (max-height: 600px){
+    .slide-layer{
+      position:relative;
+      inset:auto;
+      min-height:100vh;
+      min-height:100dvh;
+      padding:calc(env(safe-area-inset-top, 0) + 80px) 6vw calc(env(safe-area-inset-bottom, 0) + 96px) 6vw;
+      justify-content:flex-start;
+      transition:none;
+      will-change:auto;
+    }
+    .spread[data-act="2"] .slide-layer{
+      display:none;
+    }
+  }
+  .slide-layer.center{
+    align-items:flex-start;
+  }
+  .slide-layer.center-x{
+    align-items:center;
+    text-align:center;
+  }
+
+  .spread.inverse .slide-layer{
+    background:var(--inv-bg);
+    color:var(--inv-fg);
+  }
+
+  .spread[data-act="2"] .slide-layer{
+    filter:blur(10px) brightness(0.82) saturate(0.7);
+    transform:scale(1.02);
+  }
+  .spread.inverse[data-act="2"] .slide-layer{
+    filter:blur(10px) brightness(0.62) saturate(0.55);
+  }
+
+  /* ===== Slide chrome inside the slide layer ===== */
+  .slide-eyebrow{
+    position:absolute;
+    top:max(28px,4.5vh);
+    left:max(40px,7vw);
+    font-family:var(--sans);
+    font-weight:500;
+    font-size:11px;
+    letter-spacing:0.18em;
+    text-transform:uppercase;
+    color:var(--accent);
+  }
+  .slide-eyebrow .num{margin-right:1.6em;font-variant-numeric:tabular-nums}
+  .spread.inverse .slide-eyebrow{color:var(--accent-light)}
+
+  .slide-progress{
+    position:absolute;
+    bottom:max(24px,4vh);
+    right:max(40px,7vw);
+    height:1px;
+    background:var(--ink);
+    opacity:0.42;
+    transition:width 480ms ease;
+  }
+  .spread.inverse .slide-progress{
+    background:var(--inv-fg);
+    opacity:0.5;
+  }
+
+  /* ===== Slide typography ===== */
+  .hashtag{
+    font-family:var(--sans);
+    font-weight:500;
+    font-size:clamp(15px,1.4vw,20px);
+    letter-spacing:0.04em;
+    color:var(--accent);
+  }
+  .spread.inverse .hashtag{color:var(--accent-light)}
+
+  .slide-title-xl{
+    font-family:var(--sans);
+    font-weight:700;
+    font-size:clamp(60px,8.5vw,128px);
+    line-height:0.98;
+    letter-spacing:-0.035em;
+    color:var(--ink);
+  }
+  .spread.inverse .slide-title-xl{color:var(--inv-fg)}
+
+  .slide-title-lg{
+    font-family:var(--sans);
+    font-weight:700;
+    font-size:clamp(72px,10vw,160px);
+    line-height:0.96;
+    letter-spacing:-0.04em;
+  }
+  .spread.inverse .slide-title-lg{color:var(--inv-fg)}
+
+  .slide-title-md{
+    font-family:var(--sans);
+    font-weight:400;
+    font-size:clamp(40px,5.2vw,80px);
+    line-height:1.06;
+    letter-spacing:-0.02em;
+    color:var(--ink);
+  }
+  .slide-title-md strong{font-weight:700;letter-spacing:-0.03em}
+  .spread.inverse .slide-title-md{color:var(--inv-fg)}
+
+  .slide-light{
+    font-family:var(--sans);
+    font-weight:300;
+    font-size:clamp(26px,3.4vw,50px);
+    line-height:1.18;
+    letter-spacing:-0.013em;
+    color:var(--ink);
+  }
+  .slide-light.tight{
+    font-size:clamp(20px,2.4vw,32px);
+    line-height:1.32;
+  }
+  .slide-light-60{color:var(--ink-60)}
+  .spread.inverse .slide-light-70{color:var(--inv-fg-70)}
+
+  .slide-bold{
+    font-family:var(--sans);
+    font-weight:700;
+    font-size:clamp(26px,3.4vw,50px);
+    line-height:1.16;
+    letter-spacing:-0.018em;
+    color:var(--ink);
+  }
+  .spread.inverse .slide-bold{color:var(--inv-fg)}
+
+  .statement{
+    font-family:var(--sans);
+    font-weight:400;
+    font-size:clamp(26px,3.4vw,50px);
+    line-height:1.22;
+    letter-spacing:-0.013em;
+    color:var(--ink);
+  }
+  .statement.medium{
+    font-size:clamp(22px,2.8vw,38px);
+    line-height:1.34;
+  }
+  .statement.small{
+    font-size:clamp(17px,1.9vw,26px);
+    line-height:1.4;
+    color:var(--ink-80);
+  }
+  .statement strong{
+    font-weight:700;
+    letter-spacing:-0.018em;
+  }
+  .statement strong.accent{color:var(--accent)}
+  .spread.inverse .statement{color:var(--inv-fg)}
+  .spread.inverse .statement.small{color:var(--inv-fg-70)}
+  .spread.inverse .statement strong.accent{color:var(--accent-light)}
+
+  .accent{color:var(--accent)}
+  .spread.inverse .accent{color:var(--accent-light)}
+
+  .stack-xl > * + *{margin-top:clamp(40px,5.2vh,72px)}
+  .stack-lg > * + *{margin-top:clamp(28px,3.6vh,52px)}
+  .stack-md > * + *{margin-top:clamp(20px,2.6vh,36px)}
+  .stack-sm > * + *{margin-top:clamp(8px,1vh,14px)}
+
+  .max-col{max-width:min(1480px,86vw)}
+  .max-col-sm{max-width:min(1000px,72vw)}
+
+  /* Year list */
+  .year-list{
+    display:grid;
+    grid-template-columns:auto 1fr;
+    column-gap:clamp(20px,2.4vw,40px);
+    row-gap:clamp(10px,1.4vh,20px);
+    font-family:var(--sans);
+    font-size:clamp(22px,2.6vw,38px);
+    line-height:1.2;
+  }
+  .year-list .y{
+    font-weight:700;
+    font-variant-numeric:tabular-nums;
+    color:var(--ink);
+    letter-spacing:-0.01em;
+  }
+  .year-list .d{
+    font-weight:400;
+    color:var(--ink);
+    letter-spacing:-0.005em;
+  }
+
+  /* Achievements list (lead + body rows) */
+  .achievements{
+    font-family:var(--sans);
+    font-weight:300;
+    font-size:clamp(20px,2.2vw,32px);
+    line-height:1.32;
+    color:var(--ink);
+    font-feature-settings:"tnum","kern";
+    letter-spacing:-0.005em;
+    width:100%;
+  }
+  .achievements.compact{
+    font-size:clamp(17px,1.75vw,26px);
+    line-height:1.3;
+  }
+  .achievements > div{
+    display:flex;
+    align-items:baseline;
+    gap:0.7em;
+    padding:clamp(3px,0.4vh,6px) 0;
+    border-bottom:0.5px solid var(--ink-08);
+  }
+  .achievements.compact > div{padding:clamp(4px,0.6vh,8px) 0}
+  .achievements > div:last-child{border-bottom:0}
+  .achievements .lead{
+    font-weight:700;
+    color:var(--ink);
+    letter-spacing:-0.015em;
+    flex-shrink:0;
+    min-width:6.5em;
+  }
+  .achievements.compact .lead{min-width:7.5em;color:var(--accent)}
+  .achievements .body{
+    font-weight:300;
+    color:var(--ink);
+  }
+  .achievements .body strong{font-weight:600}
+  .achievements .num{
+    font-weight:700;
+    font-variant-numeric:tabular-nums;
+  }
+  .spread.inverse .achievements,
+  .spread.inverse .achievements .lead,
+  .spread.inverse .achievements .body{color:var(--inv-fg)}
+  .spread.inverse .achievements.compact .lead{color:var(--accent-light)}
+  .spread.inverse .achievements > div{border-bottom-color:rgba(248,247,244,0.12)}
+
+  /* Achievement tiles — boxed cards with prominent figures or labels */
+  .achievement-tiles{
+    display:grid;
+    grid-template-columns:repeat(3, minmax(0,1fr));
+    gap:clamp(10px,1.4vw,20px);
+    width:100%;
+  }
+  .achievement-tiles .tile{
+    display:flex;
+    flex-direction:column;
+    align-items:flex-start;
+    justify-content:space-between;
+    gap:clamp(12px,1.8vh,24px);
+    padding:clamp(18px,2.4vh,32px) clamp(20px,2vw,32px);
+    border:0.5px solid var(--ink-15);
+    border-radius:6px;
+    background:rgba(10,10,10,0.015);
+    min-height:clamp(140px,18vh,200px);
+    min-width:0;
+    transition:background 240ms ease;
+  }
+  .achievement-tiles .tile-figure{
+    font-family:var(--sans);
+    font-weight:700;
+    font-size:clamp(22px,2.8vw,44px);
+    line-height:1.05;
+    letter-spacing:-0.022em;
+    color:var(--accent);
+    font-variant-numeric:tabular-nums;
+    white-space:nowrap;
+  }
+  .achievement-tiles .tile-figure.short{
+    letter-spacing:-0.012em;
+    white-space:normal;
+    font-size:clamp(20px,2.3vw,36px);
+    line-height:1.08;
+  }
+  .achievement-tiles .tile-figure.wrap{white-space:normal;line-height:1.1}
+  .achievement-tiles .tile-figure small{
+    font-size:0.52em;
+    font-weight:500;
+    letter-spacing:-0.005em;
+    margin-left:0.25em;
+  }
+  .achievement-tiles .tile-body{
+    font-family:var(--sans);
+    font-weight:400;
+    font-size:clamp(13px,1.1vw,17px);
+    line-height:1.34;
+    color:var(--ink);
+    letter-spacing:-0.005em;
+  }
+  .achievement-tiles .tile-body strong{font-weight:600}
+
+  /* 2×2 tile grid (structure slide, two-case slides) */
+  .achievement-tiles.two{grid-template-columns:repeat(2, minmax(0,1fr))}
+  .achievement-tiles.two .tile{min-height:clamp(150px,21vh,250px)}
+  .achievement-tiles.two .tile-body{font-size:clamp(14px,1.2vw,19px)}
+  .tile-kicker{
+    font-family:var(--sans);
+    font-weight:500;
+    font-size:11px;
+    letter-spacing:0.18em;
+    text-transform:uppercase;
+    color:var(--ink-60);
+    margin-bottom:-0.4em;
+  }
+  .tile-meta{
+    font-family:var(--sans);
+    font-weight:500;
+    font-size:clamp(11px,0.95vw,14px);
+    letter-spacing:0.01em;
+    color:var(--accent);
+    font-variant-numeric:tabular-nums;
+  }
+  .tile-body .dim{color:var(--ink-60)}
+
+  /* Split: rows on the left, chart on the right */
+  .split{
+    display:grid;
+    grid-template-columns:3fr 2fr;
+    gap:clamp(24px,4vw,64px);
+    width:100%;
+    align-items:end;
+  }
+
+  /* Small single-series bar chart (one hue, direct labels first/last) */
+  .chart-title{
+    font-family:var(--sans);
+    font-weight:500;
+    font-size:11px;
+    letter-spacing:0.18em;
+    text-transform:uppercase;
+    color:var(--ink-60);
+    margin-bottom:clamp(10px,1.4vh,18px);
+  }
+  .chart-title strong{color:var(--accent);font-weight:700;letter-spacing:0.02em;text-transform:none;font-size:1.15em;margin-left:0.6em}
+  .bars{
+    display:flex;
+    align-items:flex-end;
+    gap:clamp(6px,0.7vw,12px);
+    height:clamp(110px,17vh,190px);
+    width:100%;
+    border-bottom:1px solid var(--ink-15);
+  }
+  .bars .bar{
+    flex:1;
+    height:100%;
+    display:flex;
+    flex-direction:column;
+    justify-content:flex-end;
+    align-items:center;
+    gap:6px;
+    min-width:0;
+  }
+  .bars .bar i{
+    display:block;
+    width:100%;
+    background:var(--accent);
+    opacity:0.28;
+    border-radius:4px 4px 0 0;
+  }
+  .bars .bar.hi i{opacity:1}
+  .bars .bar b{
+    font-family:var(--sans);
+    font-weight:700;
+    font-size:clamp(11px,1vw,15px);
+    color:var(--ink);
+    font-variant-numeric:tabular-nums;
+    visibility:hidden;
+  }
+  .bars .bar.hi b{visibility:visible}
+  .bars .bar:hover b{visibility:visible}
+  .bar-labels{
+    display:flex;
+    gap:clamp(6px,0.7vw,12px);
+    margin-top:6px;
+  }
+  .bar-labels span{
+    flex:1;
+    text-align:center;
+    font-family:var(--sans);
+    font-size:clamp(10px,0.8vw,12px);
+    color:var(--ink-60);
+    font-variant-numeric:tabular-nums;
+    min-width:0;
+  }
+  .chart-note{
+    font-family:var(--sans);
+    font-size:clamp(11px,0.9vw,13px);
+    color:var(--ink-60);
+    margin-top:clamp(8px,1.2vh,14px);
+  }
+
+  /* Merge layout (partnership slide): two columns converge into one box */
+  .merge{width:100%;display:flex;flex-direction:column;align-items:center}
+  .merge .two-col{width:100%}
+  .merge-link{
+    width:100%;
+    height:clamp(32px,5.5vh,56px);
+    display:block;
+    overflow:visible;
+  }
+  .merge-link path{
+    stroke:var(--accent-light);
+    stroke-width:1.5;
+    fill:none;
+    vector-effect:non-scaling-stroke;
+  }
+  .merge-link circle{fill:var(--accent-light)}
+  .merge-box{
+    border:1px solid rgba(248,247,244,0.35);
+    border-radius:6px;
+    padding:clamp(20px,3vh,36px) clamp(28px,3.4vw,56px);
+    text-align:center;
+    max-width:min(900px,80%);
+  }
+  .merge-box .tile-kicker{color:var(--inv-fg-70);margin-bottom:0.9em}
+  .merge-box .mb-title{
+    font-family:var(--sans);
+    font-weight:700;
+    font-size:clamp(24px,2.7vw,40px);
+    letter-spacing:-0.022em;
+    line-height:1.08;
+    color:var(--inv-fg);
+  }
+  .merge-box .mb-title span{color:var(--accent-light)}
+  .merge-box .mb-body{
+    margin-top:0.55em;
+    font-family:var(--sans);
+    font-weight:300;
+    font-size:clamp(15px,1.5vw,22px);
+    line-height:1.35;
+    color:var(--inv-fg-70);
+  }
+  @media (max-width: 900px), (max-height: 600px){
+    .merge-link{display:none}
+    .merge-box{max-width:none;margin-top:20px}
+  }
+
+  /* Two columns (partnership slide) */
+  .two-col{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:clamp(24px,4vw,64px);
+    width:100%;
+  }
+  .col-head{
+    font-family:var(--sans);
+    font-weight:700;
+    font-size:clamp(20px,2.2vw,32px);
+    letter-spacing:-0.018em;
+    line-height:1.1;
+    color:var(--accent);
+    padding-bottom:clamp(8px,1.2vh,14px);
+    border-bottom:1px solid var(--ink-15);
+    margin-bottom:clamp(8px,1.2vh,14px);
+  }
+  .col-head small{
+    display:block;
+    font-weight:400;
+    font-size:clamp(11px,0.95vw,14px);
+    letter-spacing:0.02em;
+    color:var(--ink-60);
+    margin-top:0.45em;
+    line-height:1.3;
+  }
+  .col-list{
+    font-family:var(--sans);
+    font-weight:300;
+    font-size:clamp(16px,1.6vw,24px);
+    line-height:1.34;
+    letter-spacing:-0.005em;
+    color:var(--ink);
+  }
+  .col-list > div{
+    padding:clamp(6px,0.9vh,12px) 0;
+    border-bottom:0.5px solid var(--ink-08);
+  }
+  .col-list > div:last-child{border-bottom:0}
+  .col-list strong{font-weight:600}
+
+  /* Echo pair */
+  .echo-bold{
+    font-family:var(--sans);
+    font-weight:700;
+    font-size:clamp(52px,7vw,104px);
+    line-height:0.98;
+    letter-spacing:-0.03em;
+    color:var(--ink);
+  }
+  .echo-light{
+    font-family:var(--sans);
+    font-weight:300;
+    font-size:clamp(52px,7vw,104px);
+    line-height:0.98;
+    letter-spacing:-0.03em;
+    color:var(--ink-60);
+  }
+
+  /* Vignette (intro/outro) */
+  .vignette-um{
+    font-family:var(--sans);
+    font-weight:700;
+    font-size:clamp(82px,12.5vw,200px);
+    line-height:0.96;
+    letter-spacing:-0.045em;
+    color:var(--accent);
+  }
+  .vignette-title{
+    font-family:var(--sans);
+    font-weight:400;
+    font-size:clamp(28px,3.6vw,52px);
+    line-height:1.12;
+    letter-spacing:-0.02em;
+    color:var(--ink);
+  }
+  .vignette-sub{
+    font-family:var(--sans);
+    font-weight:400;
+    font-size:clamp(15px,1.4vw,20px);
+    letter-spacing:0.04em;
+    color:var(--ink-60);
+  }
+  .vignette-instruction{
+    font-family:var(--sans);
+    font-weight:400;
+    font-size:clamp(13px,1.05vw,16px);
+    line-height:1.6;
+    color:var(--ink-60);
+    letter-spacing:0.005em;
+    max-width:44em;
+  }
+  .vignette-instruction .kbd{
+    display:inline-block;
+    border:0.5px solid var(--ink-15);
+    border-radius:3px;
+    padding:1px 7px;
+    font-family:var(--sans);
+    font-size:0.85em;
+    margin:0 0.25em;
+    color:var(--ink-80);
+    letter-spacing:0;
+  }
+
+  /* ===== Data marks: placeholders (.ph) and pre-filled-to-verify (.chk) ===== */
+  .ph{
+    display:inline-block;
+    padding:0 0.3em;
+    border:1.5px dashed var(--accent);
+    border-radius:5px;
+    color:var(--accent);
+    background:rgba(133,183,235,0.16);
+    font-weight:500;
+    white-space:nowrap;
+    line-height:1.15;
+  }
+  .ph::before{content:"["}
+  .ph::after{content:"]"}
+  .spread.inverse .ph{
+    border-color:var(--accent-light);
+    color:var(--accent-light);
+    background:rgba(200,199,194,0.14);
+  }
+  .chk{
+    text-decoration:underline dotted;
+    text-decoration-color:var(--accent);
+    text-decoration-thickness:1.5px;
+    text-underline-offset:0.16em;
+    cursor:help;
+  }
+  .spread.inverse .chk{text-decoration-color:var(--accent-light)}
+  .tile-figure .chk{text-decoration-thickness:2px;text-underline-offset:0.12em}
+  body.hide-marks .ph{
+    border-color:transparent;
+    background:transparent;
+    color:inherit;
+    font-weight:inherit;
+    padding:0;
+  }
+  body.hide-marks .ph::before,
+  body.hide-marks .ph::after{content:""}
+  body.hide-marks .chk{text-decoration:none;cursor:default}
+  body.hide-marks .tile-figure .ph{color:var(--accent);font-weight:700}
+
+  .legend{
+    display:flex;
+    flex-wrap:wrap;
+    justify-content:center;
+    gap:clamp(12px,1.6vw,28px);
+    font-family:var(--sans);
+    font-size:clamp(12px,0.95vw,14px);
+    color:var(--ink-60);
+    letter-spacing:0.005em;
+  }
+  .legend .ph{font-size:0.95em}
+
+  /* ===== Act hint ===== */
+  .act-hint{
+    position:absolute;
+    bottom:max(28px,5vh);
+    left:50%;
+    transform:translateX(-50%) translateY(0);
+    font-family:var(--sans);
+    font-weight:500;
+    font-size:11px;
+    letter-spacing:0.22em;
+    text-transform:uppercase;
+    color:var(--ink-60);
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:8px;
+    opacity:0;
+    pointer-events:none;
+    transition:opacity 480ms ease;
+    user-select:none;
+    z-index:3;
+  }
+  .act-hint .arrow{
+    width:1px;
+    height:18px;
+    background:var(--ink-40);
+    animation:hintBreath 2.2s ease-in-out infinite;
+  }
+  @keyframes hintBreath{
+    0%,100%{opacity:0.4;height:14px}
+    50%{opacity:0.85;height:22px}
+  }
+  .spread.is-current[data-act="1"] .act-hint{
+    opacity:1;
+    transition-delay:1100ms;
+  }
+  .spread[data-act="2"] .act-hint{
+    opacity:0;
+    transition-delay:0ms;
+  }
+  .spread.inverse .act-hint{color:var(--inv-fg-70)}
+  .spread.inverse .act-hint .arrow{background:rgba(248,247,244,0.55)}
+
+  /* ===== Essay overlay (act 2) ===== */
+  .essay-layer{
+    position:absolute;
+    inset:0;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:5vh 4vw;
+    pointer-events:none;
+    opacity:0;
+    transition:opacity 360ms cubic-bezier(0.4,0,0.2,1);
+    z-index:4;
+  }
+  .spread[data-act="2"] .essay-layer{
+    opacity:1;
+    pointer-events:auto;
+  }
+  @media (max-width: 900px), (max-height: 600px){
+    .essay-layer{
+      position:relative;
+      inset:auto;
+      display:none;
+      padding:0;
+      opacity:1;
+      pointer-events:auto;
+      transition:none;
+    }
+    .spread[data-act="2"] .essay-layer{
+      display:flex;
+      min-height:100vh;
+      min-height:100dvh;
+    }
+  }
+
+  .essay-panel{
+    position:relative;
+    width:min(880px,82vw);
+    max-height:90vh;
+    overflow-y:auto;
+    background:rgba(244,240,228,0.62);
+    border:0.5px solid rgba(10,10,10,0.06);
+    border-radius:6px;
+    padding:clamp(40px,7vh,72px) clamp(36px,5vw,68px);
+    transform:translateY(18px);
+    transition:transform 460ms cubic-bezier(0.16,1,0.3,1);
+    backdrop-filter:blur(18px) saturate(150%);
+    -webkit-backdrop-filter:blur(18px) saturate(150%);
+    scrollbar-width:thin;
+    scrollbar-color:var(--ink-15) transparent;
+  }
+  .spread.inverse .essay-panel{
+    background:rgba(248,247,244,0.86);
+  }
+  .spread[data-act="2"] .essay-panel{
+    transform:translateY(0);
+    transition-delay:80ms;
+  }
+  .essay-panel::-webkit-scrollbar{width:6px}
+  .essay-panel::-webkit-scrollbar-track{background:transparent}
+  .essay-panel::-webkit-scrollbar-thumb{background:var(--ink-15);border-radius:3px}
+  @media (max-width: 900px), (max-height: 600px){
+    .essay-panel{
+      width:100%;
+      max-width:none;
+      max-height:none;
+      overflow-y:visible;
+      background:var(--bg);
+      border:0;
+      border-radius:0;
+      padding:calc(env(safe-area-inset-top, 0) + 80px) 6vw calc(env(safe-area-inset-bottom, 0) + 96px) 6vw;
+      transform:none;
+      backdrop-filter:none;
+      -webkit-backdrop-filter:none;
+    }
+    .spread.inverse .essay-panel{
+      background:var(--bg);
+    }
+  }
+
+  .essay-eyebrow{
+    font-family:var(--sans);
+    font-weight:500;
+    font-size:11px;
+    letter-spacing:0.2em;
+    text-transform:uppercase;
+    color:var(--accent);
+    margin-bottom:clamp(20px,3vh,32px);
+    display:flex;
+    align-items:baseline;
+    gap:1.6em;
+  }
+  .essay-eyebrow .num{font-variant-numeric:tabular-nums}
+  .essay-eyebrow .title{color:var(--ink-80);letter-spacing:0.18em}
+  .essay-eyebrow .time{margin-left:auto;color:var(--ink-60);letter-spacing:0.12em;text-transform:none;font-variant-numeric:tabular-nums}
+
+  .essay{
+    font-family:var(--serif);
+    font-variation-settings:"opsz" 16;
+    font-weight:400;
+    font-size:clamp(17px,1.32vw,21px);
+    line-height:1.72;
+    color:var(--ink);
+  }
+  .essay p + p{margin-top:0.95em}
+  .essay em{font-style:italic}
+  .essay .small{font-size:0.92em}
+  .essay .italic{font-style:italic}
+  .essay .ph{font-family:var(--sans);font-size:0.78em;vertical-align:0.08em}
+  .essay .chk{text-decoration-thickness:1px}
+
+  /* "Podatki za dopolnitev" checklist inside the essay panel */
+  .needs{
+    margin-top:clamp(24px,3.4vh,40px);
+    padding-top:clamp(16px,2vh,24px);
+    border-top:0.5px solid var(--ink-15);
+    font-family:var(--sans);
+    font-size:clamp(12px,0.98vw,14px);
+    line-height:1.55;
+    color:var(--ink-80);
+  }
+  .needs-title{
+    font-weight:500;
+    font-size:10px;
+    letter-spacing:0.22em;
+    text-transform:uppercase;
+    color:var(--accent);
+    margin-bottom:10px;
+  }
+  .needs ul{list-style:none}
+  .needs li{
+    position:relative;
+    padding-left:1.7em;
+    margin:5px 0;
+  }
+  .needs li::before{
+    content:"☐";
+    position:absolute;
+    left:0;
+    top:0;
+    color:var(--ink-40);
+  }
+  .needs li.done::before{content:"☑";color:var(--accent)}
+  .needs .src{color:var(--ink-60)}
+  .needs .src::before{content:"— "}
+
+  .essay-close{
+    position:absolute;
+    top:clamp(14px,2.2vh,22px);
+    right:clamp(16px,2vw,26px);
+    font-family:var(--sans);
+    font-weight:500;
+    font-size:11px;
+    letter-spacing:0.18em;
+    text-transform:uppercase;
+    color:var(--ink-60);
+    padding:6px 8px;
+    transition:color 200ms ease;
+  }
+  .essay-close:hover{color:var(--ink)}
+  .essay-close .x{margin-right:0.4em;font-size:1.3em;line-height:1}
+
+  /* ===== Global chrome ===== */
+  .um-mark{
+    position:fixed;
+    top:max(20px,2.6vh);
+    right:max(28px,2.4vw);
+    font-family:var(--sans);
+    font-weight:500;
+    font-size:12px;
+    letter-spacing:0.22em;
+    color:var(--accent);
+    z-index:50;
+    pointer-events:none;
+    transition:color 360ms ease;
+  }
+  body.on-inverse-act1 .um-mark{color:var(--accent-light)}
+
+  .spread-counter{
+    position:fixed;
+    top:50%;
+    left:18px;
+    transform:translateY(-50%) rotate(-90deg);
+    transform-origin:left center;
+    font-family:var(--sans);
+    font-weight:500;
+    font-size:10px;
+    letter-spacing:0.28em;
+    text-transform:uppercase;
+    color:var(--accent);
+    z-index:50;
+    pointer-events:none;
+    white-space:nowrap;
+    transition:color 360ms ease;
+  }
+  body.on-inverse-act1 .spread-counter{color:var(--accent-light)}
+
+  .help-rail{
+    position:fixed;
+    bottom:max(20px,2.6vh);
+    left:max(28px,2.4vw);
+    font-family:var(--sans);
+    font-weight:500;
+    font-size:10px;
+    letter-spacing:0.22em;
+    text-transform:uppercase;
+    color:var(--ink-60);
+    z-index:50;
+    pointer-events:none;
+    display:flex;
+    gap:1.8em;
+    transition:color 360ms ease, opacity 360ms ease;
+  }
+  body.on-inverse-act1 .help-rail{color:var(--inv-fg-70)}
+  .help-rail .glyph{
+    color:var(--ink);
+    margin-right:0.5em;
+    font-weight:500;
+  }
+  body.on-inverse-act1 .help-rail .glyph{color:var(--inv-fg)}
+
+  .nav-rail{
+    position:fixed;
+    top:50%;
+    right:18px;
+    transform:translateY(-50%);
+    display:flex;
+    flex-direction:column;
+    gap:14px;
+    z-index:50;
+  }
+  .nav-rail button{
+    display:flex;
+    align-items:center;
+    justify-content:flex-end;
+    gap:14px;
+    padding:6px 0;
+    color:var(--ink);
+  }
+  .nav-rail .tick{
+    display:block;
+    width:14px;
+    height:1px;
+    background:var(--ink);
+    opacity:0.32;
+    transition:width 240ms ease, opacity 240ms ease, background 240ms ease;
+  }
+  .nav-rail button:hover .tick{opacity:0.85;width:20px}
+  .nav-rail button.active .tick{
+    width:28px;
+    opacity:1;
+  }
+  .nav-rail .label{
+    font-family:var(--sans);
+    font-size:10px;
+    letter-spacing:0.18em;
+    text-transform:uppercase;
+    color:var(--ink-60);
+    opacity:0;
+    transition:opacity 200ms ease;
+    pointer-events:none;
+    white-space:nowrap;
+  }
+  .nav-rail button:hover .label{opacity:1}
+  body.on-inverse-act1 .nav-rail .tick{background:var(--inv-fg);opacity:0.45}
+  body.on-inverse-act1 .nav-rail button.active .tick{opacity:1}
+  body.on-inverse-act1 .nav-rail .label{color:var(--inv-fg-70)}
+
+  /* ===== Mobile ===== */
+  @media (max-width: 900px), (max-height: 600px){
+    .slide-eyebrow{
+      position:static;
+      margin-bottom:clamp(20px,4vh,40px);
+      font-size:10px;
+    }
+    .slide-progress{display:none}
+
+    .slide-title-xl{font-size:clamp(44px,11vw,84px)}
+    .slide-title-lg{font-size:clamp(56px,15vw,110px)}
+    .slide-title-md{font-size:clamp(28px,7vw,48px)}
+    .slide-light, .slide-bold{font-size:clamp(20px,4.6vw,32px)}
+    .echo-bold, .echo-light{font-size:clamp(40px,10vw,72px)}
+    .vignette-um{font-size:clamp(54px,15vw,110px)}
+    .vignette-title{font-size:clamp(22px,5.4vw,36px)}
+    .vignette-instruction{font-size:13px}
+    .achievements{font-size:clamp(15px,3.8vw,22px)}
+    .achievements.compact{font-size:clamp(14px,3.4vw,19px)}
+    .achievements .lead{min-width:5em}
+    .achievements.compact .lead{min-width:6em}
+    .statement{font-size:clamp(20px,4.6vw,32px)}
+    .statement.medium{font-size:clamp(17px,4vw,24px)}
+    .statement.small{font-size:clamp(14px,3.6vw,18px)}
+
+    .achievement-tiles{
+      grid-template-columns:repeat(2, 1fr);
+      gap:8px;
+    }
+    .achievement-tiles .tile{
+      padding:14px 12px;
+      min-height:auto;
+      gap:8px;
+    }
+    .achievement-tiles .tile-figure{
+      font-size:clamp(16px,4.2vw,22px);
+      white-space:normal;
+      letter-spacing:-0.01em;
+    }
+    .achievement-tiles .tile-figure.short{font-size:clamp(15px,3.8vw,20px)}
+    .achievement-tiles .tile-body{font-size:clamp(11px,3vw,13px);line-height:1.3}
+    .achievement-tiles .tile-body br{display:none}
+
+    .two-col{grid-template-columns:1fr;gap:24px}
+    .split{grid-template-columns:1fr;gap:24px}
+    .achievement-tiles.two{grid-template-columns:1fr}
+    .achievement-tiles.two .tile-body{font-size:clamp(12px,3.2vw,15px)}
+    .col-list{font-size:clamp(14px,3.6vw,18px)}
+
+    .year-list{font-size:clamp(18px,4.4vw,28px);column-gap:18px}
+    .essay{font-size:clamp(15px,4vw,17px);line-height:1.7}
+
+    .um-mark{
+      top:calc(env(safe-area-inset-top, 0) + 14px);
+      right:16px;
+      font-size:11px;
+      letter-spacing:0.18em;
+    }
+    .spread-counter{
+      top:calc(env(safe-area-inset-top, 0) + 14px);
+      left:16px;
+      transform:none;
+      writing-mode:horizontal-tb;
+      font-size:10px;
+      letter-spacing:0.22em;
+    }
+
+    .nav-rail{
+      position:fixed;
+      right:auto;
+      left:50%;
+      top:calc(env(safe-area-inset-top, 0) + 38px);
+      bottom:auto;
+      transform:translateX(-50%);
+      flex-direction:row;
+      gap:3px;
+      padding:0;
+      width:calc(100% - 32px);
+      max-width:600px;
+      background:transparent;
+      backdrop-filter:none;
+      -webkit-backdrop-filter:none;
+      border:0;
+      border-radius:0;
+      box-shadow:none;
+    }
+    .nav-rail button{
+      display:block;
+      flex:1;
+      width:auto;
+      height:14px;
+      padding:6px 0;
+      gap:0;
+      border-radius:0;
+      position:relative;
+    }
+    .nav-rail .tick{
+      position:absolute;
+      top:50%;
+      left:0;
+      right:0;
+      transform:translateY(-50%);
+      width:auto;
+      height:2px;
+      border-radius:2px;
+      background:var(--ink-15);
+      opacity:1;
+      transition:background 200ms ease;
+    }
+    .nav-rail button:hover .tick,
+    .nav-rail button:active .tick{
+      background:var(--ink-40);
+      width:auto;
+    }
+    .nav-rail button.active .tick{
+      width:auto;
+      background:var(--accent);
+    }
+    .nav-rail .label{display:none}
+    body.on-inverse-act1 .nav-rail{
+      background:transparent;
+      border-color:transparent;
+    }
+    body.on-inverse-act1 .nav-rail .tick{background:rgba(248,247,244,0.25)}
+    body.on-inverse-act1 .nav-rail button.active .tick{background:var(--accent-light)}
+
+    .help-rail{display:none}
+
+    .mobile-act-toggle{
+      display:flex !important;
+    }
+    .act-hint{display:none}
+
+    .essay-close{
+      position:fixed;
+      top:calc(env(safe-area-inset-top, 0) + 14px);
+      right:16px;
+      font-size:11px;
+      letter-spacing:0.18em;
+      padding:8px 10px;
+      background:rgba(248,247,244,0.92);
+      backdrop-filter:blur(12px);
+      -webkit-backdrop-filter:blur(12px);
+      border-radius:999px;
+      z-index:51;
+    }
+    .spread[data-act="2"] ~ .um-mark,
+    body.on-act2 .um-mark{display:none}
+  }
+
+  /* ===== Phone landscape ===== */
+  @media (max-height: 500px) and (orientation: landscape){
+    .slide-layer{
+      padding:calc(env(safe-area-inset-top, 0) + 64px) 5vw calc(env(safe-area-inset-bottom, 0) + 80px) 5vw;
+    }
+    .essay-panel{
+      padding:calc(env(safe-area-inset-top, 0) + 64px) 6vw calc(env(safe-area-inset-bottom, 0) + 80px) 6vw;
+    }
+    .slide-title-xl{font-size:clamp(36px,7vw,64px)}
+    .slide-title-lg{font-size:clamp(44px,8vw,80px)}
+    .slide-title-md{font-size:clamp(24px,4.5vw,40px)}
+    .slide-light, .slide-bold{font-size:clamp(18px,3.4vw,26px)}
+    .echo-bold, .echo-light{font-size:clamp(32px,6vw,52px)}
+    .vignette-um{font-size:clamp(48px,9vw,90px)}
+    .vignette-title{font-size:clamp(20px,3.8vw,32px)}
+    .achievement-tiles{
+      grid-template-columns:repeat(3, 1fr);
+    }
+    .achievement-tiles .tile{padding:10px 10px;gap:6px}
+    .achievement-tiles .tile-figure{font-size:clamp(13px,2.6vw,18px)}
+    .achievement-tiles .tile-figure.short{font-size:clamp(13px,2.4vw,17px)}
+    .achievement-tiles .tile-body{font-size:clamp(10px,2vw,12px)}
+    .essay{font-size:14px;line-height:1.65}
+  }
+
+  /* ===== Reduce motion ===== */
+  @media (prefers-reduced-motion: reduce){
+    .spread, .slide-layer, .essay-layer, .essay-panel, .act-hint{
+      transition-duration:120ms !important;
+    }
+    .act-hint .arrow{animation:none}
+  }
+
+  /* ===== Mobile act-toggle button (hidden on desktop) ===== */
+  .mobile-act-toggle{
+    display:none;
+    position:fixed;
+    bottom:calc(env(safe-area-inset-bottom, 0) + 16px);
+    right:16px;
+    align-items:center;
+    gap:8px;
+    padding:14px 22px;
+    background:var(--accent);
+    color:var(--bg);
+    border-radius:999px;
+    font-family:var(--sans);
+    font-size:12px;
+    font-weight:500;
+    letter-spacing:0.18em;
+    text-transform:uppercase;
+    z-index:51;
+    box-shadow:0 8px 24px rgba(11,37,69,0.36), 0 2px 8px rgba(0,0,0,0.18);
+    transition:transform 180ms ease, box-shadow 180ms ease;
+    min-height:44px;
+  }
+  .mobile-act-toggle:active{
+    transform:scale(0.96);
+    box-shadow:0 4px 12px rgba(11,37,69,0.32);
+  }
+  .mobile-act-toggle .toggle-text-1,
+  .mobile-act-toggle .toggle-text-2{display:none}
+  .spread[data-act="1"] .mobile-act-toggle .toggle-text-1{display:inline}
+  .spread[data-act="2"] .mobile-act-toggle .toggle-text-2{display:inline}
+  .mobile-act-toggle .arrow-icon{
+    display:inline-block;
+    width:8px;
+    height:8px;
+    border-right:1.5px solid currentColor;
+    border-bottom:1.5px solid currentColor;
+    transform:rotate(45deg);
+    margin-bottom:2px;
+    margin-left:4px;
+  }
+  .spread[data-act="2"] .mobile-act-toggle .arrow-icon{
+    transform:rotate(-135deg);
+    margin-bottom:-2px;
+    margin-top:2px;
+  }
+
+  /* ===== um2 · dodatki za drsnice X–XV ===== */
+  .bars .bar.lbl b{visibility:visible}
+  .bars .bar i{flex-shrink:0}
+  .bars.tall{height:clamp(170px,32vh,340px)}
+  .bars .bar{cursor:default}
+  .split.top{align-items:start}
+  .three-col{
+    display:grid;
+    grid-template-columns:repeat(3, minmax(0,1fr));
+    gap:clamp(20px,3vw,48px);
+    width:100%;
+  }
+  .col-list.small{font-size:clamp(14px,1.3vw,20px);line-height:1.32}
+  .col-list.small > div{padding:clamp(5px,0.75vh,10px) 0}
+  .col-list + .col-head{margin-top:clamp(16px,2.4vh,30px)}
+  .merge-link.dark path{stroke:var(--accent)}
+  .merge-link.dark circle{fill:var(--accent)}
+  .merge-box.light{
+    border-color:var(--ink-15);
+    background:rgba(11,37,69,0.035);
+  }
+  .merge-box.light .tile-kicker{color:var(--ink-60)}
+  .merge-box.light .mb-title{color:var(--ink)}
+  .merge-box.light .mb-title span{color:var(--accent)}
+  .merge-box.light .mb-body{color:var(--ink-80)}
+  .achievements.places .lead{min-width:6.2em}
+  .spread.inverse .essay .ph{border-color:var(--accent);color:var(--accent);background:rgba(133,183,235,0.16)}
+  @media (max-width: 900px), (max-height: 600px){
+    .three-col{grid-template-columns:1fr;gap:20px}
+    .col-list.small{font-size:clamp(14px,3.6vw,18px)}
+  }
+</style>
+</head>
+<body>
+
+<div class="um-mark" id="umMark">UNIVERZA V MARIBORU</div>
+<div class="spread-counter" id="counter">drsnica 0 / 16</div>
+<div class="help-rail" id="helpRail">
+  <span><span class="glyph">↕</span>besedilo</span>
+  <span><span class="glyph">←→</span>drsnice</span>
+  <span><span class="glyph">P</span>oznake</span>
+  <span><span class="glyph">G</span>celoten zaslon</span>
+</div>
+
+<nav class="nav-rail" id="navRail" aria-label="Navigacija po drsnicah"></nav>
+
+<main class="stage" id="stage" tabindex="0">
+
+  <!-- ============== DRSNICA 0 — uvodna vinjeta ============== -->
+  <section class="spread" data-index="0" data-act="1" data-title="Uvod" aria-label="Uvodna vinjeta">
+    <div class="slide-layer center-x">
+      <div class="slide-eyebrow"><span class="num">0/16</span>Kolofon</div>
+      <div class="max-col stack-xl" style="display:flex;flex-direction:column;align-items:center">
+        <div class="vignette-um">UM</div>
+        <div class="stack-sm" style="text-align:center">
+          <div class="vignette-title">Univerza v Mariboru — partnerstvo z gospodarstvom</div>
+          <div class="vignette-sub">Seja Upravnega odbora Štajerske gospodarske zbornice · <span class="ph">datum</span></div>
+        </div>
+      </div>
+      <div class="slide-progress" style="width:0%"></div>
+    </div>
+    <div class="essay-layer">
+      <div class="essay-panel">
+        <button class="essay-close" aria-label="Zapri besedilo"><span class="x">×</span>zapri</button>
+        <div class="essay-eyebrow"><span class="num">0/16</span><span class="title">Kolofon</span><span class="time">skupaj ≈ 15 min</span></div>
+        <div class="essay">
+          <p>Univerza v Mariboru — partnerstvo z gospodarstvom. Predstavitev rektorja na seji Upravnega odbora Štajerske gospodarske zbornice, <span class="ph">datum</span>.</p>
+          <p>Dean Korošak, rektor.</p>
+          <p class="italic small">Ključni sporočili: UM je partner gospodarstva pri razvojnem preboju kohezijske regije Vzhodna Slovenija; UM je kritična družbena infrastruktura regije.</p>
+          <p class="italic small">Zgradba: prvi del (I–IX) je predstavitev univerze iz obiska ministrice in ministra, skrajšana na približno šest minut; drugi del (X–XV) je partnerstvo univerze in gospodarstva, približno devet minut.</p>
+        </div>
+        <div class="needs">
+          <div class="needs-title">Viri številk</div>
+          <ul>
+            <li class="done">Drsnice II–V: um_stevilke.xlsx (_vsebine), enako kot v predstavitvi za MIZM in MLSKRR.</li>
+            <li class="done">Drsnica XI: samoevalvacijsko poročilo UM za ZZrID 2022–2025 (poglavje o sodelovanju, prenosu znanja in virih financiranja) in objava UM o rezultatih projektov NOO.</li>
+            <li class="done">Drsnice XII–XIV: koncept in akt Razvojnega foruma UM, Univerzitetni center za umetno inteligenco_v1, Stanje predvidenih investicij UM (avgust 2026), Predstavitev investicij MIZM in MLSKRR (september 2026), Izjava o partnerstvu RIVR 2.0, SDL-RIVR.</li>
+            <li>Številke, ki niso iz um_stevilke.xlsx, so pikčasto podčrtane (preveri); črtkani okvirji so mesta za vpis. Tipka P skrije obe vrsti oznak.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============== DRSNICA 1 — Ključni sporočili ============== -->
+  <section class="spread" data-index="1" data-act="1" data-title="Ključni sporočili" aria-label="Drsnica 1: Ključni sporočili">
+    <div class="slide-layer center">
+      <div class="slide-eyebrow"><span class="num">I</span>Ključni sporočili</div>
+      <div class="max-col stack-lg">
+        <div class="hashtag">Univerza v Mariboru</div>
+        <div class="stack-sm">
+          <div class="slide-light slide-light-60">Kohezijska regija Vzhodna Slovenija potrebuje razvojni preboj.</div>
+          <div class="slide-bold">Univerza v Mariboru je <span class="accent">partner gospodarstva</span> pri tem preboju.</div>
+        </div>
+        <div class="stack-sm">
+          <div class="slide-light slide-light-60">Znanje, kadri in raziskovalna infrastruktura za celotno regijo.</div>
+          <div class="slide-bold">Univerza je <span class="accent">kritična družbena infrastruktura</span>.</div>
+        </div>
+      </div>
+      <div class="slide-progress" style="width:6.25%"></div>
+    </div>
+    <div class="essay-layer">
+      <div class="essay-panel">
+        <button class="essay-close" aria-label="Zapri besedilo"><span class="x">×</span>zapri</button>
+        <div class="essay-eyebrow"><span class="num">I</span><span class="title">Ključni sporočili</span><span class="time">≈ 1 min</span></div>
+        <div class="essay">
+          <p>Spoštovani gospod predsednik, spoštovana gospa direktorica, spoštovane članice in člani Upravnega odbora. Hvala za povabilo in za priložnost, da univerzo predstavim vam, ki v regiji ustvarjate vrednost in delovna mesta.</p>
+          <p>Prinašam dve sporočili in en predlog. Kohezijska regija Vzhodna Slovenija potrebuje razvojni preboj, in Univerza v Mariboru je pri tem preboju partner gospodarstva. Univerza je kritična družbena infrastruktura regije: znanje, kadri in raziskovalna oprema, ki so na voljo vsem, ki tu razvijajo, proizvajajo in zaposlujejo.</p>
+          <p>V prvem delu bom na kratko pokazal, kdo smo in kaj gradimo. V drugem se bom posvetil priložnostim za vaša podjetja, razvojnemu forumu univerze in novemu univerzitetnemu centru za umetno inteligenco, na koncu pa vam bom predlagal prvi skupni korak.</p>
+        </div>
+        <div class="needs">
+          <div class="needs-title">Podatki za dopolnitev</div>
+          <ul>
+            <li>Nagovor prilagodi dejanskim udeležencem seje.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <button class="mobile-act-toggle" data-toggle-act type="button" aria-label="Preklopi med drsnico in besedilom">
+      <span class="toggle-text-1">besedilo</span>
+      <span class="toggle-text-2">zapri besedilo</span>
+      <span class="arrow-icon"></span>
+    </button>
+  </section>
+
+  <!-- ============== DRSNICA 2 — Organizacija in osnovne številke ============== -->
+  <section class="spread" data-index="2" data-act="1" data-title="Organizacija" aria-label="Drsnica 2: Organizacija in osnovne številke">
+    <div class="slide-layer center">
+      <div class="slide-eyebrow"><span class="num">II</span>Organizacija in osnovni parametri</div>
+      <div class="max-col stack-lg">
+        <div class="slide-title-md">Univerza v Mariboru.<br/><strong>Osnovni parametri.</strong></div>
+        <div class="achievement-tiles">
+          <div class="tile">
+            <div class="tile-figure">17 <small>fakultet</small></div>
+            <div class="tile-body">članice: 17 fakultet + Univerzitetna knjižnica Maribor + Študentski domovi;<br/>pridruženi članici: UKM + ZD AD</div>
+          </div>
+          <div class="tile">
+            <div class="tile-figure">15.801 <small>študentov</small></div>
+            <div class="tile-body">od tega <strong>2.501 mednarodnih</strong>;<br/>5.254 UN · 5.148 VS · 3.855 MAG · 999 EMAG · 545 DOK</div>
+          </div>
+          <div class="tile">
+            <div class="tile-figure">2.262 <small>zaposlenih</small></div>
+            <div class="tile-body">visokošolski učitelji, raziskovalci in strokovni sodelavci</div>
+          </div>
+          <div class="tile">
+            <div class="tile-figure">164 <small>študijskih programov</small></div>
+            <div class="tile-body">40 UN · 29 VS · 54 MAG · 5 EMAG · 36 DOK</div>
+          </div>
+          <div class="tile">
+            <div class="tile-figure">3.271 <small>diplomantov 2025</small></div>
+            <div class="tile-body">1.073 UN · 931 VS · 1.092 MAG · 101 EMAG · <strong>74 DOK</strong></div>
+          </div>
+          <div class="tile">
+            <div class="tile-figure">214 M € <small>prihodkov 2026</small></div>
+            <div class="tile-body">skupni prihodki univerze v letu 2026</div>
+          </div>
+        </div>
+        <div class="statement small">
+          Lokacije: <strong>Maribor · Celje · Brežice · Krško · Velenje · Kranj · Ljubljana</strong>
+        </div>
+      </div>
+      <div class="slide-progress" style="width:12.5%"></div>
+    </div>
+    <div class="essay-layer">
+      <div class="essay-panel">
+        <button class="essay-close" aria-label="Zapri besedilo"><span class="x">×</span>zapri</button>
+        <div class="essay-eyebrow"><span class="num">II</span><span class="title">Organizacija in osnovni parametri</span><span class="time">≈ 40 s</span></div>
+        <div class="essay">
+          <p>Najprej zmogljivosti. Sedemnajst fakultet, univerzitetna knjižnica in študentski domovi. Skoraj šestnajst tisoč študentov, med njimi dva tisoč petsto mednarodnih, in dva tisoč dvesto dvainšestdeset zaposlenih, s čimer univerza sodi med največje delodajalce v regiji.</p>
+          <p>Sto štiriinšestdeset študijskih programov na vseh treh stopnjah in lani tri tisoč dvesto enainsedemdeset diplomantov. Letošnji prihodki univerze znašajo dvesto štirinajst milijonov evrov. Delujemo v Mariboru, Celju, Brežicah, Krškem, Velenju, Kranju in Ljubljani in smo največja razvojna, raziskovalna in inovacijska institucija vzhodnega dela države.</p>
+        </div>
+      </div>
+    </div>
+    <button class="mobile-act-toggle" data-toggle-act type="button" aria-label="Preklopi med drsnico in besedilom">
+      <span class="toggle-text-1">besedilo</span>
+      <span class="toggle-text-2">zapri besedilo</span>
+      <span class="arrow-icon"></span>
+    </button>
+  </section>
+
+  <!-- ============== DRSNICA 3 — Izobraževanje v številkah ============== -->
+  <section class="spread" data-index="3" data-act="1" data-title="Izobraževanje" aria-label="Drsnica 3: Izobraževanje v številkah">
+    <div class="slide-layer center">
+      <div class="slide-eyebrow"><span class="num">III</span>Izobraževanje v številkah</div>
+      <div class="max-col stack-lg">
+        <div class="slide-title-md">Izobraževanje.<br/><strong>Univerza, ki privablja.</strong></div>
+        <div class="achievements compact">
+            <div><span class="lead"><span class="num">15.801</span></span><span class="body">študentov · 5.254 UN · 5.148 VS · 3.855 MAG · 999 EMAG · 545 DOK</span></div>
+            <div><span class="lead"><span class="num">3.271</span></span><span class="body">diplomantov 2025 · 1.073 UN · 931 VS · 1.092 MAG · 101 EMAG · 74 DOK</span></div>
+            <div><span class="lead"><span class="num">2.501</span></span><span class="body">mednarodnih študentov · 1.057 UN · 624 VS · 729 MAG · 22 EMAG · 69 DOK</span></div>
+            <div><span class="lead"><span class="num">1.273</span></span><span class="body">dohodna študentska mobilnost · <strong>890</strong> odhodna</span></div>
+            <div><span class="lead"><span class="num">164</span></span><span class="body">študijskih programov · 40 UN · 29 VS · 54 MAG · 5 EMAG · 36 DOK</span></div>
+          </div>
+      </div>
+      <div class="slide-progress" style="width:18.75%"></div>
+    </div>
+    <div class="essay-layer">
+      <div class="essay-panel">
+        <button class="essay-close" aria-label="Zapri besedilo"><span class="x">×</span>zapri</button>
+        <div class="essay-eyebrow"><span class="num">III</span><span class="title">Izobraževanje v številkah</span><span class="time">≈ 40 s</span></div>
+        <div class="essay">
+          <p>Za vaša podjetja je najpomembnejša številka na tej drsnici tri tisoč dvesto enainsedemdeset. Toliko diplomantov je univerza dala lani, med njimi štiriinsedemdeset doktorjev znanosti; vsako leto je to nov letnik inženirjev, informatikov, ekonomistov, kemikov, zdravnikov, pravnikov in učiteljev za gospodarstvo in javne službe regije.</p>
+          <p>Dva tisoč petsto ena študentov prihaja iz tujine, tisoč dvesto triinsedemdeset jih je lani prišlo k nam na izmenjavo. Univerza talente privablja v regijo. Da tu tudi ostanejo, je naša skupna naloga.</p>
+        </div>
+      </div>
+    </div>
+    <button class="mobile-act-toggle" data-toggle-act type="button" aria-label="Preklopi med drsnico in besedilom">
+      <span class="toggle-text-1">besedilo</span>
+      <span class="toggle-text-2">zapri besedilo</span>
+      <span class="arrow-icon"></span>
+    </button>
+  </section>
+
+  <!-- ============== DRSNICA 4 — Raziskovanje v številkah ============== -->
+  <section class="spread" data-index="4" data-act="1" data-title="Raziskovanje" aria-label="Drsnica 4: Raziskovanje v številkah">
+    <div class="slide-layer center">
+      <div class="slide-eyebrow"><span class="num">IV</span>Raziskovanje v številkah</div>
+      <div class="max-col stack-lg">
+        <div class="slide-title-md">Raziskovanje.<br/><strong>Odlično, mednarodno vpeto.</strong></div>
+        <div class="achievement-tiles two">
+          <div class="tile">
+            <div class="tile-figure">51 <small>raziskovalnih programov</small></div>
+            <div class="tile-body">stabilno financiranje raziskovalnih skupin univerze</div>
+          </div>
+          <div class="tile">
+            <div class="tile-figure">6 <small>programskih jeder</small></div>
+            <div class="tile-body">research cores: interdisciplinarne raziskovalne skupine (AI v biomedicini, Napredni materiali, Dediščinska znanost, Podatkovno opazovanje Zemlje …)</div>
+          </div>
+          <div class="tile">
+            <div class="tile-figure">140 <small>nacionalnih projektov</small></div>
+            <div class="tile-body">85 temeljnih · 3 veliki temeljni · 14 aplikativnih · 4 podoktorski · 22 ciljnih raziskovalnih programov · 5 Gravitacija · 7 raziskovalno-razvojnih programov TRL 3–6</div>
+          </div>
+          <div class="tile">
+            <div class="tile-figure">132 <small>mednarodnih projektov</small></div>
+            <div class="tile-body">36 Obzorje Evropa · 40 Erasmus+ · 12 projektov transnacionalnih programov · 44 drugih mednarodnih projektov</div>
+          </div>
+        </div>
+      </div>
+      <div class="slide-progress" style="width:25%"></div>
+    </div>
+    <div class="essay-layer">
+      <div class="essay-panel">
+        <button class="essay-close" aria-label="Zapri besedilo"><span class="x">×</span>zapri</button>
+        <div class="essay-eyebrow"><span class="num">IV</span><span class="title">Raziskovanje v številkah</span><span class="time">≈ 40 s</span></div>
+        <div class="essay">
+          <p>Raziskovanje. Enainpetdeset raziskovalnih programov in šest programskih jeder, sto štirideset nacionalnih in sto dvaintrideset mednarodnih projektov, od tega šestintrideset v Obzorju Evropa. To znanje univerza iz evropskih konzorcijev prinaša nazaj v regijo.</p>
+          <p>Za podjetje je univerza zato tudi najkrajša pot do evropskih razpisov: partner s projektnimi izkušnjami, z mednarodno mrežo in z raziskovalci, ki pravila teh razpisov dobro poznajo.</p>
+        </div>
+      </div>
+    </div>
+    <button class="mobile-act-toggle" data-toggle-act type="button" aria-label="Preklopi med drsnico in besedilom">
+      <span class="toggle-text-1">besedilo</span>
+      <span class="toggle-text-2">zapri besedilo</span>
+      <span class="arrow-icon"></span>
+    </button>
+  </section>
+
+  <!-- ============== DRSNICA 5 — Investicije v številkah ============== -->
+  <section class="spread" data-index="5" data-act="1" data-title="Investicije" aria-label="Drsnica 5: Investicije v številkah">
+    <div class="slide-layer center">
+      <div class="slide-eyebrow"><span class="num">V</span>Investicije v številkah</div>
+      <div class="max-col stack-lg">
+        <div class="slide-title-md">Investicije.<br/><strong>Največji cikel v zgodovini UM.</strong></div>
+        <div class="achievement-tiles">
+          <div class="tile">
+            <div class="tile-figure">310+ M €</div>
+            <div class="tile-body"><strong>investicije skupaj</strong>;<br/>250+ M € infrastruktura + 60+ M € raziskovalna oprema</div>
+          </div>
+          <div class="tile">
+            <div class="tile-figure">250+ M €</div>
+            <div class="tile-body"><strong>infrastruktura</strong>:<br/>INNOVUM 101 M € · Medicinska fakulteta UM in FZV 118 M € · ostalo 32 M €</div>
+          </div>
+          <div class="tile">
+            <div class="tile-figure">60+ M €</div>
+            <div class="tile-body"><strong>raziskovalna oprema</strong>:<br/>RIUM 2 25 M € · STEP 19 M € · sinhrotronska žarkovna linija 9 M € · biobanka 10 M €</div>
+          </div>
+        </div>
+        <div class="statement medium">
+          Investicije so <strong>temelji za delo</strong> študentov, raziskovalcev in podjetij regije.
+        </div>
+      </div>
+      <div class="slide-progress" style="width:31.25%"></div>
+    </div>
+    <div class="essay-layer">
+      <div class="essay-panel">
+        <button class="essay-close" aria-label="Zapri besedilo"><span class="x">×</span>zapri</button>
+        <div class="essay-eyebrow"><span class="num">V</span><span class="title">Investicije v številkah</span><span class="time">≈ 45 s</span></div>
+        <div class="essay">
+          <p>Univerza izvaja največji investicijski cikel v svoji zgodovini, več kot tristo deset milijonov evrov. Dvesto petdeset milijonov gre v infrastrukturo: platforma INNOVUM prenavlja in gradi tehniški kampus v Mariboru, raziskovalni center za logistiko v Celju in inštitut za energetiko v Krškem, poleg tega širimo Medicinsko fakulteto in Fakulteto za zdravstvene vede.</p>
+          <p>Več kot šestdeset milijonov je namenjenih raziskovalni opremi, ki bo po načelu odprtega dostopa na voljo tudi podjetjem. Investicije univerze so zato investicije v razvojno zmogljivost celotne regije.</p>
+        </div>
+        <div class="needs">
+          <div class="needs-title">Opomba</div>
+          <ul>
+            <li>Celje (Fakulteta za logistiko z raziskovalnim centrom) in Krško (prizidek Fakultete za energetiko z Inštitutom za energetiko) sta po preglednici Stanje predvidenih investicij (avgust 2026) del platforme INNOVUM.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <button class="mobile-act-toggle" data-toggle-act type="button" aria-label="Preklopi med drsnico in besedilom">
+      <span class="toggle-text-1">besedilo</span>
+      <span class="toggle-text-2">zapri besedilo</span>
+      <span class="arrow-icon"></span>
+    </button>
+  </section>
+
+  <!-- ============== DRSNICA 6 — Struktura: razvoj UM z investicijami ============== -->
+  <section class="spread" data-index="6" data-act="1" data-title="Struktura" aria-label="Drsnica 6: Razvoj UM z investicijami — struktura">
+    <div class="slide-layer center">
+      <div class="slide-eyebrow"><span class="num">VI</span>Razvoj UM z investicijami · struktura</div>
+      <div class="max-col stack-lg">
+        <div class="slide-title-md">Investicije so <strong>temelj</strong>.<br/>Na temeljih gradimo <strong>rezultate</strong>.</div>
+        <div class="achievement-tiles two">
+          <div class="tile">
+            <div class="tile-kicker">research cores</div>
+            <div class="tile-figure short">Programska jedra</div>
+            <div class="tile-body"><strong>6 jeder</strong> · interdisciplinarne raziskovalne skupine (AI v biomedicini, Napredni materiali, Dediščinska znanost, Podatkovno opazovanje Zemlje …), vezane na 51 raziskovalnih programov</div>
+          </div>
+          <div class="tile">
+            <div class="tile-kicker">core facilities</div>
+            <div class="tile-figure short">Infrastrukturni centri</div>
+            <div class="tile-body">odprt dostop do vrhunske raziskovalne opreme za univerzo, inštitute in gospodarstvo;<br/>RIUM 2 · STEP · sinhrotronska žarkovna linija · biobanka</div>
+          </div>
+          <div class="tile">
+            <div class="tile-kicker">novo</div>
+            <div class="tile-figure short">Univerzitetni center za UI</div>
+            <div class="tile-body">ena vstopna točka za umetno inteligenco na univerzi: raziskave, študij in gospodarstvo</div>
+          </div>
+          <div class="tile">
+            <div class="tile-kicker">v nastajanju</div>
+            <div class="tile-figure short">Razvojni forum UM</div>
+            <div class="tile-body">posvetovalno telo rektorja z vodilnimi gospodarstveniki, podjetniki in institucijami regije;<br/>skupni projekti · industrijski doktorati · štipendijski skladi · talenti v regiji</div>
+          </div>
+        </div>
+      </div>
+      <div class="slide-progress" style="width:37.5%"></div>
+    </div>
+    <div class="essay-layer">
+      <div class="essay-panel">
+        <button class="essay-close" aria-label="Zapri besedilo"><span class="x">×</span>zapri</button>
+        <div class="essay-eyebrow"><span class="num">VI</span><span class="title">Razvoj UM z investicijami · struktura</span><span class="time">≈ 45 s</span></div>
+        <div class="essay">
+          <p>Na teh temeljih gradimo strukturo s štirimi elementi. Programska jedra povezujejo raziskovalce različnih fakultet okrog velikih vprašanj, od umetne inteligence v biomedicini do naprednih materialov. Infrastrukturni centri odpirajo vrhunsko opremo univerzi, inštitutom in gospodarstvu.</p>
+          <p>Nova sta Univerzitetni center za umetno inteligenco in Razvojni forum univerze. Oba sta zasnovana za sodelovanje z vami, zato jima bom v drugem delu namenil posebni drsnici.</p>
+        </div>
+      </div>
+    </div>
+    <button class="mobile-act-toggle" data-toggle-act type="button" aria-label="Preklopi med drsnico in besedilom">
+      <span class="toggle-text-1">besedilo</span>
+      <span class="toggle-text-2">zapri besedilo</span>
+      <span class="arrow-icon"></span>
+    </button>
+  </section>
+
+  <!-- ============== DRSNICA 7 — Primeri: izobraževanje ============== -->
+  <section class="spread" data-index="7" data-act="1" data-title="Primeri · izobraževanje" aria-label="Drsnica 7: Primeri implementacije — izobraževanje">
+    <div class="slide-layer center">
+      <div class="slide-eyebrow"><span class="num">VII</span>Primeri implementacije · izobraževanje</div>
+      <div class="max-col stack-lg">
+        <div class="slide-title-md">Izobraževanje.<br/><strong>Kadri za industrijo, ki prihaja.</strong></div>
+        <div class="achievement-tiles two">
+          <div class="tile">
+            <div class="tile-kicker">UM + Lek d.d.</div>
+            <div class="tile-figure short">Trening center Biofarmacevtika Lendava</div>
+            <div class="tile-body">usposabljanje kadrov za biofarmacevtsko proizvodnjo v Lendavi; univerza pripelje znanje tja, kjer nastaja nova industrija</div>
+          </div>
+          <div class="tile">
+            <div class="tile-kicker">UM + I2EN</div>
+            <div class="tile-figure short">Študijski programi jedrske energetike</div>
+            <div class="tile-body">mednarodni študijski programi jedrske energetike s francoskim inštitutom I2EN; kadri za slovenski jedrski program</div>
+          </div>
+        </div>
+      </div>
+      <div class="slide-progress" style="width:43.75%"></div>
+    </div>
+    <div class="essay-layer">
+      <div class="essay-panel">
+        <button class="essay-close" aria-label="Zapri besedilo"><span class="x">×</span>zapri</button>
+        <div class="essay-eyebrow"><span class="num">VII</span><span class="title">Primeri · izobraževanje</span><span class="time">≈ 35 s</span></div>
+        <div class="essay">
+          <p>Kje ta struktura že deluje? V Lendavi z Lekom usposabljamo kadre za biofarmacevtsko proizvodnjo, ki tam šele nastaja; univerza je znanje pripeljala tja, kjer raste nova industrija.</p>
+          <p>S francoskim inštitutom I2EN pripravljamo mednarodne študijske programe jedrske energetike, za kadre, ki jih bo potreboval slovenski jedrski program. V obeh primerih univerza kadre pripravi, preden jih industrija potrebuje.</p>
+        </div>
+      </div>
+    </div>
+    <button class="mobile-act-toggle" data-toggle-act type="button" aria-label="Preklopi med drsnico in besedilom">
+      <span class="toggle-text-1">besedilo</span>
+      <span class="toggle-text-2">zapri besedilo</span>
+      <span class="arrow-icon"></span>
+    </button>
+  </section>
+
+  <!-- ============== DRSNICA 8 — Primeri: vrhunska znanost ============== -->
+  <section class="spread" data-index="8" data-act="1" data-title="Primeri · vrhunska znanost" aria-label="Drsnica 8: Primeri implementacije — vrhunska znanost">
+    <div class="slide-layer center">
+      <div class="slide-eyebrow"><span class="num">VIII</span>Primeri implementacije · vrhunska znanost</div>
+      <div class="max-col stack-lg">
+        <div class="slide-title-md">Vrhunska znanost.<br/><strong>Velika infrastruktura, odprta regiji.</strong></div>
+        <div class="achievement-tiles two">
+          <div class="tile">
+            <div class="tile-kicker">UM + UP + TU Graz + Elettra</div>
+            <div class="tile-figure short">Sinhrotron · žarkovna linija</div>
+            <div class="tile-body">nova žarkovna linija na sinhrotronu Elettra v Trstu, v konzorciju z Univerzo na Primorskem in Tehniško univerzo v Gradcu; <strong>9 M €</strong></div>
+            <div class="tile-meta">Big Science UM · materiali · biologija · medicina · dediščina</div>
+          </div>
+          <div class="tile">
+            <div class="tile-kicker">UM + KI + FE UL</div>
+            <div class="tile-figure short">STEP <small>analitika trdnih snovi in polprevodniške tehnologije</small></div>
+            <div class="tile-body">evropska platforma strateških tehnologij: vrhunska raziskovalna oprema za kritične tehnologije; <strong>19 M €</strong></div>
+            <div class="tile-meta">odprt dostop za raziskovalce in podjetja</div>
+          </div>
+        </div>
+      </div>
+      <div class="slide-progress" style="width:50%"></div>
+    </div>
+    <div class="essay-layer">
+      <div class="essay-panel">
+        <button class="essay-close" aria-label="Zapri besedilo"><span class="x">×</span>zapri</button>
+        <div class="essay-eyebrow"><span class="num">VIII</span><span class="title">Primeri · vrhunska znanost</span><span class="time">≈ 35 s</span></div>
+        <div class="essay">
+          <p>Drugi sklop je velika raziskovalna infrastruktura. Z Univerzo na Primorskem, Tehniško univerzo v Gradcu in sinhrotronom Elettra v Trstu gradimo novo žarkovno linijo, vredno devet milijonov evrov.</p>
+          <p>V evropski platformi strateških tehnologij STEP univerza postavlja opremo za analitiko trdnih snovi in polprevodniške tehnologije v vrednosti devetnajst milijonov evrov. Obe infrastrukturi sta odprti tudi podjetjem, ki razvijajo nove materiale, zdravila in elektroniko.</p>
+        </div>
+      </div>
+    </div>
+    <button class="mobile-act-toggle" data-toggle-act type="button" aria-label="Preklopi med drsnico in besedilom">
+      <span class="toggle-text-1">besedilo</span>
+      <span class="toggle-text-2">zapri besedilo</span>
+      <span class="arrow-icon"></span>
+    </button>
+  </section>
+
+  <!-- ============== DRSNICA 9 — Primeri: tehnologije in inovacije ============== -->
+  <section class="spread" data-index="9" data-act="1" data-title="Primeri · tehnologije in inovacije" aria-label="Drsnica 9: Primeri implementacije — tehnologije in inovacije">
+    <div class="slide-layer center">
+      <div class="slide-eyebrow"><span class="num">IX</span>Primeri implementacije · tehnologije in inovacije</div>
+      <div class="max-col stack-lg">
+        <div class="slide-title-md">Tehnologije in inovacije.<br/><strong>Od laboratorija do delovnih mest.</strong></div>
+        <div class="achievement-tiles">
+          <div class="tile">
+            <div class="tile-kicker">SkyLabs + UM</div>
+            <div class="tile-figure short">Vesolje · TRISAT</div>
+            <div class="tile-body">program satelitov TRISAT: iz raziskav univerze do vesoljskega podjetja; skupni sateliti in nov razvojni center vesoljskih tehnologij v Mariboru</div>
+          </div>
+          <div class="tile">
+            <div class="tile-kicker">UM + Talum, Impol, IJS, IMT, UL NTF</div>
+            <div class="tile-figure short">SiPCAST</div>
+            <div class="tile-body">pilotni center za lahke kovine z industrijo aluminija in raziskovalnimi inštituti; postavljen tja, kjer je industrija</div>
+          </div>
+          <div class="tile">
+            <div class="tile-kicker">biomed spin-out UM</div>
+            <div class="tile-figure short">EndoVia Therapeutics</div>
+            <div class="tile-body">spin-out Medicinske fakultete UM na licencirani intelektualni lastnini univerze: računski modeli za razvoj zdravljenja</div>
+          </div>
+        </div>
+        <div class="statement medium">
+          Prenos znanja je način, kako univerza <strong>vrača regiji</strong>.
+        </div>
+      </div>
+      <div class="slide-progress" style="width:56.25%"></div>
+    </div>
+    <div class="essay-layer">
+      <div class="essay-panel">
+        <button class="essay-close" aria-label="Zapri besedilo"><span class="x">×</span>zapri</button>
+        <div class="essay-eyebrow"><span class="num">IX</span><span class="title">Primeri · tehnologije in inovacije</span><span class="time">≈ 45 s</span></div>
+        <div class="essay">
+          <p>Tretji sklop je pot od laboratorija do delovnih mest. Iz raziskav Fakultete za elektrotehniko, računalništvo in informatiko je zraslo vesoljsko podjetje SkyLabs, ki danes skupaj z univerzo pošilja satelite v orbito in v Mariboru gradi razvojni center vesoljskih tehnologij. SiPCAST je pilotni center za lahke kovine, ki ga z univerzo gradijo Talum, Impol in raziskovalni inštituti.</p>
+          <p>EndoVia Therapeutics je odcepljeno podjetje Medicinske fakultete, zraslo na licencirani intelektualni lastnini univerze. Univerza ustvarja znanje in razvija ljudi, gospodarstvo ustvarja vrednost; kjer se srečata, nastajajo podjetja in delovna mesta.</p>
+        </div>
+      </div>
+    </div>
+    <button class="mobile-act-toggle" data-toggle-act type="button" aria-label="Preklopi med drsnico in besedilom">
+      <span class="toggle-text-1">besedilo</span>
+      <span class="toggle-text-2">zapri besedilo</span>
+      <span class="arrow-icon"></span>
+    </button>
+  </section>
+
+  <!-- ============== DRSNICA 10 — Priložnosti za gospodarstvo ============== -->
+  <section class="spread" data-index="10" data-act="1" data-title="Priložnosti za gospodarstvo" aria-label="Drsnica 10: Priložnosti za gospodarstvo">
+    <div class="slide-layer center">
+      <div class="slide-eyebrow"><span class="num">X</span>Partnerstvo UM – gospodarstvo · priložnosti</div>
+      <div class="max-col stack-lg">
+        <div class="slide-title-md">Priložnosti za gospodarstvo.<br/><strong>Univerza, odprta podjetjem.</strong></div>
+        <div class="achievement-tiles">
+          <div class="tile">
+            <div class="tile-kicker">kadri</div>
+            <div class="tile-figure short">Talenti za podjetja</div>
+            <div class="tile-body">praksa in študentski projekti v podjetjih · štipendije · Karierni center UM · <strong>3.271 diplomantov</strong> na leto</div>
+          </div>
+          <div class="tile">
+            <div class="tile-kicker">vseživljenjsko učenje</div>
+            <div class="tile-figure short">Znanje za zaposlene</div>
+            <div class="tile-body">mikrodokazila · krajša usposabljanja · programi izpopolnjevanja po meri podjetij</div>
+          </div>
+          <div class="tile">
+            <div class="tile-kicker">raziskave in razvoj</div>
+            <div class="tile-figure short">Skupni projekti</div>
+            <div class="tile-body">razvojni in aplikativni projekti · industrijski doktorati · mladi raziskovalci iz gospodarstva · skupne evropske prijave</div>
+          </div>
+          <div class="tile">
+            <div class="tile-kicker">raziskovalna infrastruktura</div>
+            <div class="tile-figure short">Odprti laboratoriji</div>
+            <div class="tile-body">vrhunska oprema z odprtim dostopom (BRiUM): meritve, testiranja, analize · RIUM · INNOVUM · STEP · sinhrotron</div>
+          </div>
+          <div class="tile">
+            <div class="tile-kicker">prenos tehnologij</div>
+            <div class="tile-figure short">Od izuma do trga</div>
+            <div class="tile-body">pisarna za prenos znanja in tehnologij · licence · odcepljena podjetja · inkubator Tovarna podjemov</div>
+          </div>
+          <div class="tile">
+            <div class="tile-kicker">umetna inteligenca</div>
+            <div class="tile-figure short">UI za podjetja</div>
+            <div class="tile-body">Univerzitetni center za UI z nacionalnim ekosistemom SLAIF · KCUI · EDIH: od svetovanja do prototipa</div>
+          </div>
+        </div>
+      </div>
+      <div class="slide-progress" style="width:62.5%"></div>
+    </div>
+    <div class="essay-layer">
+      <div class="essay-panel">
+        <button class="essay-close" aria-label="Zapri besedilo"><span class="x">×</span>zapri</button>
+        <div class="essay-eyebrow"><span class="num">X</span><span class="title">Priložnosti za gospodarstvo</span><span class="time">≈ 1,5 min</span></div>
+        <div class="essay">
+          <p>Prehajam na drugi del: kaj partnerstvo z univerzo pomeni za vaša podjetja. Priložnosti vidim na šestih področjih.</p>
+          <p>Prvo so kadri: praksa in študentski projekti v podjetjih, štipendije in Karierni center, prek katerega podjetja spoznajo študente še pred diplomo. Drugo je znanje za zaposlene, od mikrodokazil in krajših usposabljanj do programov izpopolnjevanja, ki jih pripravimo po meri podjetja. Tretje so skupni raziskovalni in razvojni projekti ter industrijski doktorati; pri državi se zavzemamo tudi za ponovno uvedbo mladih raziskovalcev iz gospodarstva.</p>
+          <p>Četrto so laboratoriji z odprtim dostopom, kjer podjetje opravi meritve, testiranja in analize na vrhunski opremi. Peto je pot od izuma do trga, prek pisarne za prenos znanja in tehnologij, licenc, odcepljenih podjetij in univerzitetnega inkubatorja Tovarna podjemov. Šesto je umetna inteligenca, za katero vzpostavljamo en univerzitetni vhod.</p>
+          <p>Vsa ta vrata so odprta že danes. Naša naloga je, da jih podjetja hitreje najdejo.</p>
+        </div>
+        <div class="needs">
+          <div class="needs-title">Podatki za dopolnitev</div>
+          <ul>
+            <li>Viri: samoevalvacijsko poročilo UM 2022–2025 (pisarna za prenos znanja kot enotna vstopna točka, BRiUM, Tovarna podjemov oz. univerzitetni inkubator); UM2030 (mladi raziskovalci iz gospodarstva); objava UM o rezultatih NOO (Center za vseživljenjsko učenje, Karierni:UM).</li>
+            <li>Po presoji: en kontakt za podjetja (spletni naslov ali e-naslov) v noge drsnice ali na zaključno vinjeto.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <button class="mobile-act-toggle" data-toggle-act type="button" aria-label="Preklopi med drsnico in besedilom">
+      <span class="toggle-text-1">besedilo</span>
+      <span class="toggle-text-2">zapri besedilo</span>
+      <span class="arrow-icon"></span>
+    </button>
+  </section>
+
+  <!-- ============== DRSNICA 11 — Sodelovanje v številkah ============== -->
+  <section class="spread" data-index="11" data-act="1" data-title="Sodelovanje v številkah" aria-label="Drsnica 11: Sodelovanje z gospodarstvom v številkah">
+    <div class="slide-layer center">
+      <div class="slide-eyebrow"><span class="num">XI</span>Partnerstvo UM – gospodarstvo · v številkah</div>
+      <div class="max-col stack-lg">
+        <div class="slide-title-md">Sodelovanje z gospodarstvom.<br/><strong>Več kot štiristo projektov na leto.</strong></div>
+        <div class="split">
+          <div class="achievements compact">
+            <div><span class="lead"><span class="num chk" title="Samoevalvacijsko poročilo UM 2022–2025">405</span></span><span class="body">projektov z gospodarstvom in drugimi uporabniki znanja v letu 2025</span></div>
+            <div><span class="lead"><span class="num chk" title="Samoevalvacijsko poročilo UM 2022–2025">12,6–16,8 %</span></span><span class="body">delež tržnih virov v financiranju raziskovalne dejavnosti 2022–2025</span></div>
+            <div><span class="lead"><span class="num chk" title="Samoevalvacijsko poročilo UM 2022–2025">3 + 2</span></span><span class="body">odcepljena podjetja, ustanovljena po letu 2024, dve v ustanavljanju</span></div>
+            <div><span class="lead"><span class="num chk" title="Samoevalvacijsko poročilo UM 2022–2025">130</span></span><span class="body">kosov raziskovalne opreme v infrastrukturnem programu, <strong>28+&nbsp;M&nbsp;€</strong>, v uporabi tudi za podjetja</span></div>
+            <div><span class="lead"><span class="num chk" title="Samoevalvacijsko poročilo UM 2022–2025, program P5-0018">1.200+</span></span><span class="body">MSP ocenjenih z nacionalnim modelom digitalne zrelosti, razvitim na UM</span></div>
+            <div><span class="lead"><span class="num chk" title="Objava UM o rezultatih projektov NOO">75+</span></span><span class="body">podjetij in 445 študentov na platformi Karierni:UM (2024)</span></div>
+          </div>
+          <div>
+            <div class="chart-title">Projekti z gospodarstvom in drugimi uporabniki znanja</div>
+            <div class="bars tall" role="img" aria-label="Projekti z gospodarstvom in drugimi uporabniki znanja: 2022 321, 2023 301, 2024 361, 2025 405">
+              <div class="bar lbl" title="2022: 321 projektov"><b>321</b><i style="height:67.4%"></i></div>
+              <div class="bar" title="2023: 301 projekt"><b>301</b><i style="height:63.2%"></i></div>
+              <div class="bar" title="2024: 361 projektov"><b>361</b><i style="height:75.8%"></i></div>
+              <div class="bar hi" title="2025: 405 projektov"><b>405</b><i style="height:85%"></i></div>
+            </div>
+            <div class="bar-labels"><span>2022</span><span>2023</span><span>2024</span><span>2025</span></div>
+            <div class="chart-note">vir: samoevalvacijsko poročilo UM 2022–2025</div>
+          </div>
+        </div>
+      </div>
+      <div class="slide-progress" style="width:68.75%"></div>
+    </div>
+    <div class="essay-layer">
+      <div class="essay-panel">
+        <button class="essay-close" aria-label="Zapri besedilo"><span class="x">×</span>zapri</button>
+        <div class="essay-eyebrow"><span class="num">XI</span><span class="title">Sodelovanje v številkah</span><span class="time">≈ 1,5 min</span></div>
+        <div class="essay">
+          <p>Koliko tega sodelovanja že poteka? Univerza je v letu 2025 izvajala štiristo pet projektov z gospodarstvom in drugimi uporabniki znanja; leta 2022 jih je bilo tristo enaindvajset. Tržni viri, pretežno podjetja, so v zadnjih štirih letih prispevali med dvanajst in sedemnajst odstotkov sredstev za raziskovalno dejavnost univerze.</p>
+          <p>Po letu 2024 so nastala tri odcepljena podjetja, dve sta v ustanavljanju. Sto trideset kosov raziskovalne opreme v infrastrukturnem programu, v nabavni vrednosti več kot osemindvajset milijonov evrov, uporabljajo tudi podjetja. Z nacionalnim modelom digitalne zrelosti, ki je nastal na univerzi, je bilo ocenjenih več kot tisoč dvesto malih in srednjih podjetij, na karierni platformi univerze pa se je v enem letu srečalo več kot petinsedemdeset podjetij in štiristo petinštirideset študentov.</p>
+          <p>To so dobri temelji. Za regijo z vašim industrijskim potencialom je prostora za rast še veliko.</p>
+        </div>
+        <div class="needs">
+          <div class="needs-title">Podatki za dopolnitev</div>
+          <ul>
+            <li class="done">Projekti po letih (samoevalvacija, »collaboration projects with industry and other knowledge users«): 2022: 321 · 2023: 301 · 2024: 361 · 2025: 405. Vključujejo tudi javni sektor; če želiš samo gospodarstvo, je potreben ločen izpis.</li>
+            <li class="done">Tržni viri 12,6–16,8 % so delež v financiranju raziskovalne dejavnosti (ne v vseh prihodkih univerze); najvišji delež leta 2024.</li>
+            <li class="done">1.200+ MSP: raziskovalni program P5-0018 (model merjenja digitalne zrelosti MSP).</li>
+            <li>Po presoji: patentne prijave in prijave izumov 2022–2025 (14/12 · 5/2 · 6/5 · 7/6).</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <button class="mobile-act-toggle" data-toggle-act type="button" aria-label="Preklopi med drsnico in besedilom">
+      <span class="toggle-text-1">besedilo</span>
+      <span class="toggle-text-2">zapri besedilo</span>
+      <span class="arrow-icon"></span>
+    </button>
+  </section>
+
+  <!-- ============== DRSNICA 12 — Razvojni forum UM ============== -->
+  <section class="spread" data-index="12" data-act="1" data-title="Razvojni forum UM" aria-label="Drsnica 12: Razvojni forum Univerze v Mariboru">
+    <div class="slide-layer center">
+      <div class="slide-eyebrow"><span class="num">XII</span>Razvojni forum Univerze v Mariboru · v nastajanju</div>
+      <div class="max-col stack-lg">
+        <div class="slide-title-md">Razvojni forum UM.<br/><strong>Glas gospodarstva na univerzi.</strong></div>
+        <div class="two-col">
+          <div>
+            <div class="col-head">Kdo<small>do 21 članic in članov · sopredsedujoči iz gospodarstva</small></div>
+            <div class="col-list small">
+              <div>predsedniki uprav in direktorji vodilnih družb regije in države</div>
+              <div>uveljavljeni podjetniki in ustanovitelji hitrorastočih podjetij</div>
+              <div>gospodarska in obrtno-podjetniška združenja, regionalne razvojne institucije, lokalne skupnosti</div>
+              <div>javni zavodi zdravstva in kulture · ugledni alumni, tudi iz tujine</div>
+            </div>
+          </div>
+          <div>
+            <div class="col-head">Kaj<small>posvetovalno telo rektorja · priporočila in letno poročilo</small></div>
+            <div class="col-list small">
+              <div>študijski programi in <strong>kompetence prihodnosti</strong></div>
+              <div>prenos znanja, skupni razvojni projekti, <strong>industrijski doktorati</strong></div>
+              <div><strong>talenti v regiji</strong> · vseživljenjsko učenje in preobrazba kompetenc zaposlenih</div>
+              <div>skupna vlaganja v infrastrukturo · <strong>štipendijski skladi</strong> in donacije</div>
+            </div>
+          </div>
+        </div>
+        <div class="statement small">
+          Merila uspeha: <strong>skupni projekti · industrijski doktorati · štipendije in donacije · privlačnost univerze za študente in raziskovalce</strong>
+        </div>
+      </div>
+      <div class="slide-progress" style="width:75%"></div>
+    </div>
+    <div class="essay-layer">
+      <div class="essay-panel">
+        <button class="essay-close" aria-label="Zapri besedilo"><span class="x">×</span>zapri</button>
+        <div class="essay-eyebrow"><span class="num">XII</span><span class="title">Razvojni forum UM</span><span class="time">≈ 1,5 min</span></div>
+        <div class="essay">
+          <p>Razvojni forum Univerze v Mariboru je v nastajanju. Zasnovali smo ga kot posvetovalno telo rektorja, v katerem vodilni gospodarstveniki, podjetniki, predstavniki gospodarskih združenj, regionalnih razvojnih institucij, lokalnih skupnosti, zdravstva in kulture ter ugledni alumni skupaj z univerzo razmišljajo o njenem razvoju. Forum bo imel do enaindvajset članic in članov, izmed njih tudi sopredsedujočega iz gospodarstva; s tem soodgovornost za dialog prenesemo na stran okolja.</p>
+          <p>Teme so tiste, pri katerih se univerza in gospodarstvo srečujeta vsak dan: kako študijske programe uskladiti s kompetencami prihodnosti, kje je prenos znanja najbolj smiseln, kako do več industrijskih doktoratov, kako talente privabiti in zadržati v regiji, kako preobraziti kompetence zaposlenih ter kako skupaj vlagati v infrastrukturo in štipendijske sklade.</p>
+          <p>Forum svetuje, njegova teža pa izhaja iz ugleda in izkušenj ljudi, ki ga sestavljajo. Enkrat letno bo pripravil kratko poročilo s priporočili, ki ga bom predstavil organom univerze in javnosti; tako bo njegovo delo sledljivo in preverljivo. Merila uspeha so preprosta: skupni projekti, industrijski doktorati, štipendije in donacije ter večja privlačnost univerze za študente in raziskovalce.</p>
+        </div>
+        <div class="needs">
+          <div class="needs-title">Podatki za dopolnitev</div>
+          <ul>
+            <li>Stanje ustanovitve: datum akta o ustanovitvi, prva seja, sopredsedujoči — ko bo znano.</li>
+            <li>Pogostost sej: akt (različica DK) navaja štiri seje letno, koncept dve do tri; na drsnici je zato brez števila.</li>
+            <li class="done">Imen kandidatov in članov na drsnici ni.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <button class="mobile-act-toggle" data-toggle-act type="button" aria-label="Preklopi med drsnico in besedilom">
+      <span class="toggle-text-1">besedilo</span>
+      <span class="toggle-text-2">zapri besedilo</span>
+      <span class="arrow-icon"></span>
+    </button>
+  </section>
+
+  <!-- ============== DRSNICA 13 — Univerzitetni center za UI ============== -->
+  <section class="spread" data-index="13" data-act="1" data-title="Center za UI" aria-label="Drsnica 13: Univerzitetni center za umetno inteligenco">
+    <div class="slide-layer center">
+      <div class="slide-eyebrow"><span class="num">XIII</span>Univerzitetni center za umetno inteligenco · UCUI</div>
+      <div class="max-col stack-md merge">
+        <div class="slide-title-md" style="align-self:flex-start">Umetna inteligenca.<br/><strong>En vhod za podjetja in fakultete.</strong></div>
+        <div class="three-col">
+          <div>
+            <div class="col-head">Fakultete<small>raziskovalci ostanejo na fakultetah</small></div>
+            <div class="col-list small">
+              <div>raziskovalci in ekspertiza</div>
+              <div>podatki in aplikacije</div>
+              <div>študij in kompetence UI</div>
+            </div>
+          </div>
+          <div>
+            <div class="col-head">Nacionalni ekosistem UI<small>univerza je partnerica konzorcijev</small></div>
+            <div class="col-list small">
+              <div><strong>SLAIF</strong> · superračunalnik za UI v Mariboru</div>
+              <div><strong>KCUI</strong> · svetovanje in usposabljanje</div>
+              <div><strong>EDIH</strong> · digitalna preobrazba MSP</div>
+            </div>
+          </div>
+          <div>
+            <div class="col-head">Gospodarstvo<small>ena vstopna točka</small></div>
+            <div class="col-list small">
+              <div>skupni projekti, prototipi, PoC</div>
+              <div>specializirani modeli · zakup računskih zmogljivosti</div>
+              <div>usposabljanja za zaposlene</div>
+            </div>
+          </div>
+        </div>
+        <svg class="merge-link dark" viewBox="0 0 100 40" preserveAspectRatio="none" aria-hidden="true">
+          <path d="M16.67 0 V20 H83.33 V0" />
+          <path d="M50 0 V40" />
+        </svg>
+        <div class="merge-box light" style="margin-top:0">
+          <div class="tile-kicker">UCUI · novo · pod rektoratom</div>
+          <div class="mb-title">Univerzitetni center za UI</div>
+          <div class="mb-body">skupna infrastruktura · platforma · storitve · odgovorna raba UI (Akt EU o UI, varstvo podatkov, intelektualna lastnina)</div>
+        </div>
+      </div>
+      <div class="slide-progress" style="width:81.25%"></div>
+    </div>
+    <div class="essay-layer">
+      <div class="essay-panel">
+        <button class="essay-close" aria-label="Zapri besedilo"><span class="x">×</span>zapri</button>
+        <div class="essay-eyebrow"><span class="num">XIII</span><span class="title">Univerzitetni center za UI</span><span class="time">≈ 1,5 min</span></div>
+        <div class="essay">
+          <p>Umetna inteligenca bo v naslednjih letih spremenila delo v vsakem vašem podjetju. Na univerzi jo razvijamo, uporabljamo in poučujemo na mnogih fakultetah in v mnogih raziskovalnih skupinah. To znanje zdaj povezujemo v Univerzitetni center za umetno inteligenco, ki bo deloval neposredno pod rektoratom. Načelo je preprosto: raziskovalci ostanejo na fakultetah, center pa zagotavlja skupno infrastrukturo, platformo, storitve in povezovanje.</p>
+          <p>Za podjetja to pomeni en naslov za skupne projekte, prototipe in preizkuse koncepta, specializirane modele, zakup računskih zmogljivosti in usposabljanja zaposlenih, skupaj z znanjem o odgovorni rabi, varstvu podatkov in skladnosti z evropskim aktom o umetni inteligenci.</p>
+          <p>Center se opira na nacionalni ekosistem, v katerem je univerza že partnerica: Slovensko tovarno umetne inteligence z novim superračunalnikom v podatkovnem centru Arnes v Mariboru, Kompetenčni center za umetno inteligenco in evropska digitalna inovacijska stičišča za mala in srednja podjetja. Storitve za industrijo načrtujemo v letu in pol, povezano tržnico storitev umetne inteligence v dveh letih.</p>
+        </div>
+        <div class="needs">
+          <div class="needs-title">Podatki za dopolnitev</div>
+          <ul>
+            <li class="done">Vir: Univerzitetni center za umetno inteligenco_v1 (A. Kamišalić Latifić). Časovnica: mandat 0–3 mes. · jedro 3–6 · enotna vstopna točka 6–12 · storitveni stebri, tudi industrija, 6–18 · infrastruktura 9–18 · tržnica UI storitev 12–24 · komercializacija 18–36.</li>
+            <li>Datum sklepa o ustanovitvi in vodja centra, ko bosta znana.</li>
+            <li>Po presoji: model partnerstva za infrastrukturo (tehnološki, infrastrukturni in energetski partner; podjetja kot zakupniki zmogljivosti) je lahko tema pogovora s člani UO.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <button class="mobile-act-toggle" data-toggle-act type="button" aria-label="Preklopi med drsnico in besedilom">
+      <span class="toggle-text-1">besedilo</span>
+      <span class="toggle-text-2">zapri besedilo</span>
+      <span class="arrow-icon"></span>
+    </button>
+  </section>
+
+  <!-- ============== DRSNICA 14 — Vzhodna Slovenija ============== -->
+  <section class="spread" data-index="14" data-act="1" data-title="Vzhodna Slovenija" aria-label="Drsnica 14: Razvojni preboj Vzhodne Slovenije">
+    <div class="slide-layer center">
+      <div class="slide-eyebrow"><span class="num">XIV</span>Razvojni preboj kohezijske regije Vzhodna Slovenija</div>
+      <div class="max-col stack-lg">
+        <div class="slide-title-md">Vzhodna Slovenija.<br/><strong>Gradimo ob industriji.</strong></div>
+        <div class="split top">
+          <div class="achievements compact places">
+            <div><span class="lead">Maribor</span><span class="body">tehniški kampus INNOVUM · Center odličnosti za fotonske, mikro- in nanoelektronske tehnologije</span></div>
+            <div><span class="lead">Celje</span><span class="body">Fakulteta za logistiko z raziskovalnim centrom za logistiko</span></div>
+            <div><span class="lead">Krško</span><span class="body">Fakulteta za energetiko z Inštitutom za energetiko · jedrski programi z I2EN</span></div>
+            <div><span class="lead">Lendava</span><span class="body">Trening center Biofarmacevtika z Lekom</span></div>
+            <div><span class="lead">Novo mesto</span><span class="body">RIVR 2.0 z Univerzo v Novem mestu in Rudolfovim</span></div>
+          </div>
+          <div>
+            <div class="col-head">RIVR 2.0<small>UM + UNM + Rudolfovo · raziskovalna infrastruktura vzhodne regije</small></div>
+            <div class="col-list small">
+              <div><strong>SDL-RIVR</strong> · znanstveni podatkovni laboratorij: superračunalništvo, kvantno računanje in UI; delež UM <strong class="chk" title="Predstavitev investicij MIZM in MLSKRR, september 2026">16&nbsp;M&nbsp;€</strong></div>
+            </div>
+            <div class="col-head">Portfelj 2028–2034<small>projekte pripravljamo danes</small></div>
+            <div class="col-list small">
+              <div><strong>INNOVUM 2</strong> · nacionalno inovacijsko stičišče</div>
+              <div><strong>RIUM 3</strong> · nova generacija raziskovalne opreme</div>
+              <div><strong>SiPCAST</strong> · pilotni center za lahke kovine</div>
+            </div>
+          </div>
+        </div>
+        <div class="statement small">
+          Cilj: tehnološki preboj regije in <strong>nova delovna mesta z visoko dodano vrednostjo</strong>.
+        </div>
+      </div>
+      <div class="slide-progress" style="width:87.5%"></div>
+    </div>
+    <div class="essay-layer">
+      <div class="essay-panel">
+        <button class="essay-close" aria-label="Zapri besedilo"><span class="x">×</span>zapri</button>
+        <div class="essay-eyebrow"><span class="num">XIV</span><span class="title">Vzhodna Slovenija</span><span class="time">≈ 1,5 min</span></div>
+        <div class="essay">
+          <p>Razvojni preboj Vzhodne Slovenije bomo naredili v regiji, s podjetji in ljudmi, ki tu živijo in delajo. Zato univerza gradi tam, kjer je industrija. V Mariboru nastaja tehniški kampus platforme INNOVUM s Centrom odličnosti za fotonske, mikro- in nanoelektronske tehnologije, v Celju raziskovalni center za logistiko, v Krškem inštitut za energetiko, v Lendavi usposabljamo kadre za biofarmacijo.</p>
+          <p>Z Univerzo v Novem mestu in Rudolfovim smo raziskovalno infrastrukturo vzhodne regije povezali v skupno operacijo RIVR 2.0; njen cilj sta hiter tehnološki preboj regije in nova delovna mesta z visoko dodano vrednostjo. Prvi skupni projekt je znanstveni podatkovni laboratorij, ki raziskovalcem in podjetjem odpira superračunalništvo, kvantno računanje in napredne metode umetne inteligence.</p>
+          <p>Za obdobje 2028–2034 pripravljamo razvojni portfelj: nacionalno inovacijsko stičišče INNOVUM 2, novo generacijo raziskovalne opreme RIUM 3 in pilotni center za lahke kovine SiPCAST. Projekte pripravljamo danes, da bodo pripravljeni, ko bodo objavljeni pozivi. Želimo jih pripravljati z vami, z razvojnimi potrebami vaših podjetij kot izhodiščem.</p>
+        </div>
+        <div class="needs">
+          <div class="needs-title">Podatki za dopolnitev</div>
+          <ul>
+            <li class="done">Viri: Stanje predvidenih investicij UM (avgust 2026); Predstavitev investicij MIZM in MLSKRR (september 2026); Izjava o partnerstvu RIVR 2.0 (7. 8. 2026); SDL-RIVR.</li>
+            <li>SDL-RIVR: dokument navaja skupno vrednost 28 M €, deleži (UM 16 · UNM 10 · Rudolfovo 3) pa dajo 29 M €; na drsnici je zato samo delež UM. Preveri.</li>
+            <li>Financiranje SDL-RIVR se preverja še v EKP 2021–2027; portfelj 2028–2034 po govornih točkah za sestanek z ministrstvoma.</li>
+            <li>Po presoji: kazalnik razvojnega zaostanka regije (npr. BDP na prebivalca KRVS v primerjavi s KRZS in povprečjem EU, SURS/Eurostat).</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <button class="mobile-act-toggle" data-toggle-act type="button" aria-label="Preklopi med drsnico in besedilom">
+      <span class="toggle-text-1">besedilo</span>
+      <span class="toggle-text-2">zapri besedilo</span>
+      <span class="arrow-icon"></span>
+    </button>
+  </section>
+
+  <!-- ============== DRSNICA 15 — Predlog partnerstva UM – ŠGZ (inverse) ============== -->
+  <section class="spread inverse" data-index="15" data-act="1" data-title="Partnerstvo UM – ŠGZ" aria-label="Drsnica 15: Predlog partnerstva UM – ŠGZ">
+    <div class="slide-layer center">
+      <div class="slide-eyebrow"><span class="num">XV</span>Predlog partnerstva</div>
+      <div class="max-col stack-md merge">
+        <div class="slide-title-md" style="align-self:flex-start"><strong>Partnerstvo UM – ŠGZ.</strong></div>
+        <div class="two-col">
+          <div>
+            <div class="col-head" style="color:var(--accent-light);border-bottom-color:rgba(248,247,244,0.2)">Univerza v Mariboru<small style="color:var(--inv-fg-70)">ponuja</small></div>
+            <div class="col-list small" style="color:var(--inv-fg)">
+              <div>študijske programe in <strong>kadrovske analize</strong>, usklajene s potrebami članic</div>
+              <div><strong>mikrodokazila</strong> in usposabljanja za zaposlene</div>
+              <div>odprt dostop do <strong>laboratorijev</strong> in raziskovalne opreme</div>
+              <div>pilotne projekte <strong>umetne inteligence</strong> prek UCUI</div>
+            </div>
+          </div>
+          <div>
+            <div class="col-head" style="color:var(--accent-light);border-bottom-color:rgba(248,247,244,0.2)">Članice in člani ŠGZ<small style="color:var(--inv-fg-70)">prinašajo</small></div>
+            <div class="col-list small" style="color:var(--inv-fg)">
+              <div><strong>razvojne izzive</strong> podjetij kot teme skupnih projektov</div>
+              <div>prakso, <strong>štipendije</strong> in <strong>industrijske doktorate</strong></div>
+              <div>strokovnjake iz prakse kot <strong>mentorje in gostujoče predavatelje</strong></div>
+              <div>skupne projekte za <strong>2028–2034</strong> in evropske razpise</div>
+            </div>
+          </div>
+        </div>
+        <svg class="merge-link" viewBox="0 0 100 40" preserveAspectRatio="none" aria-hidden="true">
+          <path d="M25 0 V20 H75 V0" />
+          <path d="M50 20 V40" />
+        </svg>
+        <div class="merge-box" style="margin-top:0">
+          <div class="tile-kicker">prvi korak</div>
+          <div class="mb-title">Skupna delovna skupina UM <span>·</span> ŠGZ</div>
+          <div class="mb-body">program sodelovanja s kazalniki do <span class="ph">rok</span>: kadri · znanje za zaposlene · laboratoriji · umetna inteligenca · projekti 2028–2034</div>
+        </div>
+      </div>
+      <div class="slide-progress" style="width:93.75%"></div>
+    </div>
+    <div class="essay-layer">
+      <div class="essay-panel">
+        <button class="essay-close" aria-label="Zapri besedilo"><span class="x">×</span>zapri</button>
+        <div class="essay-eyebrow"><span class="num">XV</span><span class="title">Predlog partnerstva UM – ŠGZ</span><span class="time">≈ 1,5 min</span></div>
+        <div class="essay">
+          <p>Zato vam predlagam partnerstvo z jasnimi koraki. Univerza ponuja študijske programe in kadrovske analize, usklajene s potrebami vaših podjetij, mikrodokazila in usposabljanja za zaposlene, odprt dostop do laboratorijev in raziskovalne opreme ter pilotne projekte umetne inteligence prek novega univerzitetnega centra.</p>
+          <p>Članice in člani zbornice prinašate razvojne izzive podjetij, ki postanejo teme skupnih projektov, prakso, štipendije in industrijske doktorate, strokovnjake iz prakse kot mentorje in gostujoče predavatelje ter skupno pripravo projektov za evropske razpise in za obdobje 2028–2034.</p>
+          <p>Kot prvi korak predlagam skupno delovno skupino univerze in zbornice, ki do <span class="ph">rok</span> pripravi program sodelovanja s kazalniki, po katerih bomo čez leto dni skupaj preverili, kaj smo naredili. Univerza ustvarja znanje in razvija ljudi, gospodarstvo ustvarja vrednost. Razvojni preboj Vzhodne Slovenije je naš skupni projekt. Hvala.</p>
+        </div>
+        <div class="needs">
+          <div class="needs-title">Podatki za dopolnitev</div>
+          <ul>
+            <li>Predlogi so osnutek, sestavljen iz UM2030, koncepta Razvojnega foruma, UCUI in samoevalvacije; potrdi ali prilagodi pred sejo.</li>
+            <li>Rok za program sodelovanja in kontaktni osebi UM in ŠGZ.</li>
+            <li>Po presoji: kot širši okvir omeni nastajajoči Dogovor gospodarstva, univerz, raziskovalnih organizacij in Vlade RS za inovacijski preboj Slovenije 2026–2030 (osnutek za razpravo, 3. 9. 2026; med podpisniki Rektorska konferenca RS in GZS).</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <button class="mobile-act-toggle" data-toggle-act type="button" aria-label="Preklopi med drsnico in besedilom">
+      <span class="toggle-text-1">besedilo</span>
+      <span class="toggle-text-2">zapri besedilo</span>
+      <span class="arrow-icon"></span>
+    </button>
+  </section>
+
+  <!-- ============== DRSNICA 16 — zaključna vinjeta ============== -->
+  <section class="spread" data-index="16" data-act="1" data-title="Konec" aria-label="Zaključna vinjeta">
+    <div class="slide-layer center-x">
+      <div class="slide-eyebrow"><span class="num">16/16</span>Kolofon</div>
+      <div class="max-col stack-xl" style="display:flex;flex-direction:column;align-items:center;text-align:center">
+        <div class="vignette-um">UM</div>
+        <div class="vignette-title">Partner gospodarstva<br/>pri razvojnem preboju vzhodne Slovenije.</div>
+      </div>
+      <div class="slide-progress" style="width:100%"></div>
+    </div>
+    <div class="essay-layer">
+      <div class="essay-panel">
+        <button class="essay-close" aria-label="Zapri besedilo"><span class="x">×</span>zapri</button>
+        <div class="essay-eyebrow"><span class="num">16/16</span><span class="title">Kolofon</span></div>
+        <div class="essay">
+          <p>Dean Korošak, rektor Univerze v Mariboru.</p>
+          <p>Seja Upravnega odbora Štajerske gospodarske zbornice, <span class="ph">datum</span>.</p>
+        </div>
+        <div class="needs">
+          <div class="needs-title">Za konec</div>
+          <ul>
+            <li>Ko so podatki vpisani: pritisni P (skrije oznake) in G (celoten zaslon); pdf različico natisni iz brskalnika (ležeče, brez robov).</li>
+            <li>Objava: datoteko index.html kopiraj v mapo um2 repozitorija deankorosak.github.io (naslov …/um2).</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+
+<script>
+(function(){
+  const stage = document.getElementById('stage');
+  const spreads = Array.from(document.querySelectorAll('.spread'));
+  const total = spreads.length;
+  const counter = document.getElementById('counter');
+  const navRail = document.getElementById('navRail');
+
+  // Build nav rail (right edge ticks)
+  spreads.forEach((sp, i) => {
+    const btn = document.createElement('button');
+    btn.dataset.index = i;
+    btn.setAttribute('aria-label', 'Drsnica ' + i + ': ' + (sp.dataset.title || ''));
+    btn.innerHTML = '<span class="label">' + (sp.dataset.title || '') + '</span><span class="tick"></span>';
+    btn.addEventListener('click', () => goTo(i));
+    navRail.appendChild(btn);
+  });
+  const navButtons = Array.from(navRail.children);
+
+  let current = 0;
+
+  function applyInverseChrome(){
+    const sp = spreads[current];
+    const isInverse = sp.classList.contains('inverse');
+    const inAct1 = sp.dataset.act === '1';
+    document.body.classList.toggle('on-inverse-act1', isInverse && inAct1);
+  }
+
+  function setActive(i){
+    if (i < 0) i = 0;
+    if (i >= total) i = total - 1;
+    if (i === current) return;
+    spreads[current].dataset.act = '1';
+    current = i;
+    spreads.forEach((sp, idx) => {
+      sp.classList.toggle('is-current', idx === i);
+    });
+    navButtons.forEach((b, idx) => {
+      b.classList.toggle('active', idx === i);
+    });
+    counter.textContent = 'drsnica ' + i + ' / ' + (total - 1);
+    applyInverseChrome();
+    document.body.classList.remove('on-act2');
+    if (history.replaceState){
+      history.replaceState(null, '', '#' + i);
+    }
+    if (isMobile()){
+      window.scrollTo({top:0, behavior:'instant' in window.scrollTo ? 'instant' : 'auto'});
+    }
+  }
+
+  function goTo(i){
+    if (i < 0) i = 0;
+    if (i >= total) i = total - 1;
+    if (i === current){
+      setAct(1);
+      return;
+    }
+    setActive(i);
+  }
+
+  function setAct(act){
+    const sp = spreads[current];
+    if (sp.dataset.act === String(act)) return;
+    sp.dataset.act = String(act);
+    applyInverseChrome();
+    document.body.classList.toggle('on-act2', act === 2);
+    if (isMobile()){
+      window.scrollTo({top:0, behavior:'instant' in window.scrollTo ? 'instant' : 'auto'});
+    }
+  }
+
+  function toggleAct(){
+    const sp = spreads[current];
+    setAct(sp.dataset.act === '1' ? 2 : 1);
+  }
+
+  function isMobile(){
+    return window.matchMedia('(max-width: 900px), (max-height: 600px)').matches;
+  }
+
+  // Data marks (placeholders / to-verify): P toggles them; remembered per browser.
+  function setMarks(hidden){
+    document.body.classList.toggle('hide-marks', hidden);
+    try { localStorage.setItem('um-hide-marks', hidden ? '1' : '0'); } catch(e){}
+  }
+  try { if (localStorage.getItem('um-hide-marks') === '1') setMarks(true); } catch(e){}
+
+  // Keyboard
+  window.addEventListener('keydown', (e) => {
+    if (e.target && e.target.tagName === 'INPUT') return;
+    if (e.metaKey || e.ctrlKey || e.altKey) return;
+
+    if (e.key === 'ArrowRight' || e.key === 'PageDown'){
+      e.preventDefault();
+      goTo(current + 1);
+    } else if (e.key === 'ArrowLeft' || e.key === 'PageUp'){
+      e.preventDefault();
+      goTo(current - 1);
+    } else if (e.key === 'ArrowDown' || e.key === ' ' || e.key === 'Enter'){
+      e.preventDefault();
+      setAct(2);
+    } else if (e.key === 'ArrowUp' || e.key === 'Escape'){
+      e.preventDefault();
+      setAct(1);
+    } else if (e.key === 'Home'){
+      e.preventDefault(); goTo(0);
+    } else if (e.key === 'End'){
+      e.preventDefault(); goTo(total - 1);
+    } else if (/^[1-9]$/.test(e.key)){
+      const n = parseInt(e.key, 10);
+      if (n < total) { e.preventDefault(); goTo(n); }
+    } else if (e.key === '0'){
+      e.preventDefault(); goTo(0);
+    } else if (e.key === 'p' || e.key === 'P'){
+      e.preventDefault();
+      setMarks(!document.body.classList.contains('hide-marks'));
+    } else if (e.key === 'g' || e.key === 'G'){
+      e.preventDefault();
+      if (!document.fullscreenElement){
+        document.documentElement.requestFullscreen && document.documentElement.requestFullscreen();
+      } else {
+        document.exitFullscreen && document.exitFullscreen();
+      }
+    }
+  });
+
+  // Click on slide layer opens act 2 — desktop only.
+  spreads.forEach(sp => {
+    const slide = sp.querySelector('.slide-layer');
+    slide.addEventListener('click', (e) => {
+      if (isMobile()) return;
+      if (sp.dataset.act === '1' && sp.classList.contains('is-current')){
+        setAct(2);
+      }
+    });
+    const closeBtn = sp.querySelector('.essay-close');
+    if (closeBtn){
+      closeBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        setAct(1);
+      });
+    }
+    const essayLayer = sp.querySelector('.essay-layer');
+    essayLayer.addEventListener('click', (e) => {
+      if (isMobile()) return;
+      if (e.target === essayLayer){
+        setAct(1);
+      }
+    });
+    const toggleBtn = sp.querySelector('.mobile-act-toggle');
+    if (toggleBtn){
+      toggleBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        toggleAct();
+      });
+    }
+  });
+
+  // Wheel: desktop only. Toggles act, never changes spread.
+  let wheelLock = false;
+  let wheelAccum = 0;
+  let wheelTimer = null;
+  window.addEventListener('wheel', (e) => {
+    if (isMobile()) return;
+    // Let the essay panel scroll natively when it is open.
+    if (e.target && e.target.closest && e.target.closest('.essay-panel')) return;
+    e.preventDefault();
+    if (wheelLock) return;
+    wheelAccum += e.deltaY;
+    if (Math.abs(wheelAccum) < 28) {
+      clearTimeout(wheelTimer);
+      wheelTimer = setTimeout(() => { wheelAccum = 0; }, 220);
+      return;
+    }
+    wheelLock = true;
+    if (wheelAccum > 0){
+      setAct(2);
+    } else {
+      setAct(1);
+    }
+    wheelAccum = 0;
+    setTimeout(() => { wheelLock = false; }, 720);
+  }, { passive: false });
+
+  // Touch: horizontal swipe changes spread.
+  let touchStartX = null, touchStartY = null, touchTime = 0;
+  document.addEventListener('touchstart', (e) => {
+    if (e.touches.length !== 1) return;
+    const target = e.target;
+    if (target.closest('button, a, .mobile-act-toggle, .essay-close, .nav-rail')) return;
+    touchStartX = e.touches[0].clientX;
+    touchStartY = e.touches[0].clientY;
+    touchTime = Date.now();
+  }, {passive: true});
+  document.addEventListener('touchend', (e) => {
+    if (touchStartX == null) return;
+    const t = e.changedTouches[0];
+    const dx = t.clientX - touchStartX;
+    const dy = t.clientY - touchStartY;
+    const dt = Date.now() - touchTime;
+    touchStartX = touchStartY = null;
+    if (dt > 700) return;
+    const ax = Math.abs(dx), ay = Math.abs(dy);
+    if (Math.max(ax, ay) < 60) return;
+    if (ax > ay * 1.6 && ax > 80){
+      if (dx < 0) goTo(current + 1);
+      else goTo(current - 1);
+    }
+  }, {passive: true});
+
+  // Initialise (deep link: index.html#4 opens spread 4)
+  let start = 0;
+  const h = parseInt((location.hash || '').replace('#',''), 10);
+  if (!isNaN(h) && h >= 0 && h < total) start = h;
+  spreads[start].classList.add('is-current');
+  navButtons[start].classList.add('active');
+  current = start;
+  counter.textContent = 'drsnica ' + start + ' / ' + (total - 1);
+  applyInverseChrome();
+  stage.focus();
+})();
+</script>
+
+
+</body>
+</html>
